@@ -1,0 +1,5 @@
+rootProject.name = 'Pexeso'
+include 'common'
+include 'Server'
+include 'Client'
+
