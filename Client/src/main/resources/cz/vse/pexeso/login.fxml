@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="200.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cz.vse.pexeso.controller.LoginController">
+    <Label text="Username:">
+        <VBox.margin>
+          <Insets />
+        </VBox.margin>
+    </Label>
+    <TextField fx:id="usernameField" />
+    <Label text="Password:">
+        <VBox.margin>
+          <Insets top="10.0" />
+        </VBox.margin>
+    </Label>
+    <PasswordField fx:id="passwordField" />
+    <Button fx:id="loginButton" mnemonicParsing="false" onMouseClicked="#handleLoginClick" text="Login">
+        <VBox.margin>
+          <Insets top="10.0" />
+        </VBox.margin>
+    </Button>
+    <Label fx:id="warningLabel">
+        <VBox.margin>
+          <Insets bottom="10.0" top="10.0" />
+        </VBox.margin>
+    </Label>
+</VBox>
