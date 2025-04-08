@@ -11,21 +11,12 @@ import java.util.Set;
 
 public class MessageHandler implements Observable {
 
-    private static MessageHandler instance = null;
     private final Map<MessageType, Set<Observer>> listOfObservers = new HashMap<>();
 
-
-    private MessageHandler() {
+    public MessageHandler() {
         for (MessageType messageType : MessageType.values()) {
             listOfObservers.put(messageType, new HashSet<>());
         }
-    }
-
-    public static synchronized MessageHandler getInstance() {
-        if (instance == null) {
-            instance = new MessageHandler();
-        }
-        return instance;
     }
 
     public void parseMessage(String message) {

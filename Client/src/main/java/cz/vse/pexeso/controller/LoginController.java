@@ -1,11 +1,10 @@
 package cz.vse.pexeso.controller;
 
+import cz.vse.pexeso.helper.AppServices;
 import cz.vse.pexeso.helper.SceneManager;
 import cz.vse.pexeso.model.User;
 import cz.vse.pexeso.model.observer.MessageType;
-import cz.vse.pexeso.network.ClientConnection;
 import cz.vse.pexeso.network.MessageBuilder;
-import cz.vse.pexeso.network.MessageHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
@@ -21,9 +20,10 @@ public class LoginController {
 
     @FXML
     private void initialize() {
-        MessageHandler.getInstance().register(MessageType.LOGIN_OK, this::handleSuccessfulLogin);
-        MessageHandler.getInstance().register(MessageType.LOGIN_INVALID, this::handleInvalidLogin);
-        MessageHandler.getInstance().register(MessageType.LOGIN_DUPLICATE, this::handleDuplicateLogin);
+        AppServices.initialize();
+        AppServices.getMessageHandler().register(MessageType.LOGIN_OK, this::handleSuccessfulLogin);
+        AppServices.getMessageHandler().register(MessageType.LOGIN_INVALID, this::handleInvalidLogin);
+        AppServices.getMessageHandler().register(MessageType.LOGIN_DUPLICATE, this::handleDuplicateLogin);
     }
 
     @FXML
@@ -33,10 +33,9 @@ public class LoginController {
         } else {
             warningLabel.setText("");
             User user = new User(usernameField.getText(), passwordField.getText());
-            ClientConnection connection = new ClientConnection();
 
             String loginMessage = MessageBuilder.getInstance().buildLoginMessage(user);
-            connection.sendMessage(loginMessage);
+            AppServices.getConnection().sendMessage(loginMessage);
         }
     }
 

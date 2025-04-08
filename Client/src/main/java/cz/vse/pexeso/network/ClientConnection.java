@@ -1,5 +1,7 @@
 package cz.vse.pexeso.network;
 
+import cz.vse.pexeso.helper.AppServices;
+
 import java.io.*;
 import java.net.Socket;
 
@@ -38,7 +40,7 @@ public class ClientConnection {
             while (socket.isConnected()) {
                 try {
                     messageFromServer = bufferedReader.readLine();
-                    MessageHandler.getInstance().parseMessage(messageFromServer);
+                    AppServices.getMessageHandler().parseMessage(messageFromServer);
                 } catch (IOException e) {
                     e.printStackTrace();
                     closeEverything(socket, bufferedReader, bufferedWriter);
