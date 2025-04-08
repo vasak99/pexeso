@@ -1,5 +1,6 @@
 package cz.vse.pexeso.controller;
 
+import cz.vse.pexeso.helper.SceneManager;
 import cz.vse.pexeso.model.User;
 import cz.vse.pexeso.model.observer.MessageType;
 import cz.vse.pexeso.network.ClientConnection;
@@ -40,7 +41,7 @@ public class LoginController {
     }
 
     private void handleSuccessfulLogin() {
-        //TODO: load the lobby
+        SceneManager.switchScene("/cz/vse/pexeso/fxml/lobby.fxml");
     }
 
     private void handleInvalidLogin() {
@@ -50,5 +51,4 @@ public class LoginController {
     private void handleDuplicateLogin() {
         warningLabel.setText("User already logged in.");
     }
-
 }

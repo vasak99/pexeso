@@ -21,7 +21,7 @@ public class MessageHandler implements Observable {
         }
     }
 
-    public static MessageHandler getInstance() {
+    public static synchronized MessageHandler getInstance() {
         if (instance == null) {
             instance = new MessageHandler();
         }
