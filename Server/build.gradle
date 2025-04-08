@@ -1,13 +1,16 @@
 plugins {
     id 'java'
     id 'application'
+    id 'com.gradleup.shadow' version '8.3.6'
 }
 
 group = 'cz.vse.pexeso'
 version = '1.0-SNAPSHOT'
+mainClassName = 'cz.vse.pexeso.Server'
 
 repositories {
     mavenCentral()
+    gradlePluginPortal()
 }
 
 dependencies {
@@ -19,6 +22,7 @@ dependencies {
     implementation('org.slf4j:slf4j-api:2.0.4')
     implementation('ch.qos.logback:logback-classic:1.4.14')
     implementation('ch.qos.logback:logback-core:1.4.14')
+
 }
 
 test {
@@ -26,5 +30,11 @@ test {
 }
 
 application {
-    mainClass = 'cz.vse.pexeso.Server'
+    mainClass = mainClassName
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': mainClassName
+    }
 }

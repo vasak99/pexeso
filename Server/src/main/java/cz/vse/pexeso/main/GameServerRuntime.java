@@ -7,7 +7,10 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class GameServerRuntime {
+import cz.vse.pexeso.utils.Observable;
+import cz.vse.pexeso.utils.Observer;
+
+public class GameServerRuntime implements Observer {
 
     public static final Logger log = LoggerFactory.getLogger(GameServerRuntime.class);
 
@@ -28,8 +31,10 @@ public class GameServerRuntime {
         keepAlive = true;
 
         while(keepAlive) {
+            log.info("Listening for connections");
             try {
                 var socket = this.serverSocket.accept();
+                log.info("New connection accepted");
 
                 var connection = new Connection(socket);
 
@@ -46,8 +51,16 @@ public class GameServerRuntime {
     }
 
     public void terminate() {
-
+        for (var conn : this.connections) {
+            conn.terminate();
+        }
     }
+
+    @Override
+    public void onNotify(Observable obs) {
+        this.connections.remove(obs);
+    }
+
 
 }
 
