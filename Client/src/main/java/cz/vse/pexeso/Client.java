@@ -1,8 +1,10 @@
 package cz.vse.pexeso;
 
 import cz.vse.pexeso.common.MyTestClass;
+import cz.vse.pexeso.helper.SceneManager;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
@@ -14,11 +16,12 @@ public class Client extends Application {
     }
 
     @Override
-    public void start(Stage stage) throws Exception {
-        FXMLLoader fxmlLoader = new FXMLLoader(Client.class.getResource("login.fxml"));
-        Scene scene = new Scene(fxmlLoader.load());
-        stage.setTitle("Login");
-        stage.setScene(scene);
-        stage.show();
+    public void start(Stage primaryStage) throws Exception {
+        SceneManager.setStage(primaryStage);
+        Parent root = FXMLLoader.load(getClass().getResource("/cz/vse/pexeso/fxml/login.fxml"));
+
+        primaryStage.setScene(new Scene(root));
+        primaryStage.setTitle("Login");
+        primaryStage.show();
     }
 }
