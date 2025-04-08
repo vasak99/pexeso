@@ -25,6 +25,7 @@ public class MessageHandler implements Observable {
 
         switch (messageType) {
             case "LOGIN" -> handleLoginResponse(messageParts);
+            case "CARD_PAIR" -> handleCardPairResponse(messageParts);
         }
     }
 
@@ -41,6 +42,20 @@ public class MessageHandler implements Observable {
             }
             case "DUPLICATE": {
                 notifyObserver(MessageType.LOGIN_DUPLICATE);
+                break;
+            }
+        }
+    }
+
+    private void handleCardPairResponse(String[] messageParts) {
+        String messageBody = messageParts[1];
+        switch (messageBody) {
+            case "OK": {
+                notifyObserver(MessageType.CARD_PAIR_OK);
+                break;
+            }
+            case "INVALID": {
+                notifyObserver(MessageType.CARD_PAIR_INVALID);
                 break;
             }
         }

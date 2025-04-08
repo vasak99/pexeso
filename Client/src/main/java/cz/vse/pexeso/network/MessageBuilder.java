@@ -19,4 +19,8 @@ public class MessageBuilder {
     public String buildLoginMessage(User user) {
         return "LOGIN" + "|" + user.getUsername() + "|" + user.getPassword();
     }
+
+    public String buildSubmitCardPairMessage(String firstCardID, String secondCardID) {
+        return "CARD_PAIR" + "|" + firstCardID + "|" + secondCardID;
+    }
 }
