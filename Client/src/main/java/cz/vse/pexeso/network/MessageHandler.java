@@ -11,6 +11,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Responsible for parsing messages received from the server and notifying the appropriate observers.
+ */
 public class MessageHandler implements Observable {
 
     public static final Logger log = LoggerFactory.getLogger(MessageHandler.class);
@@ -23,6 +26,11 @@ public class MessageHandler implements Observable {
         }
     }
 
+    /**
+     * Parses the message and dispatches it to the appropriate handler based on the message type.
+     *
+     * @param message The message received from the server.
+     */
     public void parseMessage(String message) {
         log.debug("Parsing message: {}", message);
         String[] messageParts = message.split("\\|");

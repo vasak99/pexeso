@@ -5,6 +5,9 @@ import cz.vse.pexeso.network.MessageHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Provides access to the ClientConnection and MessageHandler instances.
+ */
 public class AppServices {
     public static final Logger log = LoggerFactory.getLogger(AppServices.class);
     private static ClientConnection connection;

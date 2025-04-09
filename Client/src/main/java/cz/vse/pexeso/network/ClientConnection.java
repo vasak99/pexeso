@@ -7,12 +7,19 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.net.Socket;
 
+/**
+ * Handles the connection to the server. Sends and receives messages from the server.
+ */
 public class ClientConnection {
     public static final Logger log = LoggerFactory.getLogger(ClientConnection.class);
     private Socket socket;
     private BufferedReader bufferedReader;
     private BufferedWriter bufferedWriter;
 
+    /**
+     * Initializes the socket and the input/output streams.
+     * Starts a new thread to listen for messages from the server.
+     */
     public ClientConnection() {
         try {
             log.info("Creating client connection");
@@ -26,6 +33,11 @@ public class ClientConnection {
         }
     }
 
+    /**
+     * Sends a message to the server.
+     *
+     * @param message The message to be sent.
+     */
     public void sendMessage(String message) {
         try {
             log.debug("Sending message: {}", message);
@@ -38,6 +50,10 @@ public class ClientConnection {
         }
     }
 
+    /**
+     * Listens for messages from the server in a separate thread.
+     * Sends the message to MessageHandler to parse and handle it.
+     */
     public void listenForMessage() {
         log.info("Starting new thread to listen for messages");
         new Thread(() -> {
@@ -56,6 +72,13 @@ public class ClientConnection {
         }).start();
     }
 
+    /**
+     * Closes the resources used for the connection.
+     *
+     * @param socket         The socket to be closed.
+     * @param bufferedReader The BufferedReader to be closed.
+     * @param bufferedWriter The BufferedWriter to be closed.
+     */
     public void closeResources(Socket socket, BufferedReader bufferedReader, BufferedWriter bufferedWriter) {
         log.info("Closing resources");
         try {

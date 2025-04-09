@@ -30,6 +30,9 @@ public class LoginController {
         log.info("LoginController initialized.");
     }
 
+    /**
+     * Validates the input fields and sends a login message to the server.
+     */
     @FXML
     private void handleLoginClick() {
         if (usernameField.getText().isEmpty() || passwordField.getText().isEmpty()) {
