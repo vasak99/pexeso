@@ -15,6 +15,7 @@ public class ClientConnection {
     private Socket socket;
     private BufferedReader bufferedReader;
     private BufferedWriter bufferedWriter;
+    private volatile boolean isListening = true;
 
     /**
      * Initializes the socket and the input/output streams.
@@ -58,17 +59,25 @@ public class ClientConnection {
         log.info("Starting new thread to listen for messages");
         new Thread(() -> {
             String messageFromServer;
-
-            while (socket.isConnected()) {
+            // Loop while the connection is considered active
+            while (isListening && socket != null && !socket.isClosed()) {
                 try {
                     messageFromServer = bufferedReader.readLine();
+                    // If the server has closed the connection, readLine() returns null
+                    if (messageFromServer == null) {
+                        log.warn("Server closed the connection");
+                        break;
+                    }
                     log.debug("Message from server: {}", messageFromServer);
                     AppServices.getMessageHandler().parseMessage(messageFromServer);
                 } catch (IOException e) {
                     log.error("Error reading message from server in listener thread: ", e);
-                    closeResources(socket, bufferedReader, bufferedWriter);
+                    break;
                 }
             }
+            // Loop is exited, listening is stopped
+            isListening = false;
+            closeResources(socket, bufferedReader, bufferedWriter);
         }).start();
     }
 
