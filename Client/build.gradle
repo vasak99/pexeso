@@ -1,12 +1,17 @@
 plugins {
     id 'java'
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.1.0'
+    id 'com.gradleup.shadow' version '8.3.6'
 }
 
 group = 'cz.vse.pexeso'
 version = '1.0-SNAPSHOT'
+mainClassName = 'cz.vse.pexeso.Client'
 
 repositories {
     mavenCentral()
+    gradlePluginPortal()
 }
 
 dependencies {
@@ -14,8 +19,32 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter'
 
     implementation project(':common')
+
+    def javafxVersion = '21'
+    implementation "org.openjfx:javafx-base:$javafxVersion:win"
+    implementation "org.openjfx:javafx-controls:$javafxVersion:win"
+    implementation "org.openjfx:javafx-fxml:$javafxVersion:win"
+
+    implementation('org.slf4j:slf4j-api:2.0.4')
+    implementation('ch.qos.logback:logback-classic:1.4.14')
+    implementation('ch.qos.logback:logback-core:1.4.14')
+}
+
+javafx {
+    version = '21'
+    modules = [ 'javafx.base', 'javafx.controls', 'javafx.fxml' ]
 }
 
 test {
     useJUnitPlatform()
+}
+
+application {
+    mainClass = mainClassName
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': mainClassName
+    }
 }
