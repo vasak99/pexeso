@@ -1,10 +1,14 @@
 package cz.vse.pexeso.network;
 
 import cz.vse.pexeso.model.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MessageBuilder {
 
+    public static final Logger log = LoggerFactory.getLogger(MessageBuilder.class);
     private static MessageBuilder instance = null;
+
 
     private MessageBuilder() {
     }
@@ -17,10 +21,12 @@ public class MessageBuilder {
     }
 
     public String buildLoginMessage(User user) {
+        log.debug("Building login message for user: {}", user.getUsername());
         return "LOGIN" + "|" + user.getUsername() + "|" + user.getPassword();
     }
 
     public String buildSubmitCardPairMessage(String firstCardID, String secondCardID) {
+        log.debug("Building submit card pair message: {} and {}", firstCardID, secondCardID);
         return "CARD_PAIR" + "|" + firstCardID + "|" + secondCardID;
     }
 }

@@ -3,6 +3,8 @@ package cz.vse.pexeso.network;
 import cz.vse.pexeso.model.observer.MessageType;
 import cz.vse.pexeso.model.observer.Observable;
 import cz.vse.pexeso.model.observer.Observer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,7 +13,9 @@ import java.util.Set;
 
 public class MessageHandler implements Observable {
 
+    public static final Logger log = LoggerFactory.getLogger(MessageHandler.class);
     private final Map<MessageType, Set<Observer>> listOfObservers = new HashMap<>();
+
 
     public MessageHandler() {
         for (MessageType messageType : MessageType.values()) {
@@ -20,6 +24,7 @@ public class MessageHandler implements Observable {
     }
 
     public void parseMessage(String message) {
+        log.debug("Parsing message: {}", message);
         String[] messageParts = message.split("\\|");
         String messageType = messageParts[0];
 
@@ -30,6 +35,7 @@ public class MessageHandler implements Observable {
     }
 
     private void handleLoginResponse(String[] messageParts) {
+        log.info("Handling login response.");
         String messageBody = messageParts[1];
         switch (messageBody) {
             case "OK": {
@@ -48,6 +54,7 @@ public class MessageHandler implements Observable {
     }
 
     private void handleCardPairResponse(String[] messageParts) {
+        log.info("Handling card pair response.");
         String messageBody = messageParts[1];
         switch (messageBody) {
             case "OK": {

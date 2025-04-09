@@ -7,8 +7,12 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Client extends Application {
+    public static final Logger log = LoggerFactory.getLogger(Client.class);
+
     public static void main(String[] args) {
         System.out.println(MyTestClass.getGreeting("client"));
 
@@ -17,6 +21,7 @@ public class Client extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        log.info("Starting client application");
         SceneManager.setStage(primaryStage);
         Parent root = FXMLLoader.load(getClass().getResource("/cz/vse/pexeso/fxml/login.fxml"));
 

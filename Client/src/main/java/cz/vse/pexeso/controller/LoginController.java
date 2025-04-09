@@ -9,8 +9,11 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LoginController {
+    public static final Logger log = LoggerFactory.getLogger(LoginController.class);
     @FXML
     private TextField usernameField;
     @FXML
@@ -24,6 +27,7 @@ public class LoginController {
         AppServices.getMessageHandler().register(MessageType.LOGIN_OK, this::handleSuccessfulLogin);
         AppServices.getMessageHandler().register(MessageType.LOGIN_INVALID, this::handleInvalidLogin);
         AppServices.getMessageHandler().register(MessageType.LOGIN_DUPLICATE, this::handleDuplicateLogin);
+        log.info("LoginController initialized.");
     }
 
     @FXML
@@ -36,18 +40,22 @@ public class LoginController {
 
             String loginMessage = MessageBuilder.getInstance().buildLoginMessage(user);
             AppServices.getConnection().sendMessage(loginMessage);
+            log.info("Login credentials submitted for verification.");
         }
     }
 
     private void handleSuccessfulLogin() {
+        log.info("Login successful.");
         SceneManager.switchScene("/cz/vse/pexeso/fxml/lobby.fxml");
     }
 
     private void handleInvalidLogin() {
-        warningLabel.setText("Invalid username or password.");
+        log.info("Login failed: Invalid credentials.");
+        warningLabel.setText("Invalid credentials.");
     }
 
     private void handleDuplicateLogin() {
+        log.info("Login failed: User already logged in.");
         warningLabel.setText("User already logged in.");
     }
 }

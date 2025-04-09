@@ -7,8 +7,18 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GameController {
+    private static final Logger log = LoggerFactory.getLogger(GameController.class);
+    Button clickedCard;
+    String firstCardID;
+    String secondCardID;
+    Button firstCard;
+    Button secondCard;
+    int playerScore = 0;
+    int opponentScore = 0;
     @FXML
     private Label playerScoreLabel;
     @FXML
@@ -45,15 +55,8 @@ public class GameController {
     private Button card15;
     @FXML
     private Button card16;
-
     private boolean playerTurn;
     private boolean isFirstCardFlipped;
-    String firstCardID;
-    String secondCardID;
-    Button firstCard;
-    Button secondCard;
-    int playerScore = 0;
-    int opponentScore = 0;
 
     @FXML
     private void initialize() {
@@ -62,6 +65,7 @@ public class GameController {
         isFirstCardFlipped = false;
         AppServices.getMessageHandler().register(MessageType.CARD_PAIR_OK, this::handleSuccessfulMatch);
         AppServices.getMessageHandler().register(MessageType.CARD_PAIR_INVALID, this::handleInvalidMatch);
+        log.info("GameController initialized");
     }
 
     @FXML
@@ -70,19 +74,23 @@ public class GameController {
             return;
         }
 
+        clickedCard = (Button) mouseEvent.getSource();
+
         if (!isFirstCardFlipped) {
-            firstCardID = ((Button) mouseEvent.getSource()).getId().substring(4);
-            firstCard = (Button) mouseEvent.getSource();
-//            firstCard.setText("Flipped1");
+            firstCard = clickedCard;
+            firstCardID = firstCard.getId().substring(4);
+
+            firstCard.setText("Flipped1");
             isFirstCardFlipped = true;
+            log.debug("First card flipped: {}", firstCardID);
         } else {
-            secondCardID = ((Button) mouseEvent.getSource()).getId().substring(4);
+            secondCard = clickedCard;
+            secondCardID = secondCard.getId().substring(4);
             if (firstCardID.equals(secondCardID)) {
                 return;
             }
-            secondCard = (Button) mouseEvent.getSource();
-//            secondCard.setText("Flipped2");
-
+            secondCard.setText("Flipped2");
+            log.debug("Second card flipped: {}", secondCardID);
             submitCardPair(firstCardID, secondCardID);
         }
     }
@@ -90,6 +98,7 @@ public class GameController {
     private void submitCardPair(String firstCardID, String secondCardID) {
         String message = MessageBuilder.getInstance().buildSubmitCardPairMessage(firstCardID, secondCardID);
         AppServices.getConnection().sendMessage(message);
+        log.debug("Submitted card pair: {} and {}", firstCardID, secondCardID);
     }
 
     private void handleSuccessfulMatch() {
@@ -100,21 +109,31 @@ public class GameController {
 
         playerScore++;
         playerScoreLabel.setText(String.valueOf(playerScore));
+        log.info("Successful match, player score: {}", playerScore);
         endOfPlayerTurn();
     }
 
     private void handleInvalidMatch() {
         firstCard.setText("");
         secondCard.setText("");
+        log.info("Invalid match, cards flipped back");
         endOfPlayerTurn();
     }
 
 
     private void endOfPlayerTurn() {
+        clickedCard = null;
+
+        firstCard = null;
         firstCardID = null;
+
+        secondCard = null;
         secondCardID = null;
+
         isFirstCardFlipped = false;
         playerTurn = false;
+
+        log.info("End of player turn, waiting for opponent's move");
     }
 
     //TODO: handle opponent's turn
