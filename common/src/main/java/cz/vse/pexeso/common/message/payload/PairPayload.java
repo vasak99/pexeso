@@ -1,6 +1,6 @@
 package cz.vse.pexeso.common.message.payload;
 
-public class PairPayload {
+public class PairPayload implements MessagePayload {
     private boolean isPair;
 
     public PairPayload(boolean isPair) {

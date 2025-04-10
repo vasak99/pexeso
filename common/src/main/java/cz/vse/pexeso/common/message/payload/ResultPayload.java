@@ -1,6 +1,6 @@
 package cz.vse.pexeso.common.message.payload;
 
-public class ResultPayload {
+public class ResultPayload implements MessagePayload {
     private int player1Score;
     private int player2Score;
     private String result; // win/draw

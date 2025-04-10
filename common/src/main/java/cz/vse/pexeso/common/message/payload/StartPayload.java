@@ -1,6 +1,6 @@
 package cz.vse.pexeso.common.message.payload;
 
-public class StartPayload {
+public class StartPayload implements MessagePayload {
     private String player1Name;
     private String player2Name;
     private String[] shuffledCards;

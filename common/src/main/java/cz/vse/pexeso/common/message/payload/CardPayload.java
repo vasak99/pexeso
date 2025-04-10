@@ -1,6 +1,6 @@
 package cz.vse.pexeso.common.message.payload;
 
-public class CardPayload {
+public class CardPayload implements MessagePayload {
     private String card;
     private int order; // whether the card is first or second in the pair
 

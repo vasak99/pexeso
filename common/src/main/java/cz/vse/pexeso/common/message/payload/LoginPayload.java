@@ -1,6 +1,6 @@
 package cz.vse.pexeso.common.message.payload;
 
-public class LoginPayload {
+public class LoginPayload implements MessagePayload {
     private String username;
     private String password;
 
