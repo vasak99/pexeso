@@ -25,8 +25,8 @@ public class MessageBuilder {
         return "LOGIN" + "|" + user.getUsername() + "|" + user.getPassword();
     }
 
-    public String buildSubmitCardPairMessage(String firstCardID, String secondCardID) {
-        log.debug("Building submit card pair message: {} and {}", firstCardID, secondCardID);
-        return "CARD_PAIR" + "|" + firstCardID + "|" + secondCardID;
+    public String buildSubmitCard(int order, String secondCardID) {
+        log.debug("Building submit card message: {} - {}", order, secondCardID);
+        return "CARD_PAIR" + "|" + order + "|" + secondCardID;
     }
 }
