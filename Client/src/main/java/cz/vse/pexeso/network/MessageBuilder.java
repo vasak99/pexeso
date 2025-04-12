@@ -21,8 +21,8 @@ public class MessageBuilder {
     }
 
     public String buildLoginMessage(User user) {
-        log.debug("Building login message for user: {}", user.getUsername());
-        return "LOGIN" + "|" + user.getUsername() + "|" + user.getPassword();
+        log.debug("Building login message for user: {}", user.username());
+        return "LOGIN" + "|" + user.username() + "|" + user.password();
     }
 
     public String buildSubmitCard(int order, String secondCardID) {

@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Objects;
 
 /**
  * Manages JavaFX scenes. Allows to switch between different scenes.
@@ -28,7 +29,7 @@ public class SceneManager {
     public static void switchScene(String fxmlFile) {
         try {
             log.debug("Switching scene to: {}", fxmlFile);
-            Parent root = FXMLLoader.load(SceneManager.class.getResource(fxmlFile));
+            Parent root = FXMLLoader.load(Objects.requireNonNull(SceneManager.class.getResource(fxmlFile)));
             primaryStage.setScene(new Scene(root));
         } catch (IOException e) {
             log.error("Error loading FXML file: {}", fxmlFile, e);

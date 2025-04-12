@@ -3,9 +3,6 @@ package cz.vse.pexeso;
 import cz.vse.pexeso.common.MyTestClass;
 import cz.vse.pexeso.helper.SceneManager;
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,12 +17,10 @@ public class Client extends Application {
     }
 
     @Override
-    public void start(Stage primaryStage) throws Exception {
+    public void start(Stage primaryStage) {
         log.info("Starting client application");
         SceneManager.setStage(primaryStage);
-        Parent root = FXMLLoader.load(getClass().getResource("/cz/vse/pexeso/fxml/login.fxml"));
-
-        primaryStage.setScene(new Scene(root));
+        SceneManager.switchScene("/cz/vse/pexeso/fxml/login.fxml");
         primaryStage.setTitle("Login");
         primaryStage.show();
     }

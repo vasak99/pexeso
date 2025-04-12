@@ -1,6 +1,7 @@
 package cz.vse.pexeso.controller;
 
 import cz.vse.pexeso.helper.AppServices;
+import cz.vse.pexeso.helper.SceneManager;
 import cz.vse.pexeso.model.observer.MessageType;
 import cz.vse.pexeso.network.MessageBuilder;
 import javafx.fxml.FXML;
@@ -15,13 +16,14 @@ import java.util.List;
 
 public class GameController {
     private static final Logger log = LoggerFactory.getLogger(GameController.class);
-    Button clickedCard;
-    String firstCardID;
-    String secondCardID;
-    Button firstCard;
-    Button secondCard;
-    int playerScore = 0;
-    int opponentScore = 0;
+    private Button clickedCard;
+    private String firstCardID;
+    private String secondCardID;
+    private Button firstCard;
+    private Button secondCard;
+    private int playerScore = 0;
+    private int opponentScore = 0;
+    private final List<Button> cardButtons = new ArrayList<>();
     @FXML
     private Label playerScoreLabel;
     @FXML
@@ -60,7 +62,6 @@ public class GameController {
     private Button card16;
     private boolean playerTurn;
     private boolean isFirstCardFlipped = false;
-    List<Button> cardButtons = new ArrayList<>();
 
     @FXML
     private void initialize() {
@@ -183,12 +184,20 @@ public class GameController {
 
     @FXML
     private void handleOpponentMove(String cardID) {
+        log.debug("Handling opponent move for card: {}", cardID);
+        Button opponentCard = getCardById(cardID);
+
+        if (opponentCard == null) {
+            log.error("Card with ID {} not found", cardID);
+            return;
+        }
+
         if (!isFirstCardFlipped) {
-            firstCard = getCardById(cardID);
+            firstCard = opponentCard;
             firstCard.setText("Flipped1");
             isFirstCardFlipped = true;
         } else {
-            secondCard = getCardById(cardID);
+            secondCard = opponentCard;
             secondCard.setText("Flipped2");
         }
     }
@@ -200,5 +209,12 @@ public class GameController {
             }
         }
         return null;
+    }
+
+    private void endGame() {
+        // return to lobby or quit
+
+
+        SceneManager.switchScene("/cz/vse/pexeso/fxml/lobby.fxml");
     }
 }
