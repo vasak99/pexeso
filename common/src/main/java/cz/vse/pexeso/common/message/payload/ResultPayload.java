@@ -12,4 +12,8 @@ public class ResultPayload implements MessagePayload {
         this.result = result;
         this.winningPlayer = winningPlayer;
     }
+
+    public String toSendable() {
+        return "";
+    }
 }

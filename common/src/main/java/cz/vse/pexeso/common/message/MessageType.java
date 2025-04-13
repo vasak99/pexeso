@@ -1,10 +1,30 @@
 package cz.vse.pexeso.common.message;
 
 public enum MessageType {
-    LOGIN,
-    START,
-    CARD,
-    PAIR,
-    STATUS,
-    RESULT
+    LOGIN("LOGIN"),
+
+    REVEAL("REVEAL"),
+
+    STATUS("STATUS"),
+
+    MOVE("MOVE"),
+
+    REDIRECT("REDIRECT"),
+
+    RESULT("RESULT");
+    //START,
+    // CARD,
+    // PAIR,
+    // STATUS,
+    // RESULT;
+
+    private String value;
+
+    public String getValue() {
+        return this.value;
+    }
+
+    MessageType(String value) {
+        this.value = value;
+    }
 }

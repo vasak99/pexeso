@@ -8,4 +8,8 @@ public class LoginPayload implements MessagePayload {
         this.username = username;
         this.password = password;
     }
+
+    public String toSendable() {
+        return "";
+    }
 }

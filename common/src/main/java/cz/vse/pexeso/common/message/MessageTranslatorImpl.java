@@ -1,19 +1,75 @@
 package cz.vse.pexeso.common.message;
 
-public class MessageTranslatorImpl implements MessageTranslator {
+import java.time.Instant;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-    private static final String START = "MESSAGE_START;";
-    private static final String END = "MESSAGE_END;";
+import cz.vse.pexeso.common.utils.MessageComponent;
+
+public class MessageTranslatorImpl implements MessageTranslator {
 
     @Override
     public String messageToString(Message message) {
-        return "";
+        var entries = message.getEntries();
+
+        if(entries == null || entries.size() == 0) {
+            return "";
+        }
+
+        String ret = "";
+
+        ret += MessageComponent.START.getValue();
+        ret += MessageComponent.SEPARATOR.getValue();
+
+        ret += MessageComponent.TIMESTAMP.getValue();
+        ret += MessageComponent.KEY_VALUE_SEPARATOR.getValue();
+        ret += Instant.now().toString();
+        ret += MessageComponent.SEPARATOR.getValue();
+
+        for(MessageComponent mc : MessageComponent.getOrderedKeys()) {
+            var entry = entries.get(mc);
+
+            if(entry == null) {
+                continue;
+            }
+
+            ret += mc.getValue();
+            ret += MessageComponent.KEY_VALUE_SEPARATOR.getValue();
+            ret += entry;
+            ret += MessageComponent.SEPARATOR;
+        }
+
+        ret += MessageComponent.END.getValue();
+
+        return ret;
     }
 
     @Override
     public Message stringToMessage(String messageString) {
-        String[] lines = messageString.split("\n");
+        String[] entries = messageString.split(MessageComponent.SEPARATOR.getValue());
+
+        Map<MessageComponent, String> inp = new HashMap<>();
         Message msg = new Message();
+
+        for(String entry : entries) {
+            if(entry.equals(MessageComponent.START.getValue()) || entry.equals(MessageComponent.END.getValue())) {
+                continue;
+            }
+
+            String[] sep = entry.split(MessageComponent.KEY_VALUE_SEPARATOR.getValue());
+
+            if(sep.length < 2) continue;
+
+            MessageComponent mc = MessageComponent.valueOf(sep[0]);
+
+            if(mc == null) continue;
+
+            msg.setEntry(mc, sep[1]);
+        }
 
 
         return msg;

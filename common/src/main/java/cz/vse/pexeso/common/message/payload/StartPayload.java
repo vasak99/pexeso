@@ -12,4 +12,8 @@ public class StartPayload implements MessagePayload {
         this.shuffledCards = shuffledCards;
         this.startingPlayer = startingPlayer;
     }
+
+    public String toSendable() {
+        return "";
+    }
 }
