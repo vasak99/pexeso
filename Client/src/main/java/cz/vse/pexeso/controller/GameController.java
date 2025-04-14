@@ -1,6 +1,7 @@
 package cz.vse.pexeso.controller;
 
 import cz.vse.pexeso.helper.AppServices;
+import cz.vse.pexeso.helper.SceneManager;
 import cz.vse.pexeso.model.observer.MessageType;
 import cz.vse.pexeso.network.MessageBuilder;
 import javafx.fxml.FXML;
@@ -10,15 +11,19 @@ import javafx.scene.input.MouseEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class GameController {
     private static final Logger log = LoggerFactory.getLogger(GameController.class);
-    Button clickedCard;
-    String firstCardID;
-    String secondCardID;
-    Button firstCard;
-    Button secondCard;
-    int playerScore = 0;
-    int opponentScore = 0;
+    private Button clickedCard;
+    private String firstCardID;
+    private String secondCardID;
+    private Button firstCard;
+    private Button secondCard;
+    private int playerScore = 0;
+    private int opponentScore = 0;
+    private final List<Button> cardButtons = new ArrayList<>();
     @FXML
     private Label playerScoreLabel;
     @FXML
@@ -60,6 +65,23 @@ public class GameController {
 
     @FXML
     private void initialize() {
+        cardButtons.add(card01);
+        cardButtons.add(card02);
+        cardButtons.add(card03);
+        cardButtons.add(card04);
+        cardButtons.add(card05);
+        cardButtons.add(card06);
+        cardButtons.add(card07);
+        cardButtons.add(card08);
+        cardButtons.add(card09);
+        cardButtons.add(card10);
+        cardButtons.add(card11);
+        cardButtons.add(card12);
+        cardButtons.add(card13);
+        cardButtons.add(card14);
+        cardButtons.add(card15);
+        cardButtons.add(card16);
+
         //TODO: set card pairs, decide first player turn
         playerTurn = true;
         AppServices.getMessageHandler().register(MessageType.CARD_PAIR_OK, this::handleSuccessfulMatch);
@@ -86,6 +108,8 @@ public class GameController {
 
             firstCard.setText("Flipped1");
             isFirstCardFlipped = true;
+            submitCard(1, firstCardID);
+
             log.debug("First card flipped: {}", firstCardID);
         } else {
             secondCard = clickedCard;
@@ -95,40 +119,44 @@ public class GameController {
             }
             secondCard.setText("Flipped2");
             log.debug("Second card flipped: {}", secondCardID);
-            submitCardPair(firstCardID, secondCardID);
+            submitCard(2, secondCardID);
         }
     }
 
-    /**
-     * Submits the selected card pair to the server for validation.
-     *
-     * @param firstCardID  the ID of the first card
-     * @param secondCardID the ID of the second card
-     */
-    private void submitCardPair(String firstCardID, String secondCardID) {
-        String message = MessageBuilder.getInstance().buildSubmitCardPairMessage(firstCardID, secondCardID);
+    private void submitCard(int order, String cardID) {
+        String message = MessageBuilder.getInstance().buildSubmitCard(order, cardID);
         AppServices.getConnection().sendMessage(message);
-        log.debug("Submitted card pair: {} and {}", firstCardID, secondCardID);
+        log.debug("Submitted card: {} - {}", order, secondCardID);
     }
 
     /**
      * Handles a successful match by updating the UI and player score, ends player's turn.
      */
+    @FXML
     private void handleSuccessfulMatch() {
-        firstCard.setStyle("-fx-background-color: blue;");
-        secondCard.setStyle("-fx-background-color: blue;");
+
+        if (playerTurn) {
+            firstCard.setStyle("-fx-background-color: blue;");
+            secondCard.setStyle("-fx-background-color: blue;");
+            playerScore++;
+            playerScoreLabel.setText(String.valueOf(playerScore));
+            log.info("Successful match, player score: {}", playerScore);
+        } else {
+            firstCard.setStyle("-fx-background-color: red;");
+            secondCard.setStyle("-fx-background-color: red;");
+            opponentScore++;
+            opponentScoreLabel.setText(String.valueOf(opponentScore));
+            log.info("Successful match, opponent score: {}", opponentScore);
+        }
         firstCard.setDisable(true);
         secondCard.setDisable(true);
-
-        playerScore++;
-        playerScoreLabel.setText(String.valueOf(playerScore));
-        log.info("Successful match, player score: {}", playerScore);
         endPlayerTurn();
     }
 
     /**
      * Handles an invalid match by flipping the cards back, ends player's turn.
      */
+    @FXML
     private void handleInvalidMatch() {
         firstCard.setText("");
         secondCard.setText("");
@@ -149,12 +177,44 @@ public class GameController {
         secondCardID = null;
 
         isFirstCardFlipped = false;
-        playerTurn = false;
+        playerTurn = !playerTurn;
 
         log.info("End of player turn, waiting for opponent's move");
     }
 
-    //TODO: handle opponent's turn
+    @FXML
+    private void handleOpponentMove(String cardID) {
+        log.debug("Handling opponent move for card: {}", cardID);
+        Button opponentCard = getCardById(cardID);
+
+        if (opponentCard == null) {
+            log.error("Card with ID {} not found", cardID);
+            return;
+        }
+
+        if (!isFirstCardFlipped) {
+            firstCard = opponentCard;
+            firstCard.setText("Flipped1");
+            isFirstCardFlipped = true;
+        } else {
+            secondCard = opponentCard;
+            secondCard.setText("Flipped2");
+        }
+    }
+
+    private Button getCardById(String cardID) {
+        for (Button card : cardButtons) {
+            if (card.getId().equals("card" + cardID)) {
+                return card;
+            }
+        }
+        return null;
+    }
+
+    private void endGame() {
+        // return to lobby or quit
 
 
+        SceneManager.switchScene("/cz/vse/pexeso/fxml/lobby.fxml");
+    }
 }
