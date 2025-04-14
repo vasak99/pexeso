@@ -8,4 +8,8 @@ public class CardPayload implements MessagePayload {
         this.card = card;
         this.order = order;
     }
+
+    public String toSendable() {
+        return "";
+    }
 }

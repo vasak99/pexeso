@@ -6,4 +6,8 @@ public class PairPayload implements MessagePayload {
     public PairPayload(boolean isPair) {
         this.isPair = isPair;
     }
+
+    public String toSendable() {
+        return "";
+    }
 }

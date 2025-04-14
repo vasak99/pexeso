@@ -8,4 +8,8 @@ public class StatusPayload implements MessagePayload {
         this.player1Score = player1Score;
         this.player2Score = player2Score;
     }
+
+    public String toSendable() {
+        return "";
+    }
 }
