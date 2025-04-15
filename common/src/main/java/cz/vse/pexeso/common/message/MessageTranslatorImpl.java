@@ -12,7 +12,7 @@ public class MessageTranslatorImpl implements MessageTranslator {
     public String messageToString(Message message) {
         var entries = message.getEntries();
 
-        if(entries == null || entries.size() == 0) {
+        if(entries == null || entries.isEmpty()) {
             return "";
         }
 
@@ -61,8 +61,6 @@ public class MessageTranslatorImpl implements MessageTranslator {
             if(sep.length < 2) continue;
 
             MessageComponent mc = MessageComponent.fromString(sep[0]);
-
-            if(mc == null) continue;
 
             msg.setEntry(mc, sep[1]);
         }
