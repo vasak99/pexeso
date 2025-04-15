@@ -60,7 +60,7 @@ public class MessageTranslatorImpl implements MessageTranslator {
 
             if(sep.length < 2) continue;
 
-            MessageComponent mc = MessageComponent.valueOf(sep[0]);
+            MessageComponent mc = MessageComponent.fromString(sep[0]);
 
             if(mc == null) continue;
 
