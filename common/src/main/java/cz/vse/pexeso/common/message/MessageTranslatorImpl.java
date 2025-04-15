@@ -1,14 +1,10 @@
 package cz.vse.pexeso.common.message;
 
-import java.time.Instant;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import cz.vse.pexeso.common.utils.MessageComponent;
+
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MessageTranslatorImpl implements MessageTranslator {
 
@@ -40,7 +36,7 @@ public class MessageTranslatorImpl implements MessageTranslator {
             ret += mc.getValue();
             ret += MessageComponent.KEY_VALUE_SEPARATOR.getValue();
             ret += entry;
-            ret += MessageComponent.SEPARATOR;
+            ret += MessageComponent.SEPARATOR.getValue();
         }
 
         ret += MessageComponent.END.getValue();
