@@ -1,5 +1,8 @@
 package cz.vse.pexeso.network;
 
+import cz.vse.pexeso.common.message.Message;
+import cz.vse.pexeso.common.message.MessageTranslatorImpl;
+import cz.vse.pexeso.common.message.payload.LoginPayload;
 import cz.vse.pexeso.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,26 +10,21 @@ import org.slf4j.LoggerFactory;
 public class MessageBuilder {
 
     public static final Logger log = LoggerFactory.getLogger(MessageBuilder.class);
-    private static MessageBuilder instance = null;
+    private static final MessageTranslatorImpl messageTranslator = new MessageTranslatorImpl();
 
 
     private MessageBuilder() {
     }
 
-    public static MessageBuilder getInstance() {
-        if (instance == null) {
-            instance = new MessageBuilder();
-        }
-        return instance;
-    }
-
-    public String buildLoginMessage(User user) {
+    public static String buildLoginMessage(User user) {
         log.debug("Building login message for user: {}", user.username());
-        return "LOGIN" + "|" + user.username() + "|" + user.password();
+        LoginPayload loginPayload = new LoginPayload(user.username(), user.password());
+        Message message = new Message("LOGIN", null, null, loginPayload);
+
+        return messageTranslator.messageToString(message);
     }
 
-    public String buildSubmitCard(int order, String secondCardID) {
-        log.debug("Building submit card message: {} - {}", order, secondCardID);
-        return "CARD_PAIR" + "|" + order + "|" + secondCardID;
+    public static String buildSubmitCard(int order, String secondCardID) {
+        return "";
     }
 }

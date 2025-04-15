@@ -41,8 +41,8 @@ public class LoginController {
             warningLabel.setText("");
             User user = new User(usernameField.getText(), passwordField.getText());
 
-            String loginMessage = MessageBuilder.getInstance().buildLoginMessage(user);
-            AppServices.getConnection().sendMessage(loginMessage);
+            String message = MessageBuilder.buildLoginMessage(user);
+            AppServices.getConnection().sendMessage(message);
             log.info("Login credentials submitted for verification.");
         }
     }

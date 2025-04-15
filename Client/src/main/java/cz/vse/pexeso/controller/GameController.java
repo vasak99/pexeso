@@ -124,7 +124,7 @@ public class GameController {
     }
 
     private void submitCard(int order, String cardID) {
-        String message = MessageBuilder.getInstance().buildSubmitCard(order, cardID);
+        String message = MessageBuilder.buildSubmitCard(order, cardID);
         AppServices.getConnection().sendMessage(message);
         log.debug("Submitted card: {} - {}", order, secondCardID);
     }
