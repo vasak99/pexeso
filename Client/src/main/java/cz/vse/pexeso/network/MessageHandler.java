@@ -6,6 +6,7 @@ import cz.vse.pexeso.common.message.MessageType;
 import cz.vse.pexeso.model.observer.MessageTypeClient;
 import cz.vse.pexeso.model.observer.Observable;
 import cz.vse.pexeso.model.observer.Observer;
+import cz.vse.pexeso.model.observer.ObserverWithData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,13 +21,15 @@ import java.util.Set;
 public class MessageHandler implements Observable {
 
     public static final Logger log = LoggerFactory.getLogger(MessageHandler.class);
-    private final Map<MessageTypeClient, Set<Observer>> listOfObservers = new HashMap<>();
+    private final Map<MessageTypeClient, Set<Observer>> simpleObservers = new HashMap<>();
+    private final Map<MessageTypeClient, Set<ObserverWithData>> dataObservers = new HashMap<>();
     private final MessageTranslatorImpl messageTranslator = new MessageTranslatorImpl();
 
 
     public MessageHandler() {
-        for (MessageTypeClient messageTypeClient : MessageTypeClient.values()) {
-            listOfObservers.put(messageTypeClient, new HashSet<>());
+        for (MessageTypeClient type : MessageTypeClient.values()) {
+            simpleObservers.put(type, new HashSet<>());
+            dataObservers.put(type, new HashSet<>());
         }
     }
 
@@ -42,6 +45,10 @@ public class MessageHandler implements Observable {
         switch (msg.getType()) {
             case MessageType.LOGIN -> handleLoginMessage(msg.getData());
             case MessageType.REVEAL -> handleRevealMessage(msg.getData());
+            case MessageType.STATUS -> handleStatusMessage(msg.getData());
+            case MessageType.MOVE -> handleMoveMessage(msg.getData());
+            case MessageType.REDIRECT -> handleRedirectMessage(msg.getData());
+            case MessageType.RESULT -> handleResultMessage(msg.getData());
         }
     }
 
@@ -49,15 +56,15 @@ public class MessageHandler implements Observable {
         log.info("Handling login message.");
         switch (data) {
             case "OK": {
-                notifyObserver(MessageTypeClient.LOGIN_OK);
+                notifyObservers(MessageTypeClient.LOGIN_OK);
                 break;
             }
             case "INVALID": {
-                notifyObserver(MessageTypeClient.LOGIN_INVALID);
+                notifyObservers(MessageTypeClient.LOGIN_INVALID);
                 break;
             }
             case "DUPLICATE": {
-                notifyObserver(MessageTypeClient.LOGIN_DUPLICATE);
+                notifyObservers(MessageTypeClient.LOGIN_DUPLICATE);
                 break;
             }
         }
@@ -65,18 +72,45 @@ public class MessageHandler implements Observable {
 
     private void handleRevealMessage(String data) {
         log.info("Handling reveal message.");
-        switch (data) {}
+    }
 
+    private void handleStatusMessage(String data) {
+        log.info("Handling status message.");
+    }
+
+    private void handleMoveMessage(String data) {
+        log.info("Handling move message.");
+    }
+
+    private void handleRedirectMessage(String data) {
+        log.info("Handling redirect message.");
+    }
+
+    private void handleResultMessage(String data) {
+        log.info("Handling result message.");
     }
 
     @Override
-    public void register(MessageTypeClient messageTypeClient, Observer observer) {
-        listOfObservers.get(messageTypeClient).add(observer);
+    public void register(MessageTypeClient type, Observer observer) {
+        simpleObservers.get(type).add(observer);
     }
 
-    private void notifyObserver(MessageTypeClient messageTypeClient) {
-        for (Observer observer : listOfObservers.get(messageTypeClient)) {
-            observer.update();
+    @Override
+    public void registerWithData(MessageTypeClient type, ObserverWithData observer) {
+        dataObservers.get(type).add(observer);
+    }
+
+    @Override
+    public void notifyObservers(MessageTypeClient type) {
+        for (Observer o : simpleObservers.get(type)) {
+            o.update();
+        }
+    }
+
+    @Override
+    public void notifyObservers(MessageTypeClient type, Object data) {
+        for (ObserverWithData o : dataObservers.get(type)) {
+            o.update(data);
         }
     }
 }
