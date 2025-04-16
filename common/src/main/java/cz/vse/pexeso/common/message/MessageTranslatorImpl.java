@@ -60,7 +60,12 @@ public class MessageTranslatorImpl implements MessageTranslator {
 
             if(sep.length < 2) continue;
 
-            MessageComponent mc = MessageComponent.fromString(sep[0]);
+            MessageComponent mc;
+            try {
+                mc = MessageComponent.fromString(sep[0]);
+            } catch (IllegalArgumentException e) {
+                continue;
+            }
 
             msg.setEntry(mc, sep[1]);
         }
