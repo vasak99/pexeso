@@ -43,4 +43,12 @@ public enum MessageComponent {
         return ret;
     }
 
+    public static MessageComponent fromString(String value) throws IllegalArgumentException {
+        for (MessageComponent mc : values()) {
+            if (mc.value.equals(value)) {
+                return mc;
+            }
+        }
+        throw new IllegalArgumentException("No enum constant with value: " + value);
+    }
 }
