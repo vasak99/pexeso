@@ -1,6 +1,9 @@
 package cz.vse.pexeso.network;
 
-import cz.vse.pexeso.model.observer.MessageType;
+import cz.vse.pexeso.common.message.Message;
+import cz.vse.pexeso.common.message.MessageTranslatorImpl;
+import cz.vse.pexeso.common.message.MessageType;
+import cz.vse.pexeso.model.observer.MessageTypeClient;
 import cz.vse.pexeso.model.observer.Observable;
 import cz.vse.pexeso.model.observer.Observer;
 import org.slf4j.Logger;
@@ -17,72 +20,62 @@ import java.util.Set;
 public class MessageHandler implements Observable {
 
     public static final Logger log = LoggerFactory.getLogger(MessageHandler.class);
-    private final Map<MessageType, Set<Observer>> listOfObservers = new HashMap<>();
+    private final Map<MessageTypeClient, Set<Observer>> listOfObservers = new HashMap<>();
+    private final MessageTranslatorImpl messageTranslator = new MessageTranslatorImpl();
 
 
     public MessageHandler() {
-        for (MessageType messageType : MessageType.values()) {
-            listOfObservers.put(messageType, new HashSet<>());
+        for (MessageTypeClient messageTypeClient : MessageTypeClient.values()) {
+            listOfObservers.put(messageTypeClient, new HashSet<>());
         }
     }
 
     /**
-     * Parses the message and dispatches it to the appropriate handler based on the message type.
+     * Translates the message and dispatches it to the appropriate handler based on the message type.
      *
      * @param message The message received from the server.
      */
-    public void parseMessage(String message) {
+    public void dispatch(String message) {
         log.debug("Parsing message: {}", message);
-        String[] messageParts = message.split("\\|");
-        String messageType = messageParts[0];
+        Message msg = messageTranslator.stringToMessage(message);
 
-        switch (messageType) {
-            case "LOGIN" -> handleLoginResponse(messageParts);
-            case "CARD_PAIR" -> handleCardPairResponse(messageParts);
+        switch (msg.getType()) {
+            case MessageType.LOGIN -> handleLoginMessage(msg.getData());
+            case MessageType.REVEAL -> handleRevealMessage(msg.getData());
         }
     }
 
-    private void handleLoginResponse(String[] messageParts) {
-        log.info("Handling login response.");
-        String messageBody = messageParts[1];
-        switch (messageBody) {
+    private void handleLoginMessage(String data) {
+        log.info("Handling login message.");
+        switch (data) {
             case "OK": {
-                notifyObserver(MessageType.LOGIN_OK);
+                notifyObserver(MessageTypeClient.LOGIN_OK);
                 break;
             }
             case "INVALID": {
-                notifyObserver(MessageType.LOGIN_INVALID);
+                notifyObserver(MessageTypeClient.LOGIN_INVALID);
                 break;
             }
             case "DUPLICATE": {
-                notifyObserver(MessageType.LOGIN_DUPLICATE);
+                notifyObserver(MessageTypeClient.LOGIN_DUPLICATE);
                 break;
             }
         }
     }
 
-    private void handleCardPairResponse(String[] messageParts) {
-        log.info("Handling card pair response.");
-        String messageBody = messageParts[1];
-        switch (messageBody) {
-            case "OK": {
-                notifyObserver(MessageType.CARD_PAIR_OK);
-                break;
-            }
-            case "INVALID": {
-                notifyObserver(MessageType.CARD_PAIR_INVALID);
-                break;
-            }
-        }
+    private void handleRevealMessage(String data) {
+        log.info("Handling reveal message.");
+        switch (data) {}
+
     }
 
     @Override
-    public void register(MessageType messageType, Observer observer) {
-        listOfObservers.get(messageType).add(observer);
+    public void register(MessageTypeClient messageTypeClient, Observer observer) {
+        listOfObservers.get(messageTypeClient).add(observer);
     }
 
-    private void notifyObserver(MessageType messageType) {
-        for (Observer observer : listOfObservers.get(messageType)) {
+    private void notifyObserver(MessageTypeClient messageTypeClient) {
+        for (Observer observer : listOfObservers.get(messageTypeClient)) {
             observer.update();
         }
     }

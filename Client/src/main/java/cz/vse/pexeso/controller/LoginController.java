@@ -3,7 +3,7 @@ package cz.vse.pexeso.controller;
 import cz.vse.pexeso.helper.AppServices;
 import cz.vse.pexeso.helper.SceneManager;
 import cz.vse.pexeso.model.User;
-import cz.vse.pexeso.model.observer.MessageType;
+import cz.vse.pexeso.model.observer.MessageTypeClient;
 import cz.vse.pexeso.network.MessageBuilder;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -24,9 +24,9 @@ public class LoginController {
     @FXML
     private void initialize() {
         AppServices.initialize();
-        AppServices.getMessageHandler().register(MessageType.LOGIN_OK, this::handleSuccessfulLogin);
-        AppServices.getMessageHandler().register(MessageType.LOGIN_INVALID, this::handleInvalidLogin);
-        AppServices.getMessageHandler().register(MessageType.LOGIN_DUPLICATE, this::handleDuplicateLogin);
+        AppServices.getMessageHandler().register(MessageTypeClient.LOGIN_OK, this::handleSuccessfulLogin);
+        AppServices.getMessageHandler().register(MessageTypeClient.LOGIN_INVALID, this::handleInvalidLogin);
+        AppServices.getMessageHandler().register(MessageTypeClient.LOGIN_DUPLICATE, this::handleDuplicateLogin);
         log.info("LoginController initialized.");
     }
 

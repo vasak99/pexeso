@@ -68,7 +68,7 @@ public class ClientConnection {
                 try {
                     messageFromServer = StreamReader.readPacket(ois);
                     log.debug("Message from server: {}", messageFromServer);
-                    AppServices.getMessageHandler().parseMessage(messageFromServer);
+                    AppServices.getMessageHandler().dispatch(messageFromServer);
                 } catch (EOFException eof) {
                     log.warn("Server closed the connection: ", eof);
                     break;

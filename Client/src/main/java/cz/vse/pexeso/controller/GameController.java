@@ -2,7 +2,7 @@ package cz.vse.pexeso.controller;
 
 import cz.vse.pexeso.helper.AppServices;
 import cz.vse.pexeso.helper.SceneManager;
-import cz.vse.pexeso.model.observer.MessageType;
+import cz.vse.pexeso.model.observer.MessageTypeClient;
 import cz.vse.pexeso.network.MessageBuilder;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -84,8 +84,8 @@ public class GameController {
 
         //TODO: set card pairs, decide first player turn
         playerTurn = true;
-        AppServices.getMessageHandler().register(MessageType.CARD_PAIR_OK, this::handleSuccessfulMatch);
-        AppServices.getMessageHandler().register(MessageType.CARD_PAIR_INVALID, this::handleInvalidMatch);
+        AppServices.getMessageHandler().register(MessageTypeClient.CARD_PAIR_OK, this::handleSuccessfulMatch);
+        AppServices.getMessageHandler().register(MessageTypeClient.CARD_PAIR_INVALID, this::handleInvalidMatch);
         log.info("GameController initialized");
     }
 

@@ -1,6 +1,6 @@
 package cz.vse.pexeso.model.observer;
 
-public enum MessageType {
+public enum MessageTypeClient {
     LOGIN_OK,
     LOGIN_INVALID,
     LOGIN_DUPLICATE,
