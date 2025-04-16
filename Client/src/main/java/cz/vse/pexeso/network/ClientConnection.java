@@ -35,7 +35,7 @@ public class ClientConnection {
             listenForMessage();
         } catch (IOException e) {
             log.error("Error creating client connection: ", e);
-            closeResources(socket, ois, oos);
+            close();
         }
     }
 
@@ -51,7 +51,7 @@ public class ClientConnection {
             oos.flush();
         } catch (IOException e) {
             log.error("Error sending message: ", e);
-            closeResources(socket, ois, oos);
+            close();
         }
     }
 
@@ -79,18 +79,20 @@ public class ClientConnection {
             }
             // Loop is exited, listening is stopped
             isListening = false;
-            closeResources(socket, ois, oos);
+            close();
         }).start();
+    }
+
+    public void close() {
+        log.info("Closing client connection");
+        isListening = false;
+        closeResources();
     }
 
     /**
      * Closes the resources used for the connection.
-     *
-     * @param socket The socket to be closed.
-     * @param ois    The ObjectInputStream to be closed.
-     * @param oos    The ObjectOutputStream to be closed.
      */
-    public void closeResources(Socket socket, ObjectInputStream ois, ObjectOutputStream oos) {
+    private void closeResources() {
         log.info("Closing resources");
         try {
             if (ois != null) {

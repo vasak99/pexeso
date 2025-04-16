@@ -36,4 +36,15 @@ public class AppServices {
     public static void setClientSession(ClientSession session) {
         clientSession = session;
     }
+
+    public static void clear() {
+        log.info("Clearing AppServices");
+
+        if (connection != null) {
+            connection.close();
+        }
+        connection = null;
+        messageHandler = null;
+        clientSession = null;
+    }
 }
