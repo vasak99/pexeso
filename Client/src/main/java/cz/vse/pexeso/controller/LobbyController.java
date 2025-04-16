@@ -1,6 +1,7 @@
 package cz.vse.pexeso.controller;
 
-import cz.vse.pexeso.helper.SceneManager;
+import cz.vse.pexeso.util.SceneManager;
+import cz.vse.pexeso.util.UIConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,6 +11,6 @@ public class LobbyController {
 
     private void joinGame() {
         log.info("Joining game");
-        SceneManager.switchScene("/cz/vse/pexeso/fxml/game.fxml");
+        SceneManager.switchScene(UIConstants.GAME_FXML);
     }
 }

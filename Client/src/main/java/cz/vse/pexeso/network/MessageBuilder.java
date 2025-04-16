@@ -4,8 +4,8 @@ import cz.vse.pexeso.common.message.Message;
 import cz.vse.pexeso.common.message.MessageTranslatorImpl;
 import cz.vse.pexeso.common.message.MessageType;
 import cz.vse.pexeso.common.message.payload.LoginPayload;
-import cz.vse.pexeso.helper.AppServices;
 import cz.vse.pexeso.model.User;
+import cz.vse.pexeso.service.AppServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +27,7 @@ public class MessageBuilder {
         return messageTranslator.messageToString(message);
     }
 
-    public static String buildSubmitCard(int order, String secondCardID) {
+    public static String buildSubmitCard(int order, String cardID) {
         String playerId = AppServices.getClientSession().getPlayerId();
         return "";
     }

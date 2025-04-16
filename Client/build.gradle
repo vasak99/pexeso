@@ -32,7 +32,7 @@ dependencies {
 
 javafx {
     version = '21'
-    modules = [ 'javafx.base', 'javafx.controls', 'javafx.fxml' ]
+    modules = ['javafx.base', 'javafx.controls', 'javafx.fxml']
 }
 
 test {

@@ -1,7 +1,8 @@
-package cz.vse.pexeso;
+package cz.vse.pexeso.app;
 
 import cz.vse.pexeso.common.MyTestClass;
-import cz.vse.pexeso.helper.SceneManager;
+import cz.vse.pexeso.util.SceneManager;
+import cz.vse.pexeso.util.UIConstants;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
@@ -20,7 +21,7 @@ public class Client extends Application {
     public void start(Stage primaryStage) {
         log.info("Starting client application");
         SceneManager.setStage(primaryStage);
-        SceneManager.switchScene("/cz/vse/pexeso/fxml/login.fxml");
+        SceneManager.switchScene(UIConstants.LOGIN_FXML);
         primaryStage.setTitle("Login");
         primaryStage.show();
     }

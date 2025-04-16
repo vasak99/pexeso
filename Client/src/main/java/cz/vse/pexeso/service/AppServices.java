@@ -1,4 +1,4 @@
-package cz.vse.pexeso.helper;
+package cz.vse.pexeso.service;
 
 import cz.vse.pexeso.model.ClientSession;
 import cz.vse.pexeso.network.ClientConnection;

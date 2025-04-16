@@ -1,11 +1,12 @@
 package cz.vse.pexeso.controller;
 
-import cz.vse.pexeso.helper.AppServices;
-import cz.vse.pexeso.helper.SceneManager;
 import cz.vse.pexeso.model.ClientSession;
 import cz.vse.pexeso.model.User;
 import cz.vse.pexeso.model.observer.MessageTypeClient;
 import cz.vse.pexeso.network.MessageBuilder;
+import cz.vse.pexeso.service.AppServices;
+import cz.vse.pexeso.util.SceneManager;
+import cz.vse.pexeso.util.UIConstants;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
@@ -56,7 +57,7 @@ public class LoginController {
     private void handleSuccessfulLogin(Object playerId) {
         log.info("Login successful.");
         AppServices.setClientSession(new ClientSession((String) playerId, user));
-        SceneManager.switchScene("/cz/vse/pexeso/fxml/lobby.fxml");
+        SceneManager.switchScene(UIConstants.LOBBY_FXML);
     }
 
     private void handleInvalidLogin() {

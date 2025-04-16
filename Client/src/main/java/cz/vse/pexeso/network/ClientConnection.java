@@ -1,7 +1,7 @@
 package cz.vse.pexeso.network;
 
 import cz.vse.pexeso.common.utils.StreamReader;
-import cz.vse.pexeso.helper.AppServices;
+import cz.vse.pexeso.service.AppServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

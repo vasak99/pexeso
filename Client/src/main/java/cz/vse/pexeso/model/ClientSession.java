@@ -1,7 +1,8 @@
 package cz.vse.pexeso.model;
 
-import cz.vse.pexeso.helper.AppServices;
-import cz.vse.pexeso.helper.SceneManager;
+import cz.vse.pexeso.service.AppServices;
+import cz.vse.pexeso.util.SceneManager;
+import cz.vse.pexeso.util.UIConstants;
 
 public class ClientSession {
     private final String playerId;
@@ -23,6 +24,6 @@ public class ClientSession {
     public void logout() {
         AppServices.clear();
 
-        SceneManager.switchScene("/cz/vse/pexeso/fxml/login.fxml");
+        SceneManager.switchScene(UIConstants.LOGIN_FXML);
     }
 }
