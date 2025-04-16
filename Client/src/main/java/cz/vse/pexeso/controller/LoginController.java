@@ -2,6 +2,7 @@ package cz.vse.pexeso.controller;
 
 import cz.vse.pexeso.helper.AppServices;
 import cz.vse.pexeso.helper.SceneManager;
+import cz.vse.pexeso.model.ClientSession;
 import cz.vse.pexeso.model.User;
 import cz.vse.pexeso.model.observer.MessageTypeClient;
 import cz.vse.pexeso.network.MessageBuilder;
@@ -14,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 public class LoginController {
     public static final Logger log = LoggerFactory.getLogger(LoginController.class);
+    User user;
     @FXML
     private TextField usernameField;
     @FXML
@@ -24,7 +26,7 @@ public class LoginController {
     @FXML
     private void initialize() {
         AppServices.initialize();
-        AppServices.getMessageHandler().register(MessageTypeClient.LOGIN_OK, this::handleSuccessfulLogin);
+        AppServices.getMessageHandler().registerWithData(MessageTypeClient.LOGIN_OK, this::handleSuccessfulLogin);
         AppServices.getMessageHandler().register(MessageTypeClient.LOGIN_INVALID, this::handleInvalidLogin);
         AppServices.getMessageHandler().register(MessageTypeClient.LOGIN_DUPLICATE, this::handleDuplicateLogin);
         log.info("LoginController initialized.");
@@ -39,16 +41,21 @@ public class LoginController {
             warningLabel.setText("Please fill in all fields.");
         } else {
             warningLabel.setText("");
-            User user = new User(usernameField.getText(), passwordField.getText());
+            user = new User(usernameField.getText(), passwordField.getText());
 
-            String message = MessageBuilder.buildLoginMessage(user);
-            AppServices.getConnection().sendMessage(message);
-            log.info("Login credentials submitted for verification.");
+            sendLoginMessage(user);
         }
     }
 
-    private void handleSuccessfulLogin() {
+    private void sendLoginMessage(User user) {
+        String message = MessageBuilder.buildLoginMessage(user);
+        AppServices.getConnection().sendMessage(message);
+        log.info("Login credentials submitted for verification.");
+    }
+
+    private void handleSuccessfulLogin(Object playerId) {
         log.info("Login successful.");
+        AppServices.setClientSession(new ClientSession((String) playerId, user));
         SceneManager.switchScene("/cz/vse/pexeso/fxml/lobby.fxml");
     }
 

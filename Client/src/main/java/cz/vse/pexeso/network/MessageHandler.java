@@ -56,7 +56,7 @@ public class MessageHandler implements Observable {
         log.info("Handling login message.");
         switch (data) {
             case "OK": {
-                notifyObservers(MessageTypeClient.LOGIN_OK);
+                notifyObservers(MessageTypeClient.LOGIN_OK, data);
                 break;
             }
             case "INVALID": {

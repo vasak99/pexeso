@@ -1,5 +1,6 @@
 package cz.vse.pexeso.helper;
 
+import cz.vse.pexeso.model.ClientSession;
 import cz.vse.pexeso.network.ClientConnection;
 import cz.vse.pexeso.network.MessageHandler;
 import org.slf4j.Logger;
@@ -12,6 +13,7 @@ public class AppServices {
     public static final Logger log = LoggerFactory.getLogger(AppServices.class);
     private static ClientConnection connection;
     private static MessageHandler messageHandler;
+    private static ClientSession clientSession;
 
     public static void initialize() {
         log.info("Initializing AppServices");
@@ -25,5 +27,13 @@ public class AppServices {
 
     public static MessageHandler getMessageHandler() {
         return messageHandler;
+    }
+
+    public static ClientSession getClientSession() {
+        return clientSession;
+    }
+
+    public static void setClientSession(ClientSession session) {
+        clientSession = session;
     }
 }
