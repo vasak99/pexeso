@@ -27,9 +27,8 @@ public class LoginController {
     @FXML
     private void initialize() {
         AppServices.initialize();
-        AppServices.getMessageHandler().registerWithData(MessageTypeClient.LOGIN_OK, this::handleSuccessfulLogin);
-        AppServices.getMessageHandler().register(MessageTypeClient.LOGIN_INVALID, this::handleInvalidLogin);
-        AppServices.getMessageHandler().register(MessageTypeClient.LOGIN_DUPLICATE, this::handleDuplicateLogin);
+        AppServices.getMessageHandler().registerWithData(MessageTypeClient.LOGIN, this::handleSuccessfulLogin);
+        AppServices.getMessageHandler().registerWithData(MessageTypeClient.ERROR_LOGIN, this::handleInvalidLogin);
         log.info("LoginController initialized.");
     }
 
@@ -60,13 +59,8 @@ public class LoginController {
         SceneManager.switchScene(UIConstants.LOBBY_FXML);
     }
 
-    private void handleInvalidLogin() {
-        log.info("Login failed: Invalid credentials.");
-        warningLabel.setText("Invalid credentials.");
-    }
-
-    private void handleDuplicateLogin() {
-        log.info("Login failed: User already logged in.");
-        warningLabel.setText("User already logged in.");
+    private void handleInvalidLogin(Object errorMessage) {
+        log.info("Login failed: {}", errorMessage);
+        warningLabel.setText((String) errorMessage);
     }
 }

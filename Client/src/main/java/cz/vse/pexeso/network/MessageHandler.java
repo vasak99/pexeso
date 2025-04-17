@@ -49,25 +49,13 @@ public class MessageHandler implements Observable {
             case MessageType.MOVE -> handleMoveMessage(msg.getData());
             case MessageType.REDIRECT -> handleRedirectMessage(msg.getData());
             case MessageType.RESULT -> handleResultMessage(msg.getData());
+            case MessageType.ERROR -> handleErrorMessage(msg.getData());
         }
     }
 
-    private void handleLoginMessage(String data) {
+    private void handleLoginMessage(String playerId) {
         log.info("Handling login message.");
-        switch (data) {
-            case "OK": {
-                notifyObservers(MessageTypeClient.LOGIN_OK, data);
-                break;
-            }
-            case "INVALID": {
-                notifyObservers(MessageTypeClient.LOGIN_INVALID);
-                break;
-            }
-            case "DUPLICATE": {
-                notifyObservers(MessageTypeClient.LOGIN_DUPLICATE);
-                break;
-            }
-        }
+        notifyObservers(MessageTypeClient.LOGIN, playerId);
     }
 
     private void handleRevealMessage(String data) {
@@ -88,6 +76,14 @@ public class MessageHandler implements Observable {
 
     private void handleResultMessage(String data) {
         log.info("Handling result message.");
+    }
+
+    private void handleErrorMessage(String errorDescription) {
+        log.info("Handling error message.");
+
+
+        // if error is related to login, then
+        notifyObservers(MessageTypeClient.ERROR_LOGIN, errorDescription);
     }
 
     @Override
