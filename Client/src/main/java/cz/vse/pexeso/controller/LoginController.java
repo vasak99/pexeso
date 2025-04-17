@@ -61,6 +61,9 @@ public class LoginController {
 
     private void handleInvalidLogin(Object errorMessage) {
         log.info("Login failed: {}", errorMessage);
-        warningLabel.setText((String) errorMessage);
+
+        usernameField.clear();
+        passwordField.clear();
+        warningLabel.setText(errorMessage + ", please try again.");
     }
 }
