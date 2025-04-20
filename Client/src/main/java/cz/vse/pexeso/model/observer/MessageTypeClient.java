@@ -2,5 +2,7 @@ package cz.vse.pexeso.model.observer;
 
 public enum MessageTypeClient {
     LOGIN,
-    ERROR_LOGIN
+    REGISTER,
+    ERROR_LOGIN,
+    ERROR_REGISTER
 }

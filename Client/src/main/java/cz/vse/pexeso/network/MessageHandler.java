@@ -44,6 +44,7 @@ public class MessageHandler implements Observable {
 
         switch (msg.getType()) {
             case MessageType.LOGIN -> handleLoginMessage(msg.getData());
+            case MessageType.REGISTER -> handleRegisterMessage(msg.getData());
             case MessageType.REVEAL -> handleRevealMessage(msg.getData());
             case MessageType.STATUS -> handleStatusMessage(msg.getData());
             case MessageType.MOVE -> handleMoveMessage(msg.getData());
@@ -56,6 +57,11 @@ public class MessageHandler implements Observable {
     private void handleLoginMessage(String playerId) {
         log.info("Handling login message.");
         notifyObservers(MessageTypeClient.LOGIN, playerId);
+    }
+
+    private void handleRegisterMessage(String data) {
+        log.info("Handling register message.");
+        notifyObservers(MessageTypeClient.REGISTER, data);
     }
 
     private void handleRevealMessage(String data) {
@@ -84,6 +90,9 @@ public class MessageHandler implements Observable {
 
         // if error is related to login, then
         notifyObservers(MessageTypeClient.ERROR_LOGIN, errorDescription);
+
+        // if error is related to registration, then
+        notifyObservers(MessageTypeClient.ERROR_REGISTER, errorDescription);
     }
 
     @Override

@@ -31,4 +31,13 @@ public class MessageBuilder {
         String playerId = AppServices.getClientSession().getPlayerId();
         return "";
     }
+
+    public static String buildRegisterMessage(User user) {
+        log.debug("Building register message for user: {}", user.username());
+
+        LoginPayload loginPayload = new LoginPayload(user.username(), user.password());
+        Message message = new Message(MessageType.REGISTER.getValue(), null, null, loginPayload);
+
+        return messageTranslator.messageToString(message);
+    }
 }

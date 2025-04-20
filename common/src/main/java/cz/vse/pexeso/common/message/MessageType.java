@@ -18,7 +18,8 @@ public enum MessageType {
     // STATUS,
     // RESULT;
 
-    ERROR("ERROR");
+    ERROR("ERROR"),
+    REGISTER("REGISTER"),;
 
     private String value;
 

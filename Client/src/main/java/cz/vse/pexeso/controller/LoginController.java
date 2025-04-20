@@ -66,4 +66,13 @@ public class LoginController {
         passwordField.clear();
         warningLabel.setText(errorMessage + ", please try again.");
     }
+
+    @FXML
+    private void handleRegisterLinkClick() {
+        log.info("Switching to register screen.");
+        usernameField.clear();
+        passwordField.clear();
+        warningLabel.setText("");
+        SceneManager.switchScene(UIConstants.REGISTER_FXML);
+    }
 }
