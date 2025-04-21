@@ -1,10 +1,12 @@
 package cz.vse.pexeso.controller;
 
-import cz.vse.pexeso.helper.AppServices;
-import cz.vse.pexeso.helper.SceneManager;
+import cz.vse.pexeso.model.ClientSession;
 import cz.vse.pexeso.model.User;
-import cz.vse.pexeso.model.observer.MessageType;
+import cz.vse.pexeso.model.observer.MessageTypeClient;
 import cz.vse.pexeso.network.MessageBuilder;
+import cz.vse.pexeso.service.AppServices;
+import cz.vse.pexeso.util.SceneManager;
+import cz.vse.pexeso.util.UIConstants;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
@@ -15,6 +17,9 @@ import org.slf4j.LoggerFactory;
 public class LoginController {
     public static final Logger log = LoggerFactory.getLogger(LoginController.class);
     @FXML
+    private Label registrationConfirmationLabel;
+    User user;
+    @FXML
     private TextField usernameField;
     @FXML
     private PasswordField passwordField;
@@ -24,9 +29,12 @@ public class LoginController {
     @FXML
     private void initialize() {
         AppServices.initialize();
-        AppServices.getMessageHandler().register(MessageType.LOGIN_OK, this::handleSuccessfulLogin);
-        AppServices.getMessageHandler().register(MessageType.LOGIN_INVALID, this::handleInvalidLogin);
-        AppServices.getMessageHandler().register(MessageType.LOGIN_DUPLICATE, this::handleDuplicateLogin);
+        AppServices.getMessageHandler().registerWithData(MessageTypeClient.LOGIN, this::handleSuccessfulLogin);
+        AppServices.getMessageHandler().registerWithData(MessageTypeClient.ERROR_LOGIN, this::handleInvalidLogin);
+        if (AppServices.justRegistered) {
+            registrationConfirmationLabel.setVisible(true);
+            AppServices.justRegistered = false;
+        }
         log.info("LoginController initialized.");
     }
 
@@ -35,30 +43,43 @@ public class LoginController {
      */
     @FXML
     private void handleLoginClick() {
+        registrationConfirmationLabel.setVisible(false);
         if (usernameField.getText().isEmpty() || passwordField.getText().isEmpty()) {
             warningLabel.setText("Please fill in all fields.");
         } else {
             warningLabel.setText("");
-            User user = new User(usernameField.getText(), passwordField.getText());
+            user = new User(usernameField.getText(), passwordField.getText());
 
-            String loginMessage = MessageBuilder.getInstance().buildLoginMessage(user);
-            AppServices.getConnection().sendMessage(loginMessage);
-            log.info("Login credentials submitted for verification.");
+            sendLoginMessage(user);
         }
     }
 
-    private void handleSuccessfulLogin() {
+    private void sendLoginMessage(User user) {
+        String message = MessageBuilder.buildLoginMessage(user);
+        AppServices.getConnection().sendMessage(message);
+        log.info("Login credentials submitted for verification.");
+    }
+
+    private void handleSuccessfulLogin(Object playerId) {
         log.info("Login successful.");
-        SceneManager.switchScene("/cz/vse/pexeso/fxml/lobby.fxml");
+        AppServices.setClientSession(new ClientSession((String) playerId, user));
+        SceneManager.switchScene(UIConstants.LOBBY_FXML);
     }
 
-    private void handleInvalidLogin() {
-        log.info("Login failed: Invalid credentials.");
-        warningLabel.setText("Invalid credentials.");
+    private void handleInvalidLogin(Object errorMessage) {
+        log.info("Login failed: {}", errorMessage);
+
+        usernameField.clear();
+        passwordField.clear();
+        warningLabel.setText(errorMessage + ", please try again.");
     }
 
-    private void handleDuplicateLogin() {
-        log.info("Login failed: User already logged in.");
-        warningLabel.setText("User already logged in.");
+    @FXML
+    private void handleRegisterLinkClick() {
+        log.info("Switching to register screen.");
+        usernameField.clear();
+        passwordField.clear();
+        warningLabel.setText("");
+        SceneManager.switchScene(UIConstants.REGISTER_FXML);
     }
 }

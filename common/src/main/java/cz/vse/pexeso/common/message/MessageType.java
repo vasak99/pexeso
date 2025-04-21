@@ -11,12 +11,15 @@ public enum MessageType {
 
     REDIRECT("REDIRECT"),
 
-    RESULT("RESULT");
+    RESULT("RESULT"),
     //START,
     // CARD,
     // PAIR,
     // STATUS,
     // RESULT;
+
+    ERROR("ERROR"),
+    REGISTER("REGISTER"),;
 
     private String value;
 
