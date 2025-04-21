@@ -1,10 +1,14 @@
 package cz.vse.pexeso.network;
 
-import cz.vse.pexeso.helper.AppServices;
+import cz.vse.pexeso.common.utils.StreamReader;
+import cz.vse.pexeso.service.AppServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 /**
@@ -13,8 +17,8 @@ import java.net.Socket;
 public class ClientConnection {
     public static final Logger log = LoggerFactory.getLogger(ClientConnection.class);
     private Socket socket;
-    private BufferedReader bufferedReader;
-    private BufferedWriter bufferedWriter;
+    private ObjectInputStream ois;
+    private ObjectOutputStream oos;
     private volatile boolean isListening = true;
 
     /**
@@ -25,12 +29,13 @@ public class ClientConnection {
         try {
             log.info("Creating client connection");
             this.socket = new Socket("localhost", 8080);
-            this.bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            this.bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            this.oos = new ObjectOutputStream(this.socket.getOutputStream());
+            this.oos.flush();
+            this.ois = new ObjectInputStream(this.socket.getInputStream());
             listenForMessage();
         } catch (IOException e) {
             log.error("Error creating client connection: ", e);
-            closeResources(socket, bufferedReader, bufferedWriter);
+            close();
         }
     }
 
@@ -42,12 +47,11 @@ public class ClientConnection {
     public void sendMessage(String message) {
         try {
             log.debug("Sending message: {}", message);
-            bufferedWriter.write(message);
-            bufferedWriter.newLine();
-            bufferedWriter.flush();
+            StreamReader.writePacket(oos, message);
+            oos.flush();
         } catch (IOException e) {
             log.error("Error sending message: ", e);
-            closeResources(socket, bufferedReader, bufferedWriter);
+            close();
         }
     }
 
@@ -58,44 +62,44 @@ public class ClientConnection {
     public void listenForMessage() {
         log.info("Starting new thread to listen for messages");
         new Thread(() -> {
-            String messageFromServer;
             // Loop while the connection is considered active
             while (isListening && socket != null && !socket.isClosed()) {
+                String messageFromServer;
                 try {
-                    messageFromServer = bufferedReader.readLine();
-                    // If the server has closed the connection, readLine() returns null
-                    if (messageFromServer == null) {
-                        log.warn("Server closed the connection");
-                        break;
-                    }
+                    messageFromServer = StreamReader.readPacket(ois);
                     log.debug("Message from server: {}", messageFromServer);
-                    AppServices.getMessageHandler().parseMessage(messageFromServer);
-                } catch (IOException e) {
+                    AppServices.getMessageHandler().dispatch(messageFromServer);
+                } catch (EOFException eof) {
+                    log.warn("Server closed the connection: ", eof);
+                    break;
+                } catch (Exception e) {
                     log.error("Error reading message from server in listener thread: ", e);
                     break;
                 }
             }
             // Loop is exited, listening is stopped
             isListening = false;
-            closeResources(socket, bufferedReader, bufferedWriter);
+            close();
         }).start();
+    }
+
+    public void close() {
+        log.info("Closing client connection");
+        isListening = false;
+        closeResources();
     }
 
     /**
      * Closes the resources used for the connection.
-     *
-     * @param socket         The socket to be closed.
-     * @param bufferedReader The BufferedReader to be closed.
-     * @param bufferedWriter The BufferedWriter to be closed.
      */
-    public void closeResources(Socket socket, BufferedReader bufferedReader, BufferedWriter bufferedWriter) {
+    private void closeResources() {
         log.info("Closing resources");
         try {
-            if (bufferedReader != null) {
-                bufferedReader.close();
+            if (ois != null) {
+                ois.close();
             }
-            if (bufferedWriter != null) {
-                bufferedWriter.close();
+            if (oos != null) {
+                oos.close();
             }
             if (socket != null) {
                 socket.close();

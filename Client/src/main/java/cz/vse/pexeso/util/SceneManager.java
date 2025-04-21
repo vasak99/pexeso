@@ -1,4 +1,4 @@
-package cz.vse.pexeso.helper;
+package cz.vse.pexeso.util;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;

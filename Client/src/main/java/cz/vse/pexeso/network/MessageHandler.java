@@ -1,8 +1,12 @@
 package cz.vse.pexeso.network;
 
-import cz.vse.pexeso.model.observer.MessageType;
+import cz.vse.pexeso.common.message.Message;
+import cz.vse.pexeso.common.message.MessageTranslatorImpl;
+import cz.vse.pexeso.common.message.MessageType;
+import cz.vse.pexeso.model.observer.MessageTypeClient;
 import cz.vse.pexeso.model.observer.Observable;
 import cz.vse.pexeso.model.observer.Observer;
+import cz.vse.pexeso.model.observer.ObserverWithData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,73 +21,101 @@ import java.util.Set;
 public class MessageHandler implements Observable {
 
     public static final Logger log = LoggerFactory.getLogger(MessageHandler.class);
-    private final Map<MessageType, Set<Observer>> listOfObservers = new HashMap<>();
+    private final Map<MessageTypeClient, Set<Observer>> simpleObservers = new HashMap<>();
+    private final Map<MessageTypeClient, Set<ObserverWithData>> dataObservers = new HashMap<>();
+    private final MessageTranslatorImpl messageTranslator = new MessageTranslatorImpl();
 
 
     public MessageHandler() {
-        for (MessageType messageType : MessageType.values()) {
-            listOfObservers.put(messageType, new HashSet<>());
+        for (MessageTypeClient type : MessageTypeClient.values()) {
+            simpleObservers.put(type, new HashSet<>());
+            dataObservers.put(type, new HashSet<>());
         }
     }
 
     /**
-     * Parses the message and dispatches it to the appropriate handler based on the message type.
+     * Translates the message and dispatches it to the appropriate handler based on the message type.
      *
      * @param message The message received from the server.
      */
-    public void parseMessage(String message) {
+    public void dispatch(String message) {
         log.debug("Parsing message: {}", message);
-        String[] messageParts = message.split("\\|");
-        String messageType = messageParts[0];
+        Message msg = messageTranslator.stringToMessage(message);
 
-        switch (messageType) {
-            case "LOGIN" -> handleLoginResponse(messageParts);
-            case "CARD_PAIR" -> handleCardPairResponse(messageParts);
+        switch (msg.getType()) {
+            case MessageType.LOGIN -> handleLoginMessage(msg.getData());
+            case MessageType.REGISTER -> handleRegisterMessage(msg.getData());
+            case MessageType.REVEAL -> handleRevealMessage(msg.getData());
+            case MessageType.STATUS -> handleStatusMessage(msg.getData());
+            case MessageType.MOVE -> handleMoveMessage(msg.getData());
+            case MessageType.REDIRECT -> handleRedirectMessage(msg.getData());
+            case MessageType.RESULT -> handleResultMessage(msg.getData());
+            case MessageType.ERROR -> handleErrorMessage(msg.getData());
         }
     }
 
-    private void handleLoginResponse(String[] messageParts) {
-        log.info("Handling login response.");
-        String messageBody = messageParts[1];
-        switch (messageBody) {
-            case "OK": {
-                notifyObserver(MessageType.LOGIN_OK);
-                break;
-            }
-            case "INVALID": {
-                notifyObserver(MessageType.LOGIN_INVALID);
-                break;
-            }
-            case "DUPLICATE": {
-                notifyObserver(MessageType.LOGIN_DUPLICATE);
-                break;
-            }
-        }
+    private void handleLoginMessage(String playerId) {
+        log.info("Handling login message.");
+        notifyObservers(MessageTypeClient.LOGIN, playerId);
     }
 
-    private void handleCardPairResponse(String[] messageParts) {
-        log.info("Handling card pair response.");
-        String messageBody = messageParts[1];
-        switch (messageBody) {
-            case "OK": {
-                notifyObserver(MessageType.CARD_PAIR_OK);
-                break;
-            }
-            case "INVALID": {
-                notifyObserver(MessageType.CARD_PAIR_INVALID);
-                break;
-            }
+    private void handleRegisterMessage(String data) {
+        log.info("Handling register message.");
+        notifyObservers(MessageTypeClient.REGISTER, data);
+    }
+
+    private void handleRevealMessage(String data) {
+        log.info("Handling reveal message.");
+    }
+
+    private void handleStatusMessage(String data) {
+        log.info("Handling status message.");
+    }
+
+    private void handleMoveMessage(String data) {
+        log.info("Handling move message.");
+    }
+
+    private void handleRedirectMessage(String data) {
+        log.info("Handling redirect message.");
+    }
+
+    private void handleResultMessage(String data) {
+        log.info("Handling result message.");
+    }
+
+    private void handleErrorMessage(String errorDescription) {
+        log.info("Handling error message.");
+
+
+        // if error is related to login, then
+        notifyObservers(MessageTypeClient.ERROR_LOGIN, errorDescription);
+
+        // if error is related to registration, then
+        notifyObservers(MessageTypeClient.ERROR_REGISTER, errorDescription);
+    }
+
+    @Override
+    public void register(MessageTypeClient type, Observer observer) {
+        simpleObservers.get(type).add(observer);
+    }
+
+    @Override
+    public void registerWithData(MessageTypeClient type, ObserverWithData observer) {
+        dataObservers.get(type).add(observer);
+    }
+
+    @Override
+    public void notifyObservers(MessageTypeClient type) {
+        for (Observer o : simpleObservers.get(type)) {
+            o.update();
         }
     }
 
     @Override
-    public void register(MessageType messageType, Observer observer) {
-        listOfObservers.get(messageType).add(observer);
-    }
-
-    private void notifyObserver(MessageType messageType) {
-        for (Observer observer : listOfObservers.get(messageType)) {
-            observer.update();
+    public void notifyObservers(MessageTypeClient type, Object data) {
+        for (ObserverWithData o : dataObservers.get(type)) {
+            o.update(data);
         }
     }
 }

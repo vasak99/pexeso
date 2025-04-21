@@ -1,13 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.Cursor?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Font?>
-<VBox alignment="CENTER" prefHeight="750.0" prefWidth="750.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cz.vse.pexeso.controller.LoginController">
+<?import javafx.scene.text.*?>
+<VBox alignment="CENTER" prefHeight="750.0" prefWidth="750.0" spacing="5.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cz.vse.pexeso.controller.LoginController">
+    <Label fx:id="registrationConfirmationLabel" text="Registration successful" textFill="#00a800" visible="false">
+        <font>
+            <Font size="18.0" />
+        </font>
+    </Label>
+    <Label text="Login to Your Account">
+        <font>
+            <Font name="System Bold" size="24.0" />
+        </font>
+        <VBox.margin>
+            <Insets top="50.0" />
+        </VBox.margin>
+    </Label>
     <Label text="Username:">
         <VBox.margin>
-            <Insets />
+            <Insets top="25.0" />
         </VBox.margin>
         <font>
             <Font size="18.0" />
@@ -16,7 +30,7 @@
     <TextField fx:id="usernameField" maxWidth="300.0" minHeight="30.0" />
     <Label text="Password:">
         <VBox.margin>
-            <Insets top="10.0" />
+            <Insets top="5.0" />
         </VBox.margin>
         <font>
             <Font size="18.0" />
@@ -33,10 +47,21 @@
     </Button>
     <Label fx:id="warningLabel" textFill="RED">
         <VBox.margin>
-            <Insets top="20.0" />
+            <Insets top="5.0" />
         </VBox.margin>
         <font>
             <Font size="18.0" />
         </font>
+    </Label>
+    <Label onMouseClicked="#handleRegisterLinkClick" text="Don't have an account yet? Register here!" textFill="#0000ee" underline="true">
+        <font>
+            <Font size="14.0" />
+        </font>
+        <VBox.margin>
+            <Insets top="5.0" />
+        </VBox.margin>
+        <cursor>
+            <Cursor fx:constant="HAND" />
+        </cursor>
     </Label>
 </VBox>
