@@ -15,7 +15,7 @@ public class AppServices {
     private static ClientConnection connection;
     private static MessageHandler messageHandler;
     private static ClientSession clientSession;
-    public static boolean justRegistered = true;
+    public static boolean justRegistered = false;
 
     public static void initialize() {
         if (!initialized) {
