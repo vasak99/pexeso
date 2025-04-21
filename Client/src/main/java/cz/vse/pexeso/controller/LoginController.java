@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 
 public class LoginController {
     public static final Logger log = LoggerFactory.getLogger(LoginController.class);
+    @FXML
+    private Label registrationConfirmationLabel;
     User user;
     @FXML
     private TextField usernameField;
@@ -29,6 +31,10 @@ public class LoginController {
         AppServices.initialize();
         AppServices.getMessageHandler().registerWithData(MessageTypeClient.LOGIN, this::handleSuccessfulLogin);
         AppServices.getMessageHandler().registerWithData(MessageTypeClient.ERROR_LOGIN, this::handleInvalidLogin);
+        if (AppServices.justRegistered) {
+            registrationConfirmationLabel.setVisible(true);
+            AppServices.justRegistered = false;
+        }
         log.info("LoginController initialized.");
     }
 
@@ -37,6 +43,7 @@ public class LoginController {
      */
     @FXML
     private void handleLoginClick() {
+        registrationConfirmationLabel.setVisible(false);
         if (usernameField.getText().isEmpty() || passwordField.getText().isEmpty()) {
             warningLabel.setText("Please fill in all fields.");
         } else {

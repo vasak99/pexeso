@@ -11,14 +11,19 @@ import org.slf4j.LoggerFactory;
  */
 public class AppServices {
     public static final Logger log = LoggerFactory.getLogger(AppServices.class);
+    private static boolean initialized = false;
     private static ClientConnection connection;
     private static MessageHandler messageHandler;
     private static ClientSession clientSession;
+    public static boolean justRegistered = true;
 
     public static void initialize() {
-        log.info("Initializing AppServices");
-        connection = new ClientConnection();
-        messageHandler = new MessageHandler();
+        if (!initialized) {
+            log.info("Initializing AppServices");
+            connection = new ClientConnection();
+            messageHandler = new MessageHandler();
+            initialized = true;
+        }
     }
 
     public static ClientConnection getConnection() {

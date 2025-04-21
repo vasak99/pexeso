@@ -36,7 +36,7 @@ public class RegisterController {
     private void handleRegisterClick() {
         if (usernameField.getText().isEmpty() || passwordField.getText().isEmpty() || confirmPasswordField.getText().isEmpty()) {
             warningLabel.setText("Please fill in all fields.");
-        } else if (passwordField.getText().equals(confirmPasswordField.getText())) {
+        } else if (!passwordField.getText().equals(confirmPasswordField.getText())) {
             warningLabel.setText("Passwords do not match.");
         } else if (passwordField.getText().length() < 8) {
             warningLabel.setText("Password must be at least 8 characters long.");
@@ -56,6 +56,7 @@ public class RegisterController {
 
     private void handleSuccessfulRegistration() {
         log.info("Registration successful.");
+        AppServices.justRegistered = true;
         SceneManager.switchScene(UIConstants.LOGIN_FXML);
     }
 

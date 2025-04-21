@@ -22,7 +22,7 @@ public class Client extends Application {
         log.info("Starting client application");
         SceneManager.setStage(primaryStage);
         SceneManager.switchScene(UIConstants.LOGIN_FXML);
-        primaryStage.setTitle("Login");
+        primaryStage.setTitle("Pexeso");
         primaryStage.show();
     }
 }
