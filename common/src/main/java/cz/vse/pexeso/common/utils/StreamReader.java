@@ -6,7 +6,7 @@ import java.io.ObjectOutputStream;
 
 public class StreamReader {
 
-    public static String readPacket(ObjectInputStream ois) throws ClassNotFoundException, IOException {
+    public static String readPacket(ObjectInputStream ois) throws ClassNotFoundException, IOException, InterruptedException {
 
         String res = (String) ois.readObject();
 

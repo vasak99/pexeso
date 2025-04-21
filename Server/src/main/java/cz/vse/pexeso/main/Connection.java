@@ -41,7 +41,7 @@ public class Connection implements Runnable, Observable {
 
     public void run() {
         while(keepAlive) {
-            String msg = "Empty";
+            String msg = "";
             try {
                 msg = StreamReader.readPacket(ois);
             } catch (Exception e) {
