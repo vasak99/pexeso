@@ -78,4 +78,12 @@ public class Connection implements Runnable, Observable {
         }
     }
 
+    public void sendMessage(String msg) {
+        try {
+            StreamReader.writePacket(oos, msg);
+        } catch (Exception e) {
+            log.error("" + e);
+        }
+    }
+
 }
