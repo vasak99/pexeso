@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cz.vse.pexeso.utils.Rand;
+import cz.vse.pexeso.exceptions.CardsException;
 
 public class GameBoard {
 
@@ -16,13 +17,13 @@ public class GameBoard {
     private int[][] matrix;
     private Deck deck;
 
-    public GameBoard(int cardCount) throws Exception {
+    public GameBoard(int cardCount) throws CardsException {
         log.info("Attempting to create new game board");
 
         this.deck = new Deck();
 
         if(cardCount < deck.deckSize) {
-            throw new Exception("Not enough cards in deck");
+            throw new CardsException("Not enough cards in deck");
         }
 
         int[] shuff = this.generateShuffle(cardCount, this.deck.deckSize);

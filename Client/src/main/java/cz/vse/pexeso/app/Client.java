@@ -1,6 +1,5 @@
 package cz.vse.pexeso.app;
 
-import cz.vse.pexeso.common.MyTestClass;
 import cz.vse.pexeso.util.SceneManager;
 import cz.vse.pexeso.util.UIConstants;
 import javafx.application.Application;
@@ -12,7 +11,6 @@ public class Client extends Application {
     public static final Logger log = LoggerFactory.getLogger(Client.class);
 
     public static void main(String[] args) {
-        System.out.println(MyTestClass.getGreeting("client"));
 
         launch();
     }
