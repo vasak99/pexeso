@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<GridPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="200.0" prefWidth="400.0"
+          xmlns="http://javafx.com/javafx/17.0.12" fx:controller="cz.vse.pexeso.controller.NewRoomFormController">
+    <columnConstraints>
+        <ColumnConstraints hgrow="SOMETIMES"/>
+        <ColumnConstraints hgrow="SOMETIMES"/>
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints vgrow="SOMETIMES"/>
+        <RowConstraints vgrow="SOMETIMES"/>
+        <RowConstraints vgrow="SOMETIMES"/>
+        <RowConstraints vgrow="SOMETIMES"/>
+        <RowConstraints vgrow="SOMETIMES"/>
+    </rowConstraints>
+    <Label text="Name" GridPane.halignment="CENTER" GridPane.hgrow="NEVER" GridPane.valignment="CENTER"
+           GridPane.vgrow="NEVER"/>
+    <Label text="Board size" GridPane.halignment="CENTER" GridPane.hgrow="NEVER" GridPane.rowIndex="1"
+           GridPane.valignment="CENTER" GridPane.vgrow="NEVER"/>
+    <Label text="Capacity" GridPane.halignment="CENTER" GridPane.hgrow="NEVER" GridPane.rowIndex="2"
+           GridPane.valignment="CENTER" GridPane.vgrow="NEVER"/>
+    <TextField fx:id="nameField" GridPane.columnIndex="1" GridPane.halignment="CENTER"/>
+    <Button mnemonicParsing="false" onMouseClicked="#clickCreateButton" text="Create"
+            GridPane.columnSpan="2147483647" GridPane.halignment="CENTER" GridPane.rowIndex="4"/>
+    <Label fx:id="warningLabel" textFill="RED" GridPane.columnIndex="1" GridPane.rowIndex="3">
+        <font>
+            <Font size="14.0"/>
+        </font>
+    </Label>
+    <ChoiceBox fx:id="boardSizeChoiceBox" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1"/>
+    <ChoiceBox fx:id="capacityChoiceBox" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2"/>
+</GridPane>
