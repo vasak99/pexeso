@@ -42,7 +42,7 @@
                 <Font size="18.0" />
             </font>
         </Button>
-        <Button fx:id="readyButton" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onMouseClicked="#clickReady" prefWidth="375.0" text="Ready">
+        <Button fx:id="readyButton" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onMouseClicked="#clickReady" prefWidth="375.0" text="Ready up">
             <font>
                 <Font size="18.0" />
             </font>
