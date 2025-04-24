@@ -12,7 +12,7 @@ public class MessageData {
             throw new DataFormatException("Create game data in wrong format");
         }
 
-        StartGameData ret = new StartGameData(Integer.parseInt(parts[0]), Integer.parseInt(parts[2]));
+        StartGameData ret = new StartGameData(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]));
 
         return ret;
     }
