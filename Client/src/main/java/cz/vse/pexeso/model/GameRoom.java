@@ -2,23 +2,23 @@ package cz.vse.pexeso.model;
 
 public class GameRoom {
     private String gameId;
-    private String host;
-    private String name;
-    private String boardSize;
-    private int maxPlayers;
-    private String players;
-    private String status;
+    private String hostId;
+    private int capacity;
+    private int cardCount;
+    private int currentNumberOfPlayers;
+    private GameStatus status;
 
-    public GameRoom() {
+    public GameRoom(int capacity, int cardCount) {
+        this.capacity = capacity;
+        this.cardCount = cardCount;
     }
 
-    public GameRoom(String gameId, String host, String name, String boardSize, int maxPlayers, String players, String status) {
+    public GameRoom(String gameId, String hostId, int cardCount, int capacity, int currentNumberOfPlayers, GameStatus status) {
         this.gameId = gameId;
-        this.host = host;
-        this.name = name;
-        this.boardSize = boardSize;
-        this.maxPlayers = maxPlayers;
-        this.players = players;
+        this.hostId = hostId;
+        this.cardCount = cardCount;
+        this.capacity = capacity;
+        this.currentNumberOfPlayers = currentNumberOfPlayers;
         this.status = status;
     }
 
@@ -30,51 +30,43 @@ public class GameRoom {
         this.gameId = gameId;
     }
 
-    public String getHost() {
-        return host;
+    public String getHostId() {
+        return hostId;
     }
 
-    public void setHost(String host) {
-        this.host = host;
+    public void setHostId(String hostId) {
+        this.hostId = hostId;
     }
 
-    public String getName() {
-        return name;
+    public int getCardCount() {
+        return cardCount;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setCardCount(int cardCount) {
+        this.cardCount = cardCount;
     }
 
-    public String getBoardSize() {
-        return boardSize;
+    public int getCapacity() {
+        return capacity;
     }
 
-    public void setBoardSize(String boardSize) {
-        this.boardSize = boardSize;
+    public void setCapacity(int capacity) {
+        this.capacity = capacity;
     }
 
-    public int getMaxPlayers() {
-        return maxPlayers;
+    public int getCurrentNumberOfPlayers() {
+        return currentNumberOfPlayers;
     }
 
-    public void setMaxPlayers(int maxPlayers) {
-        this.maxPlayers = maxPlayers;
+    public void setCurrentNumberOfPlayers(int currentNumberOfPlayers) {
+        this.currentNumberOfPlayers = currentNumberOfPlayers;
     }
 
-    public String getPlayers() {
-        return players;
-    }
-
-    public void setPlayers(String players) {
-        this.players = players;
-    }
-
-    public String getStatus() {
+    public GameStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(GameStatus status) {
         this.status = status;
     }
 }

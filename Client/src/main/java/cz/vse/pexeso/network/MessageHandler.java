@@ -1,7 +1,6 @@
 package cz.vse.pexeso.network;
 
 import cz.vse.pexeso.common.message.Message;
-import cz.vse.pexeso.common.message.MessageTranslatorImpl;
 import cz.vse.pexeso.common.message.MessageType;
 import cz.vse.pexeso.model.observer.MessageTypeClient;
 import cz.vse.pexeso.model.observer.Observable;
@@ -23,7 +22,6 @@ public class MessageHandler implements Observable {
     public static final Logger log = LoggerFactory.getLogger(MessageHandler.class);
     private final Map<MessageTypeClient, Set<Observer>> simpleObservers = new HashMap<>();
     private final Map<MessageTypeClient, Set<ObserverWithData>> dataObservers = new HashMap<>();
-    private final MessageTranslatorImpl messageTranslator = new MessageTranslatorImpl();
 
 
     public MessageHandler() {
@@ -40,7 +38,7 @@ public class MessageHandler implements Observable {
      */
     public void dispatch(String message) {
         log.debug("Parsing message: {}", message);
-        Message msg = messageTranslator.stringToMessage(message);
+        Message msg = new Message(message);
 
         switch (msg.getType()) {
             case MessageType.LOGIN -> handleLoginMessage(msg.getData());
@@ -51,6 +49,7 @@ public class MessageHandler implements Observable {
             case MessageType.REDIRECT -> handleRedirectMessage(msg.getData());
             case MessageType.RESULT -> handleResultMessage(msg.getData());
             case MessageType.ERROR -> handleErrorMessage(msg.getData());
+            default -> log.error("Unknown message type: {}", msg.getType());
         }
     }
 
@@ -89,10 +88,10 @@ public class MessageHandler implements Observable {
 
 
         // if error is related to login, then
-        notifyObservers(MessageTypeClient.ERROR_LOGIN, errorDescription);
+        //notifyObservers(MessageTypeClient.ERROR_LOGIN, errorDescription);
 
         // if error is related to registration, then
-        notifyObservers(MessageTypeClient.ERROR_REGISTER, errorDescription);
+        //notifyObservers(MessageTypeClient.ERROR_REGISTER, errorDescription);
     }
 
     @Override
