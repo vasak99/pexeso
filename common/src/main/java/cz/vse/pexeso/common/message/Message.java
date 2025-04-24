@@ -24,8 +24,39 @@ public class Message {
         this.entries = entries;
     }
 
+    public Message(String msg) {
+        String[] strEntries = msg.split(MessageComponent.SEPARATOR.getValue());
+
+        boolean isInMsg = false;
+        for(var ent : strEntries) {
+            if(ent.equals(MessageComponent.START.getValue())) {
+                isInMsg = true;
+                continue;
+            }
+            if(ent.equals(MessageComponent.END.getValue())) {
+                break;
+            }
+            if(!isInMsg) { continue; }
+
+            String[] spl = ent.split(MessageComponent.KEY_VALUE_SEPARATOR.getValue());
+
+            if(spl.length != 2) {
+                continue;
+            }
+
+            MessageComponent mc = MessageComponent.fromString(spl[0]);
+            if(mc == null) { continue; }
+
+            this.setEntry(mc, spl[1]);
+        }
+    }
+
     public void setType(String type) {
         this.setEntry(MessageComponent.TYPE, type);
+    }
+
+    public void setType(MessageType mt) {
+        this.setEntry(MessageComponent.TYPE, mt.getValue());
     }
 
     public void setGameId(String id) {
@@ -74,6 +105,28 @@ public class Message {
 
     public Map<MessageComponent, String> getEntries() {
         return new HashMap<MessageComponent, String>(this.entries);
+    }
+
+    public String toSendable() {
+        String ret = "";
+
+        ret += MessageComponent.START.getValue();
+        ret += MessageComponent.SEPARATOR.getValue();
+
+        for(var mc : MessageComponent.getOrderedKeys()) {
+            String val = this.getEntry(mc);
+
+            if(val == null) { continue; }
+
+            ret += mc.getValue();
+            ret += MessageComponent.KEY_VALUE_SEPARATOR.getValue();
+            ret += val;
+            ret += MessageComponent.SEPARATOR.getValue();
+        }
+
+        ret += MessageComponent.END.getValue();
+
+        return ret;
     }
 
 }
