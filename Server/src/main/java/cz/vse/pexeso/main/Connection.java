@@ -10,6 +10,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import cz.vse.pexeso.common.message.Message;
 import cz.vse.pexeso.common.utils.StreamReader;
 import cz.vse.pexeso.utils.Observable;
 import cz.vse.pexeso.utils.Observer;
@@ -40,26 +41,30 @@ public class Connection implements Runnable, Observable {
     }
 
     public void run() {
-        while(keepAlive) {
-            String msg = "Empty";
+        while(keepAlive && !socket.isClosed()) {
+            String msg = "";
             try {
                 msg = StreamReader.readPacket(ois);
             } catch (Exception e) {
                 log.error("An error occured while reading a packet: " + e);
             }
 
-            log.info(msg);
+            Message message = new Message(msg);
+
+            this.notifyObservers(this, message);
         }
     }
 
     public void terminate() {
+        this.keepAlive = false;
         try {
             this.socket.close();
             log.info("Connection terminated");
         } catch(IOException e) {
             log.error("IOException occurred when terminating socket: " + e);
         }
-        this.notifyObservers(this);
+        Message msg = new Message();
+        this.notifyObservers(this, msg);
 
     }
 
@@ -72,9 +77,17 @@ public class Connection implements Runnable, Observable {
         this.observers.remove(obs);
     }
 
-    public void notifyObservers(Observable obs) {
+    public void notifyObservers(Observable obs, Object o) {
         for (Observer observer : this.observers) {
-            observer.onNotify(obs);
+            observer.onNotify(obs, o);
+        }
+    }
+
+    public void sendMessage(String msg) {
+        try {
+            StreamReader.writePacket(oos, msg);
+        } catch (Exception e) {
+            log.error("" + e);
         }
     }
 

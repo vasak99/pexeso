@@ -9,6 +9,8 @@ public enum MessageType {
 
     MOVE("MOVE"),
 
+    CREATE_GAME("CREATE_GAME"),
+
     REDIRECT("REDIRECT"),
 
     RESULT("RESULT"),

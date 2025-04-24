@@ -21,6 +21,8 @@ public enum MessageComponent {
 
     KEY_VALUE_SEPARATOR(": "),
 
+    DATA_SEPARATOR(","),
+
     END("MESSAGE_END");
 
     private String value;
