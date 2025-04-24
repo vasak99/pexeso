@@ -1,6 +1,6 @@
 package cz.vse.pexeso.controller;
 
-import cz.vse.pexeso.model.User;
+import cz.vse.pexeso.model.UserCredentials;
 import cz.vse.pexeso.model.observer.MessageTypeClient;
 import cz.vse.pexeso.network.MessageBuilder;
 import cz.vse.pexeso.service.AppServices;
@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 public class RegisterController {
     public static final Logger log = LoggerFactory.getLogger(RegisterController.class);
-    User user;
+    UserCredentials userCredentials;
     @FXML
     private TextField usernameField;
     @FXML
@@ -42,14 +42,14 @@ public class RegisterController {
             warningLabel.setText("Password must be at least 8 characters long.");
         } else {
             warningLabel.setText("");
-            user = new User(usernameField.getText(), passwordField.getText());
+            userCredentials = new UserCredentials(usernameField.getText(), passwordField.getText());
 
-            sendRegisterMessage(user);
+            sendRegisterMessage(userCredentials);
         }
     }
 
-    private void sendRegisterMessage(User user) {
-        String message = MessageBuilder.buildRegisterMessage(user);
+    private void sendRegisterMessage(UserCredentials userCredentials) {
+        String message = MessageBuilder.buildRegisterMessage(userCredentials);
         AppServices.getConnection().sendMessage(message);
         log.info("Registration credentials submitted for verification.");
     }
@@ -61,7 +61,7 @@ public class RegisterController {
     }
 
     private void handleInvalidRegistration(Object errorMessage) {
-        log.info("Registration failed.");
+        log.info("Registration failed: {}", errorMessage);
         usernameField.clear();
         passwordField.clear();
         confirmPasswordField.clear();

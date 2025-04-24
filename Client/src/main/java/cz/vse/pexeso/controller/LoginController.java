@@ -1,7 +1,7 @@
 package cz.vse.pexeso.controller;
 
 import cz.vse.pexeso.model.ClientSession;
-import cz.vse.pexeso.model.User;
+import cz.vse.pexeso.model.UserCredentials;
 import cz.vse.pexeso.model.observer.MessageTypeClient;
 import cz.vse.pexeso.network.MessageBuilder;
 import cz.vse.pexeso.service.AppServices;
@@ -16,9 +16,9 @@ import org.slf4j.LoggerFactory;
 
 public class LoginController {
     public static final Logger log = LoggerFactory.getLogger(LoginController.class);
+    UserCredentials userCredentials;
     @FXML
     private Label registrationConfirmationLabel;
-    User user;
     @FXML
     private TextField usernameField;
     @FXML
@@ -48,21 +48,22 @@ public class LoginController {
             warningLabel.setText("Please fill in all fields.");
         } else {
             warningLabel.setText("");
-            user = new User(usernameField.getText(), passwordField.getText());
+            userCredentials = new UserCredentials(usernameField.getText(), passwordField.getText());
 
-            sendLoginMessage(user);
+            sendLoginMessage(userCredentials);
         }
+        //handleSuccessfulLogin("abcd");
     }
 
-    private void sendLoginMessage(User user) {
-        String message = MessageBuilder.buildLoginMessage(user);
+    private void sendLoginMessage(UserCredentials userCredentials) {
+        String message = MessageBuilder.buildLoginMessage(userCredentials);
         AppServices.getConnection().sendMessage(message);
         log.info("Login credentials submitted for verification.");
     }
 
     private void handleSuccessfulLogin(Object playerId) {
         log.info("Login successful.");
-        AppServices.setClientSession(new ClientSession((String) playerId, user));
+        AppServices.setClientSession(new ClientSession((String) playerId, userCredentials));
         SceneManager.switchScene(UIConstants.LOBBY_FXML);
     }
 

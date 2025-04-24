@@ -6,19 +6,19 @@ import cz.vse.pexeso.util.UIConstants;
 
 public class ClientSession {
     private final String playerId;
-    private final User user;
+    private final UserCredentials userCredentials;
 
-    public ClientSession(String playerId, User user) {
+    public ClientSession(String playerId, UserCredentials userCredentials) {
         this.playerId = playerId;
-        this.user = user;
+        this.userCredentials = userCredentials;
     }
 
     public String getPlayerId() {
         return playerId;
     }
 
-    public User getUser() {
-        return user;
+    public UserCredentials getUser() {
+        return userCredentials;
     }
 
     public void logout() {
