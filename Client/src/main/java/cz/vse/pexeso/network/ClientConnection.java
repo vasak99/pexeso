@@ -1,5 +1,6 @@
 package cz.vse.pexeso.network;
 
+import cz.vse.pexeso.common.environment.Variables;
 import cz.vse.pexeso.common.utils.StreamReader;
 import cz.vse.pexeso.service.AppServices;
 import org.slf4j.Logger;
@@ -28,7 +29,7 @@ public class ClientConnection {
     public ClientConnection() {
         try {
             log.info("Creating client connection");
-            this.socket = new Socket("localhost", 8080);
+            this.socket = new Socket(Variables.SERVER_ADDR, Variables.DEFAULT_PORT);
             this.oos = new ObjectOutputStream(this.socket.getOutputStream());
             this.oos.flush();
             this.ois = new ObjectInputStream(this.socket.getInputStream());

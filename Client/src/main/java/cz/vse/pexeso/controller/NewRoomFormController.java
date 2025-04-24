@@ -1,40 +1,41 @@
 package cz.vse.pexeso.controller;
 
+import cz.vse.pexeso.common.environment.Variables;
 import cz.vse.pexeso.model.GameRoom;
+import cz.vse.pexeso.network.MessageBuilder;
 import cz.vse.pexeso.service.AppServices;
 import javafx.fxml.FXML;
-import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.Slider;
 
 public class NewRoomFormController {
+
+    @FXML
+    private Slider cardCountSlider;
+    @FXML
+    private Slider capacitySlider;
     @FXML
     private Label warningLabel;
-    @FXML
-    private TextField nameField;
-    @FXML
-    private ChoiceBox<String> boardSizeChoiceBox;
-    @FXML
-    private ChoiceBox<String> capacityChoiceBox;
 
     @FXML
     private void initialize() {
+        cardCountSlider.setMin(Variables.MIN_CARDS);
+        cardCountSlider.setMax(Variables.MAX_CARDS);
 
+        capacitySlider.setMin(Variables.MIN_PLAYERS);
+        capacitySlider.setMax(Variables.MAX_PLAYERS);
     }
 
     @FXML
     private void clickCreateButton() {
-        if (nameField.getText().isEmpty() || boardSizeChoiceBox.getValue().isEmpty() || capacityChoiceBox.getValue().isEmpty()) {
-            warningLabel.setText("Please fill in all fields.");
-        } else {
-            GameRoom gameRoom = new GameRoom();
-            gameRoom.setHost(AppServices.getClientSession().getUser().username());
-            gameRoom.setName(nameField.getText());
-            gameRoom.setBoardSize(boardSizeChoiceBox.getValue());
-            gameRoom.setMaxPlayers(Integer.parseInt(capacityChoiceBox.getValue()));
+        int cardCount = (int) cardCountSlider.getValue();
+        int capacity = (int) capacitySlider.getValue();
 
-            //save the room, send it to server
-            //close window
-        }
+        GameRoom gameRoom = new GameRoom(capacity, cardCount);
+
+        String message = MessageBuilder.buildCreateGameMessage(gameRoom);
+        AppServices.getConnection().sendMessage(message);
+
+        //close window
     }
 }

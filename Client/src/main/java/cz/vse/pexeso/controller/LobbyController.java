@@ -1,6 +1,8 @@
 package cz.vse.pexeso.controller;
 
 import cz.vse.pexeso.model.GameRoom;
+import cz.vse.pexeso.util.SceneManager;
+import cz.vse.pexeso.util.UIConstants;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -59,6 +61,6 @@ public class LobbyController {
 
     @FXML
     private void clickCreateNewRoom() {
-        //open the new room form
+        SceneManager.openWindow(UIConstants.NEW_ROOM_FXML, "Create new room");
     }
 }

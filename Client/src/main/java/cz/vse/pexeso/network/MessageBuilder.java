@@ -1,43 +1,45 @@
 package cz.vse.pexeso.network;
 
 import cz.vse.pexeso.common.message.Message;
-import cz.vse.pexeso.common.message.MessageTranslatorImpl;
 import cz.vse.pexeso.common.message.MessageType;
-import cz.vse.pexeso.common.message.payload.LoginPayload;
-import cz.vse.pexeso.model.User;
-import cz.vse.pexeso.service.AppServices;
+import cz.vse.pexeso.common.utils.MessageComponent;
+import cz.vse.pexeso.model.GameRoom;
+import cz.vse.pexeso.model.UserCredentials;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MessageBuilder {
 
     public static final Logger log = LoggerFactory.getLogger(MessageBuilder.class);
-    private static final MessageTranslatorImpl messageTranslator = new MessageTranslatorImpl();
-
 
     private MessageBuilder() {
     }
 
-    public static String buildLoginMessage(User user) {
-        log.debug("Building login message for user: {}", user.username());
+    public static String buildLoginMessage(UserCredentials userCredentials) {
+        log.debug("Building login message for userCredentials: {}", userCredentials.username());
+        Message message = new Message();
+        message.setType(MessageType.LOGIN);
+        message.setData(userCredentials.username() + MessageComponent.DATA_SEPARATOR.getValue() + userCredentials.password());
 
-        LoginPayload loginPayload = new LoginPayload(user.username(), user.password());
-        Message message = new Message(MessageType.LOGIN.getValue(), null, null, loginPayload);
-
-        return messageTranslator.messageToString(message);
+        return message.toSendable();
     }
 
-    public static String buildSubmitCard(int order, String cardID) {
-        String playerId = AppServices.getClientSession().getPlayerId();
-        return "";
+    public static String buildRegisterMessage(UserCredentials userCredentials) {
+        log.debug("Building register message for userCredentials: {}", userCredentials.username());
+        Message message = new Message();
+        message.setType(MessageType.REGISTER);
+        message.setData(userCredentials.username() + MessageComponent.DATA_SEPARATOR.getValue() + userCredentials.password());
+
+        return message.toSendable();
     }
 
-    public static String buildRegisterMessage(User user) {
-        log.debug("Building register message for user: {}", user.username());
+    public static String buildCreateGameMessage(GameRoom gameRoom) {
+        log.debug("Building create game message for gameRoom: {}", gameRoom);
+        Message message = new Message();
+        message.setType(MessageType.CREATE_GAME);
+        message.setData(gameRoom.getCapacity() + MessageComponent.DATA_SEPARATOR.getValue() + gameRoom.getCardCount());
 
-        LoginPayload loginPayload = new LoginPayload(user.username(), user.password());
-        Message message = new Message(MessageType.REGISTER.getValue(), null, null, loginPayload);
-
-        return messageTranslator.messageToString(message);
+        return message.toSendable();
     }
+
 }
