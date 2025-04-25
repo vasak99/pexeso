@@ -20,12 +20,12 @@
         </Label>
         <TableView fx:id="gameRoomTable" prefHeight="416.0" prefWidth="750.0">
             <columns>
-                <TableColumn fx:id="gameIdColumn" prefWidth="68.0" text="Game ID" />
-                <TableColumn fx:id="RoomHostColumn" prefWidth="142.0" text="Host" />
-                <TableColumn fx:id="roomNameColumn" prefWidth="199.0" text="Name" />
-                <TableColumn fx:id="boardSizeColumn" prefWidth="105.0" text="Board size" />
-                <TableColumn fx:id="roomPlayersColumn" minWidth="0.0" prefWidth="110.0" text="Players" />
                 <TableColumn fx:id="roomStatusColumn" prefWidth="125.0" text="Status" />
+                <TableColumn fx:id="gameIdColumn" prefWidth="68.0" text="Game ID" />
+                <TableColumn fx:id="hostColumn" prefWidth="105.0" text="Host" />
+                <TableColumn fx:id="cardCountColumn" prefWidth="105.0" text="Card count" />
+                <TableColumn fx:id="roomCapacityColumn" minWidth="0.0" prefWidth="110.0" text="Capacity" />
+            <TableColumn fx:id="actionsColumn" minWidth="0.0" prefWidth="205.0" text="Actions" />
             </columns>
         </TableView>
     </VBox>
@@ -37,12 +37,12 @@
         </Label>
     </VBox>
     <HBox GridPane.rowIndex="1">
-        <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onMouseClicked="#clickCreateNewRoom" prefWidth="375.0" text="Create new room">
+        <Button fx:id="createNewRoomButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onMouseClicked="#clickCreateNewRoom" prefWidth="375.0" text="Create new room">
             <font>
                 <Font size="18.0" />
             </font>
         </Button>
-        <Button fx:id="readyButton" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onMouseClicked="#clickReady" prefWidth="375.0" text="Ready up">
+        <Button fx:id="readyButton" disable="true" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onMouseClicked="#handleReadyClick" prefWidth="375.0" text="Ready up">
             <font>
                 <Font size="18.0" />
             </font>

@@ -7,11 +7,11 @@ public enum GameStatus {
 
     private final String value;
 
-    public String getValue() {
-        return this.value;
-    }
-
     GameStatus(String value) {
         this.value = value;
+    }
+
+    public String getValue() {
+        return this.value;
     }
 }

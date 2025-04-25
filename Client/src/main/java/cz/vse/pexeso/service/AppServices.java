@@ -11,11 +11,11 @@ import org.slf4j.LoggerFactory;
  */
 public class AppServices {
     public static final Logger log = LoggerFactory.getLogger(AppServices.class);
+    public static boolean justRegistered = false;
     private static boolean initialized = false;
     private static ClientConnection connection;
     private static MessageHandler messageHandler;
     private static ClientSession clientSession;
-    public static boolean justRegistered = false;
 
     public static void initialize() {
         if (!initialized) {

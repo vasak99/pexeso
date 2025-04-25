@@ -62,19 +62,21 @@ public class RegisterController {
 
     private void handleInvalidRegistration(Object errorMessage) {
         log.info("Registration failed: {}", errorMessage);
-        usernameField.clear();
-        passwordField.clear();
-        confirmPasswordField.clear();
+        clearFields();
         warningLabel.setText(errorMessage + ", please try again.");
     }
 
     @FXML
     private void handleLoginLinkClick() {
         log.info("Switching to login scene.");
+        clearFields();
+        warningLabel.setText("");
+        SceneManager.switchScene(UIConstants.LOGIN_FXML);
+    }
+
+    private void clearFields() {
         usernameField.clear();
         passwordField.clear();
         confirmPasswordField.clear();
-        warningLabel.setText("");
-        SceneManager.switchScene(UIConstants.LOGIN_FXML);
     }
 }

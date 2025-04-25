@@ -1,24 +1,46 @@
 package cz.vse.pexeso.model;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+
+import java.util.ArrayList;
+
 public class GameRoom {
-    private String gameId;
-    private String hostId;
-    private int capacity;
+    public static ObservableList<GameRoom> gameRooms = FXCollections.observableArrayList(new ArrayList<>());
+    private GameStatus status = GameStatus.WAITING_FOR_PLAYERS;
+    private String gameId = "";
+    private String host;
     private int cardCount;
-    private int currentNumberOfPlayers;
-    private GameStatus status;
+    private int capacity;
 
     public GameRoom(int capacity, int cardCount) {
         this.capacity = capacity;
         this.cardCount = cardCount;
     }
 
-    public GameRoom(String gameId, String hostId, int cardCount, int capacity, int currentNumberOfPlayers, GameStatus status) {
+    public GameRoom(GameStatus status, String gameId, String host, int cardCount, int capacity) {
+        this.status = status;
         this.gameId = gameId;
-        this.hostId = hostId;
+        this.host = host;
         this.cardCount = cardCount;
         this.capacity = capacity;
-        this.currentNumberOfPlayers = currentNumberOfPlayers;
+    }
+
+    public static void editGameRoom(String gameId, int cardCount, int capacity) {
+        for (GameRoom gameRoom : gameRooms) {
+            if (gameRoom.getGameId().equals(gameId)) {
+                gameRoom.setCardCount(cardCount);
+                gameRoom.setCapacity(capacity);
+                break;
+            }
+        }
+    }
+
+    public GameStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(GameStatus status) {
         this.status = status;
     }
 
@@ -30,12 +52,12 @@ public class GameRoom {
         this.gameId = gameId;
     }
 
-    public String getHostId() {
-        return hostId;
+    public String getHost() {
+        return host;
     }
 
-    public void setHostId(String hostId) {
-        this.hostId = hostId;
+    public void setHost(String host) {
+        this.host = host;
     }
 
     public int getCardCount() {
@@ -52,21 +74,5 @@ public class GameRoom {
 
     public void setCapacity(int capacity) {
         this.capacity = capacity;
-    }
-
-    public int getCurrentNumberOfPlayers() {
-        return currentNumberOfPlayers;
-    }
-
-    public void setCurrentNumberOfPlayers(int currentNumberOfPlayers) {
-        this.currentNumberOfPlayers = currentNumberOfPlayers;
-    }
-
-    public GameStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(GameStatus status) {
-        this.status = status;
     }
 }

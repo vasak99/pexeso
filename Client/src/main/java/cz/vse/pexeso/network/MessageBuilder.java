@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 public class MessageBuilder {
 
     public static final Logger log = LoggerFactory.getLogger(MessageBuilder.class);
+    public static MessageType latest;
 
     private MessageBuilder() {
     }
@@ -21,6 +22,7 @@ public class MessageBuilder {
         message.setType(MessageType.LOGIN);
         message.setData(userCredentials.username() + MessageComponent.DATA_SEPARATOR.getValue() + userCredentials.password());
 
+        latest = MessageType.LOGIN;
         return message.toSendable();
     }
 
@@ -30,6 +32,7 @@ public class MessageBuilder {
         message.setType(MessageType.REGISTER);
         message.setData(userCredentials.username() + MessageComponent.DATA_SEPARATOR.getValue() + userCredentials.password());
 
+        latest = MessageType.REGISTER;
         return message.toSendable();
     }
 

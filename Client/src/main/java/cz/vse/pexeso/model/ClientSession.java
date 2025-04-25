@@ -7,6 +7,7 @@ import cz.vse.pexeso.util.UIConstants;
 public class ClientSession {
     private final String playerId;
     private final UserCredentials userCredentials;
+    private GameRoom currentGameRoom;
 
     public ClientSession(String playerId, UserCredentials userCredentials) {
         this.playerId = playerId;
@@ -25,5 +26,13 @@ public class ClientSession {
         AppServices.clear();
 
         SceneManager.switchScene(UIConstants.LOGIN_FXML);
+    }
+
+    public GameRoom getCurrentGameRoom() {
+        return currentGameRoom;
+    }
+
+    public void setCurrentGameRoom(GameRoom currentGameRoom) {
+        this.currentGameRoom = currentGameRoom;
     }
 }

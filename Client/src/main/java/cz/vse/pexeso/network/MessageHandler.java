@@ -43,10 +43,10 @@ public class MessageHandler implements Observable {
         switch (msg.getType()) {
             case MessageType.LOGIN -> handleLoginMessage(msg.getData());
             case MessageType.REGISTER -> handleRegisterMessage(msg.getData());
+            case MessageType.REDIRECT -> handleRedirectMessage(msg.getData());
             case MessageType.REVEAL -> handleRevealMessage(msg.getData());
             case MessageType.STATUS -> handleStatusMessage(msg.getData());
             case MessageType.MOVE -> handleMoveMessage(msg.getData());
-            case MessageType.REDIRECT -> handleRedirectMessage(msg.getData());
             case MessageType.RESULT -> handleResultMessage(msg.getData());
             case MessageType.ERROR -> handleErrorMessage(msg.getData());
             default -> log.error("Unknown message type: {}", msg.getType());
@@ -86,12 +86,11 @@ public class MessageHandler implements Observable {
     private void handleErrorMessage(String errorDescription) {
         log.info("Handling error message.");
 
-
-        // if error is related to login, then
-        //notifyObservers(MessageTypeClient.ERROR_LOGIN, errorDescription);
-
-        // if error is related to registration, then
-        //notifyObservers(MessageTypeClient.ERROR_REGISTER, errorDescription);
+        switch (MessageBuilder.latest) {
+            case MessageType.LOGIN -> notifyObservers(MessageTypeClient.ERROR_LOGIN, errorDescription);
+            case MessageType.REGISTER -> notifyObservers(MessageTypeClient.ERROR_REGISTER, errorDescription);
+            case MessageType.CREATE_GAME -> notifyObservers(MessageTypeClient.ERROR_CREATE_GAME, errorDescription);
+        }
     }
 
     @Override
