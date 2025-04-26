@@ -63,6 +63,19 @@ public class MessageHandler implements Observable {
         notifyObservers(MessageTypeClient.REGISTER, data);
     }
 
+    private void handleRedirectMessage(String data) {
+        log.info("Handling redirect message.");
+        String[] parts = data.split(":");
+        String address = parts[0];
+        String port = parts[1];
+
+        if (MessageBuilder.latest.equals(MessageType.CREATE_GAME)) {
+            notifyObservers(MessageTypeClient.CREATE_GAME_SUCCESS);
+            notifyObservers(MessageTypeClient.REDIRECT, data);
+        }
+        MessageBuilder.latest = null;
+    }
+
     private void handleRevealMessage(String data) {
         log.info("Handling reveal message.");
     }
@@ -73,10 +86,6 @@ public class MessageHandler implements Observable {
 
     private void handleMoveMessage(String data) {
         log.info("Handling move message.");
-    }
-
-    private void handleRedirectMessage(String data) {
-        log.info("Handling redirect message.");
     }
 
     private void handleResultMessage(String data) {
@@ -91,6 +100,7 @@ public class MessageHandler implements Observable {
             case MessageType.REGISTER -> notifyObservers(MessageTypeClient.ERROR_REGISTER, errorDescription);
             case MessageType.CREATE_GAME -> notifyObservers(MessageTypeClient.ERROR_CREATE_GAME, errorDescription);
         }
+        MessageBuilder.latest = null;
     }
 
     @Override
