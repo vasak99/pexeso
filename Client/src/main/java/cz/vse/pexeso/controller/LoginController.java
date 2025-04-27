@@ -44,7 +44,7 @@ public class LoginController {
     @FXML
     private void handleLoginClick() {
         registrationConfirmationLabel.setVisible(false);
-        if (usernameField.getText().isEmpty() || passwordField.getText().isEmpty()) {
+        if (FormValidator.isEmpty(usernameField, passwordField)) {
             warningLabel.setText("Please fill in all fields.");
         } else {
             warningLabel.setText("");
@@ -70,17 +70,20 @@ public class LoginController {
     private void handleInvalidLogin(Object errorMessage) {
         log.info("Login failed: {}", errorMessage);
 
-        usernameField.clear();
-        passwordField.clear();
+        clearFields();
         warningLabel.setText(errorMessage + ", please try again.");
     }
 
     @FXML
     private void handleRegisterLinkClick() {
         log.info("Switching to register screen.");
+        clearFields();
+        warningLabel.setText("");
+        sceneManager.switchScene(UIConstants.REGISTER_FXML);
+    }
+
+    private void clearFields() {
         usernameField.clear();
         passwordField.clear();
-        warningLabel.setText("");
-        SceneManager.switchScene(UIConstants.REGISTER_FXML);
     }
 }

@@ -34,11 +34,11 @@ public class RegisterController {
 
     @FXML
     private void handleRegisterClick() {
-        if (usernameField.getText().isEmpty() || passwordField.getText().isEmpty() || confirmPasswordField.getText().isEmpty()) {
+        if (FormValidator.isEmpty(usernameField, passwordField, confirmPasswordField)) {
             warningLabel.setText("Please fill in all fields.");
-        } else if (!passwordField.getText().equals(confirmPasswordField.getText())) {
+        } else if (!FormValidator.passwordMatch(passwordField, confirmPasswordField)) {
             warningLabel.setText("Passwords do not match.");
-        } else if (passwordField.getText().length() < 8) {
+        } else if (!FormValidator.passwordStrong(passwordField)) {
             warningLabel.setText("Password must be at least 8 characters long.");
         } else {
             warningLabel.setText("");
