@@ -13,6 +13,8 @@ public enum MessageType {
 
     REDIRECT("REDIRECT"),
 
+    IDENTITY("IDENTITY"),
+
     RESULT("RESULT"),
     //START,
     // CARD,
