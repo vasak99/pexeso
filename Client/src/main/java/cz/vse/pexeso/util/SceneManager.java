@@ -12,16 +12,25 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.Objects;
 
-/**
- * Manages JavaFX scenes. Allows to switch between different scenes.
- */
 public class SceneManager {
-    public static final Logger log = LoggerFactory.getLogger(SceneManager.class);
-    private static Stage primaryStage;
-    private static Stage openedWindow;
+    private static final Logger log = LoggerFactory.getLogger(SceneManager.class);
+    private static SceneManager instance;
+    private Stage primaryStage;
+    private Stage openedWindow;
 
-    public static void setStage(Stage stage) {
-        primaryStage = stage;
+    private SceneManager() {
+        log.info("Creating SceneManager instance");
+    }
+
+    public static synchronized SceneManager getInstance() {
+        if (instance == null) {
+            instance = new SceneManager();
+        }
+        return instance;
+    }
+
+    public void setStage(Stage stage) {
+        this.primaryStage = stage;
     }
 
     /**
@@ -29,19 +38,19 @@ public class SceneManager {
      *
      * @param fxmlFile The path to the FXML file.
      */
-    public static void switchScene(String fxmlFile) {
+    public void switchScene(String fxmlFile) {
         try {
             log.debug("Switching scene to: {}", fxmlFile);
-            Parent root = FXMLLoader.load(Objects.requireNonNull(SceneManager.class.getResource(fxmlFile)));
+            Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource(fxmlFile)));
             primaryStage.setScene(new Scene(root));
         } catch (IOException e) {
             log.error("Error loading FXML file: {}", fxmlFile, e);
         }
     }
 
-    public static <T> T openWindow(String fxmlFile, String title) {
+    public <T> T openWindow(String fxmlFile, String title) {
         try {
-            FXMLLoader loader = new FXMLLoader(Objects.requireNonNull(SceneManager.class.getResource(fxmlFile)));
+            FXMLLoader loader = new FXMLLoader(Objects.requireNonNull(getClass().getResource(fxmlFile)));
             Parent root = loader.load();
 
             Scene scene = new Scene(root);
@@ -61,12 +70,14 @@ public class SceneManager {
         }
     }
 
-    public static void closeWindow() {
-        openedWindow.close();
-        openedWindow = null;
+    public void closeWindow() {
+        if (openedWindow != null) {
+            openedWindow.close();
+            openedWindow = null;
+        }
     }
 
-    public static void showErrorAlert(String text) {
+    public void showErrorAlert(String text) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Error");
         alert.setHeaderText(text);

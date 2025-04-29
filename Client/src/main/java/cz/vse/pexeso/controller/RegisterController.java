@@ -1,11 +1,12 @@
 package cz.vse.pexeso.controller;
 
-import cz.vse.pexeso.model.UserCredentials;
 import cz.vse.pexeso.model.observer.MessageTypeClient;
-import cz.vse.pexeso.network.MessageBuilder;
+import cz.vse.pexeso.model.observer.ObserverWithData;
 import cz.vse.pexeso.service.AppServices;
+import cz.vse.pexeso.service.RegisterService;
 import cz.vse.pexeso.util.SceneManager;
 import cz.vse.pexeso.util.UIConstants;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
@@ -14,8 +15,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RegisterController {
-    public static final Logger log = LoggerFactory.getLogger(RegisterController.class);
-    UserCredentials userCredentials;
+    private static final Logger log = LoggerFactory.getLogger(RegisterController.class);
+    private final AppServices appServices = AppServices.getInstance();
+    private final SceneManager sceneManager = SceneManager.getInstance();
+    private final RegisterService registerService = new RegisterService();
     @FXML
     private TextField usernameField;
     @FXML
@@ -24,54 +27,38 @@ public class RegisterController {
     private PasswordField confirmPasswordField;
     @FXML
     private Label warningLabel;
+    private final ObserverWithData errorObserver = this::handleInvalidRegistration;    private final ObserverWithData successObserver = this::handleSuccessfulRegistration;
 
     @FXML
     private void initialize() {
-        AppServices.getMessageHandler().register(MessageTypeClient.REGISTER, this::handleSuccessfulRegistration);
-        AppServices.getMessageHandler().registerWithData(MessageTypeClient.ERROR_REGISTER, this::handleInvalidRegistration);
+        appServices.getMessageHandler().registerWithData(MessageTypeClient.AUTH_SUCCESS, successObserver);
+        appServices.getMessageHandler().registerWithData(MessageTypeClient.ERROR, errorObserver);
         log.info("RegisterController initialized.");
     }
 
     @FXML
     private void handleRegisterClick() {
-        if (FormValidator.isEmpty(usernameField, passwordField, confirmPasswordField)) {
-            warningLabel.setText("Please fill in all fields.");
-        } else if (!FormValidator.passwordMatch(passwordField, confirmPasswordField)) {
-            warningLabel.setText("Passwords do not match.");
-        } else if (!FormValidator.passwordStrong(passwordField)) {
-            warningLabel.setText("Password must be at least 8 characters long.");
-        } else {
-            warningLabel.setText("");
-            userCredentials = new UserCredentials(usernameField.getText(), passwordField.getText());
-
-            sendRegisterMessage(userCredentials);
-        }
+        String warning = registerService.register(usernameField.getText(), passwordField.getText(), confirmPasswordField.getText());
+        warningLabel.setText(warning);
     }
 
-    private void sendRegisterMessage(UserCredentials userCredentials) {
-        String message = MessageBuilder.buildRegisterMessage(userCredentials);
-        AppServices.getConnection().sendMessage(message);
-        log.info("Registration credentials submitted for verification.");
-    }
-
-    private void handleSuccessfulRegistration() {
-        log.info("Registration successful.");
-        AppServices.justRegistered = true;
-        SceneManager.switchScene(UIConstants.LOGIN_FXML);
+    private void handleSuccessfulRegistration(Object playerId) {
+        registerService.initializeSession((long) playerId, usernameField.getText(), passwordField.getText());
+        unregister();
+        Platform.runLater(() -> sceneManager.switchScene(UIConstants.LOBBY_FXML));
     }
 
     private void handleInvalidRegistration(Object errorMessage) {
         log.info("Registration failed: {}", errorMessage);
         clearFields();
-        warningLabel.setText(errorMessage + ", please try again.");
+        Platform.runLater(() -> warningLabel.setText(errorMessage + ", please try again."));
     }
 
     @FXML
     private void handleLoginLinkClick() {
         log.info("Switching to login scene.");
-        clearFields();
-        warningLabel.setText("");
-        SceneManager.switchScene(UIConstants.LOGIN_FXML);
+        unregister();
+        sceneManager.switchScene(UIConstants.LOGIN_FXML);
     }
 
     private void clearFields() {
@@ -79,4 +66,13 @@ public class RegisterController {
         passwordField.clear();
         confirmPasswordField.clear();
     }
+
+    private void unregister() {
+        appServices.getMessageHandler().unregisterWithData(MessageTypeClient.AUTH_SUCCESS, successObserver);
+        appServices.getMessageHandler().unregisterWithData(MessageTypeClient.ERROR, errorObserver);
+    }
+
+
+
+
 }

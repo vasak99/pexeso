@@ -6,11 +6,6 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 <VBox alignment="CENTER" prefHeight="750.0" prefWidth="750.0" spacing="5.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cz.vse.pexeso.controller.LoginController">
-    <Label fx:id="registrationConfirmationLabel" text="Registration successful" textFill="#00a800" visible="false">
-        <font>
-            <Font size="18.0" />
-        </font>
-    </Label>
     <Label text="Login to Your Account">
         <font>
             <Font name="System Bold" size="24.0" />

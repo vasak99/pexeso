@@ -3,37 +3,58 @@ package cz.vse.pexeso.model;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-import java.util.ArrayList;
-
 public class GameRoom {
-    public static ObservableList<GameRoom> gameRooms = FXCollections.observableArrayList(new ArrayList<>());
+    public static final ObservableList<GameRoom> gameRooms = FXCollections.observableArrayList();
     private GameStatus status = GameStatus.WAITING_FOR_PLAYERS;
     private String gameId = "";
-    private String host;
-    private int cardCount;
+    private long hostId;
     private int capacity;
+    private int cardCount;
 
     public GameRoom(int capacity, int cardCount) {
         this.capacity = capacity;
         this.cardCount = cardCount;
     }
 
-    public GameRoom(GameStatus status, String gameId, String host, int cardCount, int capacity) {
-        this.status = status;
-        this.gameId = gameId;
-        this.host = host;
-        this.cardCount = cardCount;
+    public GameRoom(long hostId, int capacity, int cardCount) {
+        this.hostId = hostId;
         this.capacity = capacity;
+        this.cardCount = cardCount;
     }
 
-    public static void editGameRoom(String gameId, int cardCount, int capacity) {
+    public GameRoom(String gameId, long hostId, int capacity, int cardCount) {
+        this.gameId = gameId;
+        this.hostId = hostId;
+        this.capacity = capacity;
+        this.cardCount = cardCount;
+    }
+
+    public GameRoom(GameStatus status, String gameId, long hostId, int capacity, int cardCount) {
+        this.status = status;
+        this.gameId = gameId;
+        this.hostId = hostId;
+        this.capacity = capacity;
+        this.cardCount = cardCount;
+
+    }
+
+    public static void editGameRoom(String gameId, int capacity, int cardCount) {
         for (GameRoom gameRoom : gameRooms) {
             if (gameRoom.getGameId().equals(gameId)) {
-                gameRoom.setCardCount(cardCount);
                 gameRoom.setCapacity(capacity);
+                gameRoom.setCardCount(cardCount);
                 break;
             }
         }
+    }
+
+    public static GameRoom findById(String gameId) {
+        for (GameRoom gameRoom : gameRooms) {
+            if (gameRoom.getGameId().equals(gameId)) {
+                return gameRoom;
+            }
+        }
+        return null;
     }
 
     public GameStatus getStatus() {
@@ -52,20 +73,12 @@ public class GameRoom {
         this.gameId = gameId;
     }
 
-    public String getHost() {
-        return host;
+    public long getHostId() {
+        return hostId;
     }
 
-    public void setHost(String host) {
-        this.host = host;
-    }
-
-    public int getCardCount() {
-        return cardCount;
-    }
-
-    public void setCardCount(int cardCount) {
-        this.cardCount = cardCount;
+    public void setHostId(long hostId) {
+        this.hostId = hostId;
     }
 
     public int getCapacity() {
@@ -74,5 +87,13 @@ public class GameRoom {
 
     public void setCapacity(int capacity) {
         this.capacity = capacity;
+    }
+
+    public int getCardCount() {
+        return cardCount;
+    }
+
+    public void setCardCount(int cardCount) {
+        this.cardCount = cardCount;
     }
 }

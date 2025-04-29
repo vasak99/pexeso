@@ -37,12 +37,12 @@
         </Label>
     </VBox>
     <HBox GridPane.rowIndex="1">
-        <Button fx:id="createNewRoomButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onMouseClicked="#clickCreateNewRoom" prefWidth="375.0" text="Create new room">
+        <Button fx:id="manageRoomButton" onMouseClicked="#handleManageRoomClick" maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefWidth="375.0" text="Create new room">
             <font>
                 <Font size="18.0" />
             </font>
         </Button>
-        <Button fx:id="readyButton" disable="true" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onMouseClicked="#handleReadyClick" prefWidth="375.0" text="Ready up">
+        <Button fx:id="readyButton" disable="true" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onMouseClicked="#handleReadyClick" prefWidth="375.0" style="-fx-background-color: #ffc0c0;" text="Not ready">
             <font>
                 <Font size="18.0" />
             </font>

@@ -17,6 +17,12 @@ public enum MessageType {
 
     JOIN_GAME("JOIN_GAME"),
 
+    LEAVE_GAME("LEAVE_GAME"),
+
+    PLAYER_READY("PLAYER_READY"),
+
+    KICK_PLAYER("KICK_PLAYER"),
+
     REDIRECT("REDIRECT"),
 
     IDENTITY("IDENTITY"),

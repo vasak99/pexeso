@@ -9,31 +9,23 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TableCell;
 import javafx.scene.layout.HBox;
 
-public class ActionCell extends TableCell<GameRoom, Void> {
+public class GameRoomActionCell extends TableCell<GameRoom, Void> {
     private final Button joinButton = new Button("Join");
-    private final Button editButton = new Button("Edit");
-    private final Button deleteButton = new Button("Delete");
-    private final HBox actionBox = new HBox(5, joinButton, editButton, deleteButton);
+    private final Button leaveButton = new Button("Leave");
+    private final HBox actionBox = new HBox(5, joinButton, leaveButton);
 
-    public ActionCell(LobbyController controller) {
+    public GameRoomActionCell(LobbyController controller) {
         joinButton.setStyle("-fx-background-color: #d0ffc0;");
-        editButton.setStyle("-fx-background-color: #fff4c0;");
-        deleteButton.setStyle("-fx-background-color: #ffc0c0;");
-
+        leaveButton.setStyle("-fx-background-color: #ffc0c0;");
 
         joinButton.setOnAction(event -> {
             GameRoom gameRoom = getTableView().getItems().get(getIndex());
             controller.joinGameRoom(gameRoom);
         });
 
-        editButton.setOnAction(event -> {
+        leaveButton.setOnAction(event -> {
             GameRoom gameRoom = getTableView().getItems().get(getIndex());
-            controller.editGameRoom(gameRoom);
-        });
-
-        deleteButton.setOnAction(event -> {
-            GameRoom gameRoom = getTableView().getItems().get(getIndex());
-            controller.deleteGameRoom(gameRoom);
+            controller.leaveGameRoom(gameRoom);
         });
     }
 
@@ -46,16 +38,20 @@ public class ActionCell extends TableCell<GameRoom, Void> {
         }
 
         GameRoom gameRoom = getTableView().getItems().get(getIndex());
-        ClientSession clientSession = AppServices.getClientSession();
+        if (gameRoom == null) {
+            setGraphic(null);
+            return;
+        }
 
-        boolean isHost = clientSession.getPlayerId().equals(gameRoom.getHost());
+        ClientSession clientSession = AppServices.getInstance().getClientSession();
+
+        boolean isHost = clientSession.getPlayerId() == gameRoom.getHostId();
         boolean isJoinable = gameRoom.getStatus() == GameStatus.WAITING_FOR_PLAYERS;
         boolean alreadyJoined = clientSession.getCurrentGameRoom() != null &&
                 clientSession.getCurrentGameRoom().getGameId().equals(gameRoom.getGameId());
 
         joinButton.setVisible(isJoinable && !alreadyJoined);
-        editButton.setVisible(isHost);
-        deleteButton.setVisible(isHost);
+        leaveButton.setVisible(!isHost && alreadyJoined);
 
         setGraphic(actionBox);
     }

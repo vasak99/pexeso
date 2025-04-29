@@ -1,8 +1,6 @@
 package cz.vse.pexeso.network;
 
-import cz.vse.pexeso.common.environment.Variables;
 import cz.vse.pexeso.common.utils.StreamReader;
-import cz.vse.pexeso.service.AppServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,35 +14,31 @@ import java.net.Socket;
  * Handles the connection to the server. Sends and receives messages from the server.
  */
 public class ClientConnection {
-    public static final Logger log = LoggerFactory.getLogger(ClientConnection.class);
+    private static final Logger log = LoggerFactory.getLogger(ClientConnection.class);
     private Socket socket;
     private ObjectInputStream ois;
     private ObjectOutputStream oos;
     private volatile boolean isListening = true;
+    private MessageHandler messageHandler;
 
-    /**
-     * Initializes the socket and the input/output streams.
-     * Starts a new thread to listen for messages from the server.
-     */
-    public ClientConnection() {
+    public ClientConnection(String host, int port) {
         try {
-            log.info("Creating client connection");
-            this.socket = new Socket(Variables.SERVER_ADDR, Variables.DEFAULT_PORT);
+            log.info("Creating client connection to {}:{}", host, port);
+            this.socket = new Socket(host, port);
             this.oos = new ObjectOutputStream(this.socket.getOutputStream());
             this.oos.flush();
             this.ois = new ObjectInputStream(this.socket.getInputStream());
-            listenForMessage();
         } catch (IOException e) {
             log.error("Error creating client connection: ", e);
             close();
         }
     }
 
-    /**
-     * Sends a message to the server.
-     *
-     * @param message The message to be sent.
-     */
+    public void setMessageHandler(MessageHandler handler) {
+        this.messageHandler = handler;
+        listenForMessage();
+    }
+
     public void sendMessage(String message) {
         try {
             log.debug("Sending message: {}", message);
@@ -56,20 +50,17 @@ public class ClientConnection {
         }
     }
 
-    /**
-     * Listens for messages from the server in a separate thread.
-     * Sends the message to MessageHandler to parse and handle it.
-     */
-    public void listenForMessage() {
+    private void listenForMessage() {
         log.info("Starting new thread to listen for messages");
-        new Thread(() -> {
+        Thread listenerThread = new Thread(() -> {
             // Loop while the connection is considered active
             while (isListening && socket != null && !socket.isClosed()) {
-                String messageFromServer;
                 try {
-                    messageFromServer = StreamReader.readPacket(ois);
+                    String messageFromServer = StreamReader.readPacket(ois);
                     log.debug("Message from server: {}", messageFromServer);
-                    AppServices.getMessageHandler().dispatch(messageFromServer);
+                    if (messageHandler != null) {
+                        messageHandler.dispatch(messageFromServer);
+                    }
                 } catch (EOFException eof) {
                     log.warn("Server closed the connection: ", eof);
                     break;
@@ -81,7 +72,9 @@ public class ClientConnection {
             // Loop is exited, listening is stopped
             isListening = false;
             close();
-        }).start();
+        });
+        listenerThread.setDaemon(true);
+        listenerThread.start();
     }
 
     public void close() {
@@ -90,9 +83,6 @@ public class ClientConnection {
         closeResources();
     }
 
-    /**
-     * Closes the resources used for the connection.
-     */
     private void closeResources() {
         log.info("Closing resources");
         try {
@@ -110,4 +100,3 @@ public class ClientConnection {
         }
     }
 }
-

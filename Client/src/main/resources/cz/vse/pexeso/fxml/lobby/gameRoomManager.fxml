@@ -3,8 +3,8 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Font?>
-<GridPane prefHeight="200.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cz.vse.pexeso.controller.GameRoomWindowController">
+<?import javafx.scene.text.*?>
+<GridPane prefHeight="400.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cz.vse.pexeso.controller.GameRoomWindowController">
     <columnConstraints>
         <ColumnConstraints hgrow="SOMETIMES" />
         <ColumnConstraints hgrow="SOMETIMES" />
@@ -12,6 +12,7 @@
     <rowConstraints>
         <RowConstraints vgrow="SOMETIMES" />
         <RowConstraints vgrow="SOMETIMES" />
+      <RowConstraints vgrow="SOMETIMES" />
         <RowConstraints vgrow="SOMETIMES" />
         <RowConstraints vgrow="SOMETIMES" />
     </rowConstraints>
@@ -25,7 +26,7 @@
             <Font size="14.0" />
         </font>
     </Label>
-    <Label fx:id="warningLabel" textFill="RED" GridPane.columnSpan="2147483647" GridPane.halignment="CENTER" GridPane.rowIndex="2">
+    <Label fx:id="warningLabel" textFill="RED" GridPane.columnSpan="2147483647" GridPane.halignment="CENTER" GridPane.rowIndex="3">
         <font>
             <Font size="14.0" />
         </font>
@@ -38,7 +39,18 @@
       <GridPane.margin>
          <Insets right="10.0" />
       </GridPane.margin></Slider>
-    <Button mnemonicParsing="false" onMouseClicked="#handleSaveClick" text="Save" GridPane.columnSpan="2147483647" GridPane.halignment="CENTER" GridPane.rowIndex="3">
+   <TableView fx:id="playerTable" prefHeight="150.0" prefWidth="400.0" GridPane.columnSpan="2147483647" GridPane.rowIndex="2">
+     <columns>
+       <TableColumn fx:id="playerNameColumn" prefWidth="145.0" text="Player" />
+       <TableColumn fx:id="actionColumn" prefWidth="153.0" text="Action" />
+     </columns>
+   </TableView>
+   <Button mnemonicParsing="false" onMouseClicked="#handleDeleteClick" text="Delete" GridPane.halignment="CENTER" GridPane.rowIndex="4">
+      <font>
+         <Font size="14.0" />
+      </font>
+   </Button>
+    <Button mnemonicParsing="false" onMouseClicked="#handleSaveClick" text="Save" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="4">
         <font>
             <Font size="14.0" />
         </font>

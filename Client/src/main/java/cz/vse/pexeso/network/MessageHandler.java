@@ -18,11 +18,9 @@ import java.util.Set;
  * Responsible for parsing messages received from the server and notifying the appropriate observers.
  */
 public class MessageHandler implements Observable {
-
-    public static final Logger log = LoggerFactory.getLogger(MessageHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(MessageHandler.class);
     private final Map<MessageTypeClient, Set<Observer>> simpleObservers = new HashMap<>();
     private final Map<MessageTypeClient, Set<ObserverWithData>> dataObservers = new HashMap<>();
-
 
     public MessageHandler() {
         for (MessageTypeClient type : MessageTypeClient.values()) {
@@ -31,76 +29,35 @@ public class MessageHandler implements Observable {
         }
     }
 
-    /**
-     * Translates the message and dispatches it to the appropriate handler based on the message type.
-     *
-     * @param message The message received from the server.
-     */
     public void dispatch(String message) {
         log.debug("Parsing message: {}", message);
         Message msg = new Message(message);
 
         switch (msg.getType()) {
-            case MessageType.LOGIN -> handleLoginMessage(msg.getData());
-            case MessageType.REGISTER -> handleRegisterMessage(msg.getData());
-            case MessageType.REDIRECT -> handleRedirectMessage(msg.getData());
-            case MessageType.REVEAL -> handleRevealMessage(msg.getData());
-            case MessageType.STATUS -> handleStatusMessage(msg.getData());
-            case MessageType.MOVE -> handleMoveMessage(msg.getData());
-            case MessageType.RESULT -> handleResultMessage(msg.getData());
-            case MessageType.ERROR -> handleErrorMessage(msg.getData());
+            case MessageType.IDENTITY -> handleIdentityMessage(msg);
+            case MessageType.REDIRECT, MessageType.EDIT_GAME, MessageType.DELETE_GAME -> handleRoomChangeMessage(msg);
+            case MessageType.ERROR -> handleErrorMessage(msg);
             default -> log.error("Unknown message type: {}", msg.getType());
         }
     }
 
-    private void handleLoginMessage(String playerId) {
-        log.info("Handling login message.");
-        notifyObservers(MessageTypeClient.LOGIN, playerId);
+    private void handleIdentityMessage(Message msg) {
+        long playerId = Long.parseLong(msg.getData());
+        notifyObservers(MessageTypeClient.AUTH_SUCCESS, playerId);
     }
 
-    private void handleRegisterMessage(String data) {
-        log.info("Handling register message.");
-        notifyObservers(MessageTypeClient.REGISTER, data);
-    }
-
-    private void handleRedirectMessage(String data) {
+    private void handleRoomChangeMessage(Message msg) {
         log.info("Handling redirect message.");
-        String[] parts = data.split(":");
-        String address = parts[0];
-        String port = parts[1];
+        String redirectData = msg.getData();
 
-        if (MessageBuilder.latest.equals(MessageType.CREATE_GAME)) {
-            notifyObservers(MessageTypeClient.CREATE_GAME_SUCCESS);
-            notifyObservers(MessageTypeClient.REDIRECT, data);
-        }
-        MessageBuilder.latest = null;
+        notifyObservers(MessageTypeClient.GAME_ROOM_SUCCESS, redirectData);
+        notifyObservers(MessageTypeClient.GAME_TABLE_CHANGE);
     }
 
-    private void handleRevealMessage(String data) {
-        log.info("Handling reveal message.");
-    }
-
-    private void handleStatusMessage(String data) {
-        log.info("Handling status message.");
-    }
-
-    private void handleMoveMessage(String data) {
-        log.info("Handling move message.");
-    }
-
-    private void handleResultMessage(String data) {
-        log.info("Handling result message.");
-    }
-
-    private void handleErrorMessage(String errorDescription) {
+    private void handleErrorMessage(Message msg) {
         log.info("Handling error message.");
-
-        switch (MessageBuilder.latest) {
-            case MessageType.LOGIN -> notifyObservers(MessageTypeClient.ERROR_LOGIN, errorDescription);
-            case MessageType.REGISTER -> notifyObservers(MessageTypeClient.ERROR_REGISTER, errorDescription);
-            case MessageType.CREATE_GAME -> notifyObservers(MessageTypeClient.ERROR_CREATE_GAME, errorDescription);
-        }
-        MessageBuilder.latest = null;
+        String errorDescription = msg.getData();
+        notifyObservers(MessageTypeClient.ERROR, errorDescription);
     }
 
     @Override
@@ -109,8 +66,19 @@ public class MessageHandler implements Observable {
     }
 
     @Override
-    public void registerWithData(MessageTypeClient type, ObserverWithData observer) {
-        dataObservers.get(type).add(observer);
+    public void registerWithData(MessageTypeClient type, ObserverWithData observerWithData) {
+        dataObservers.get(type).add(observerWithData);
+    }
+
+    @Override
+    public void unregister(MessageTypeClient type, Observer observer) {
+        simpleObservers.get(type).remove(observer);
+    }
+
+    @Override
+    public void unregisterWithData(MessageTypeClient type, ObserverWithData observerWithData) {
+        boolean removed = dataObservers.get(type).remove(observerWithData);
+        log.debug("unregister {}: {}", type, removed ? "SUCCESS" : "FAILED");
     }
 
     @Override

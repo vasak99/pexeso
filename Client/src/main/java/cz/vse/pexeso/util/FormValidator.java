@@ -1,24 +1,21 @@
 package cz.vse.pexeso.util;
 
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
-
 public class FormValidator {
 
-    public static boolean isEmpty(TextField... textFields) {
-        for (TextField textField : textFields) {
-            if (textField.getText().isEmpty()) {
+    public static boolean isEmpty(String... textFields) {
+        for (String textField : textFields) {
+            if (textField.trim().isEmpty()) {
                 return true;
             }
         }
         return false;
     }
 
-    public static boolean passwordMatch(PasswordField passwordField1, PasswordField passwordField2) {
-        return passwordField1.getText().equals(passwordField2.getText());
+    public static boolean passwordMatch(String passwordField1, String passwordField2) {
+        return passwordField1.equals(passwordField2);
     }
 
-    public static boolean passwordStrong(PasswordField passwordField) {
-        return passwordField.getText().length() >= 8;
+    public static boolean passwordStrong(String passwordField) {
+        return passwordField.length() >= 8;
     }
 }

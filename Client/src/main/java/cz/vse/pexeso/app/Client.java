@@ -1,5 +1,6 @@
 package cz.vse.pexeso.app;
 
+import cz.vse.pexeso.service.AppServices;
 import cz.vse.pexeso.util.SceneManager;
 import cz.vse.pexeso.util.UIConstants;
 import javafx.application.Application;
@@ -11,16 +12,24 @@ public class Client extends Application {
     public static final Logger log = LoggerFactory.getLogger(Client.class);
 
     public static void main(String[] args) {
-
         launch();
     }
 
     @Override
     public void start(Stage primaryStage) {
         log.info("Starting client application");
-        SceneManager.setStage(primaryStage);
-        SceneManager.switchScene(UIConstants.LOGIN_FXML);
+
+        AppServices.getInstance().initialize();
+
+        SceneManager sceneManager = SceneManager.getInstance();
+        sceneManager.setStage(primaryStage);
+        sceneManager.switchScene(UIConstants.LOGIN_FXML);
         primaryStage.setTitle("Pexeso");
         primaryStage.show();
+    }
+
+    @Override
+    public void stop() {
+        AppServices.getInstance().clear();
     }
 }
