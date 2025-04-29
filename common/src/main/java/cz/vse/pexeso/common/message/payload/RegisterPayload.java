@@ -3,23 +3,25 @@ package cz.vse.pexeso.common.message.payload;
 import cz.vse.pexeso.common.exceptions.DataFormatException;
 import cz.vse.pexeso.common.utils.MessageComponent;
 
-public class LoginPayload implements MessagePayload {
-    public String username;
+public class RegisterPayload implements MessagePayload {
+
+    public String name;
     public String password;
 
-    public LoginPayload(String username, String password) {
-        this.username = username;
+    public RegisterPayload(String name, String password) {
+        this.name = name;
         this.password = password;
     }
 
     public String toSendable() {
-        return "" + this.username + MessageComponent.DATA_SEPARATOR.getValue() + this.password;
+        return "" + this.name + MessageComponent.DATA_SEPARATOR.getValue() + this.password;
     }
 
-    public LoginPayload(String data) throws DataFormatException {
+    public RegisterPayload(String data) throws DataFormatException {
         String[] sep = data.split(MessageComponent.DATA_SEPARATOR.getValue());
         if(sep.length != 2) {
             throw new DataFormatException("Login data in wrong format");
         }
     }
+
 }

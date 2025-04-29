@@ -1,27 +1,28 @@
 package cz.vse.pexeso.main;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.UnknownHostException;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import cz.vse.pexeso.common.environment.Variables;
 import cz.vse.pexeso.common.exceptions.DataFormatException;
 import cz.vse.pexeso.common.message.Message;
 import cz.vse.pexeso.common.message.MessageType;
 import cz.vse.pexeso.common.message.payload.StartGameData;
-import cz.vse.pexeso.common.utils.MessageData;
+import cz.vse.pexeso.database.DatabaseController;
 import cz.vse.pexeso.exceptions.CardsException;
 import cz.vse.pexeso.exceptions.PlayersException;
 import cz.vse.pexeso.game.Game;
 import cz.vse.pexeso.utils.Observable;
 import cz.vse.pexeso.utils.Observer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.UnknownHostException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 public class GameServerRuntime implements Observer {
 
@@ -33,12 +34,21 @@ public class GameServerRuntime implements Observer {
     private Set<Connection> connections = new HashSet<Connection>();
     private Map<String, Game> games = new HashMap<String, Game>();
 
+    private DatabaseController dc;
+    private MessageController messageController;
+
     public GameServerRuntime(int port) {
         try {
             log.info("Attempting to start socket");
             this.serverSocket = new ServerSocket(port);
+
+            this.dc = new DatabaseController();
+            this.messageController = new MessageController(this, this.dc);
         } catch (IOException e) {
             log.error("IOException occurred while starting the server: " + e);
+            return;
+        } catch(SQLException e) {
+            log.error("An SQLException occurred while trying to connect to database: " + e);
             return;
         }
 
@@ -73,22 +83,17 @@ public class GameServerRuntime implements Observer {
 
     @Override
     public void onNotify(Observable obs, Object o) {
-        if(o instanceof Message) {
+        if(obs instanceof Connection && o instanceof Message) {
             Message msg = (Message) o;
             Connection conn = (Connection) obs;
 
-            switch(msg.getType()) {
-                case MessageType.CREATE_GAME:
-                    this.createGame(conn, msg.getData());
-                    break;
-                default:
-                    break;
-            }
+            this.messageController.handleMessage(conn, msg);
+        } else {
+            log.error("Unable to read message");
         }
-        // this.connections.remove(obs);
     }
 
-    private void createGame(Connection conn, String data) {
+    public void createGame(Connection conn, String data) {
         if(this.games.size() >= Variables.MAX_GAMES) {
             Message msg = new Message();
             msg.setType(MessageType.ERROR);
@@ -99,7 +104,7 @@ public class GameServerRuntime implements Observer {
 
         int port = 1;
         try {
-            StartGameData sgd = MessageData.getCreateGameData(data);
+            StartGameData sgd = new StartGameData(data);
 
             Game game = null;
 
@@ -119,7 +124,7 @@ public class GameServerRuntime implements Observer {
             try {
                 Message msg = new Message();
                 msg.setType(MessageType.REDIRECT);
-                msg.setData(InetAddress.getLocalHost().getHostAddress()  + ":" + port);
+                msg.setData(InetAddress.getLocalHost().getLocalHost() + ":" + port);
                 conn.sendMessage(msg.toSendable());
             } catch (UnknownHostException e) {}
         } catch (DataFormatException e) {
@@ -131,15 +136,14 @@ public class GameServerRuntime implements Observer {
             Message msg = new Message();
             msg.setType(MessageType.ERROR);
             msg.setData(e.getMessage());
-            conn.sendMessage(msg.toSendable());
+            conn.sendMessage(e.getMessage());
         } catch (PlayersException e) {
             Message msg = new Message();
             msg.setType(MessageType.ERROR);
             msg.setData(e.getMessage());
-            conn.sendMessage(msg.toSendable());
+            conn.sendMessage(e.getMessage());
         }
     }
-
 
 }
 
