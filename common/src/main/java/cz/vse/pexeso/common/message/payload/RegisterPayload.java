@@ -22,6 +22,8 @@ public class RegisterPayload implements MessagePayload {
         if(sep.length != 2) {
             throw new DataFormatException("Login data in wrong format");
         }
+        this.name = sep[0];
+        this.password = sep[1];
     }
 
 }
