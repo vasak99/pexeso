@@ -3,20 +3,26 @@ package cz.vse.pexeso.game;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import cz.vse.pexeso.common.message.Message;
+import cz.vse.pexeso.common.message.MessageType;
 import cz.vse.pexeso.main.Connection;
+import cz.vse.pexeso.main.MessageFactory;
+import cz.vse.pexeso.utils.Observable;
 import cz.vse.pexeso.utils.Observer;
-import cz.vse.pexeso.utils.Rand;
 
-public class Acceptor implements Runnable {
+public class Acceptor implements Runnable, Observer {
     public static final Logger log = LoggerFactory.getLogger(Acceptor.class);
 
     private ServerSocket serverSocket;
     private Map<String, Connection> output;
+    private Set<Connection> pendingConnections;
     private int capacity;
     private boolean keepAlive;
     private Observer obs;
@@ -26,6 +32,7 @@ public class Acceptor implements Runnable {
         this.output = output;
         this.capacity = capacity;
         this.obs = obs;
+        this.pendingConnections = new HashSet<>();
     }
 
     public void run() {
@@ -41,19 +48,12 @@ public class Acceptor implements Runnable {
                         continue;
                     }
 
-                    if(this.output.size() < this.capacity) {
-                        Connection conn = new Connection(socket);
-                        String playerId;
-                        do {
-                            playerId = "" + Rand.between(0, Integer.MAX_VALUE);
-                        } while (this.output.containsKey(playerId));
+                    Connection conn = new Connection(socket);
 
-                        synchronized(this.obs) {
-                            conn.subscribe(this.obs);
-                        }
+                    this.pendingConnections.add(conn);
+                    conn.subscribe(this);
 
-                        this.output.put(playerId, conn);
-                    }
+                    conn.sendMessage(MessageFactory.getIdentityRequest().toSendable());
                 }
             }
         }
@@ -61,6 +61,10 @@ public class Acceptor implements Runnable {
 
     public void terminate() {
         this.keepAlive = false;
+        for(var conn : this.pendingConnections) {
+            conn.sendMessage(MessageFactory.getError("Game capacity full").toSendable());
+            conn.unsubscribe(this);
+        }
         try {
             synchronized(serverSocket) {
                 serverSocket.close();
@@ -68,6 +72,35 @@ public class Acceptor implements Runnable {
         }
         catch (IOException e) {
             log.info("Server socket closed");
+        }
+    }
+
+    public void onNotify(Observable obs, Object o) {
+        if(obs instanceof Connection && o instanceof Message) {
+            Message msg = (Message) o;
+            Connection conn = (Connection) obs;
+
+            if(keepAlive) {
+                switch (msg.getType()) {
+                    case MessageType.IDENTITY:
+                        this.processIdentity(conn, msg.getData());
+                        break;
+                    default:
+                        conn.sendMessage(MessageFactory.getError("Unexpected message type").toSendable());
+                        break;
+                }
+            } else {
+                conn.sendMessage(MessageFactory.getError("Game already started").toSendable());
+            }
+        }
+    }
+
+    private void processIdentity(Connection conn, String playerId) {
+        synchronized(output) {
+            if(this.output.size() < this.capacity) {
+                this.output.put(playerId, conn);
+                this.pendingConnections.remove(conn);
+            }
         }
     }
 

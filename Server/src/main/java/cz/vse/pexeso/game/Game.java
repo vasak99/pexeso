@@ -2,7 +2,6 @@ package cz.vse.pexeso.game;
 
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,6 +15,8 @@ import cz.vse.pexeso.main.Connection;
 import cz.vse.pexeso.utils.Observable;
 import cz.vse.pexeso.utils.Observer;
 import cz.vse.pexeso.exceptions.CardsException;
+import cz.vse.pexeso.main.MessageFactory;
+import cz.vse.pexeso.common.message.MessageType;
 
 public class Game implements Observer {
 
@@ -55,6 +56,7 @@ public class Game implements Observer {
     public void startGame() {
         this.acceptor.terminate();
         this.isStarted = true;
+        this.sendToAll(MessageFactory.getGameStartMessage());
     }
 
     private void sendTo(String player, Message message) {
@@ -69,10 +71,32 @@ public class Game implements Observer {
     }
 
     @Override
-    public void onNotify(Observable conn, Object o) {
-        if(o instanceof Message) {
+    public void onNotify(Observable obj, Object o) {
+        if(obj instanceof Connection && o instanceof Message) {
             Message msg = (Message) o;
-            log.info(msg.getType().getValue());
+            Connection conn = (Connection) obj;
+
+            switch(msg.getType()) {
+                case MessageType.GAME_START:
+                    this.startGame();
+                    break;
+                case MessageType.REVEAL:
+                    this.revealCard(1,1);
+                    break;
+                default:
+                    break;
+
+            }
+        }
+    }
+
+    public void revealCard(int row, int column) {
+
+    }
+
+    private void sendToAll(Message msg) {
+        for(var conn : this.connections.entrySet()) {
+            conn.getValue().sendMessage(msg.toSendable());
         }
     }
 

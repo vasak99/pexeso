@@ -12,7 +12,7 @@ import cz.vse.pexeso.database.DatabaseController;
 import cz.vse.pexeso.database.model.User;
 
 
-public class MessageController extends Messenger {
+public class MessageController {
 
     private DatabaseController dc;
     private GameServerRuntime gsr;
@@ -48,24 +48,24 @@ public class MessageController extends Messenger {
 
             var result = User.fromResultSet(statement.executeQuery());
             if(result.size() < 1) {
-                conn.sendMessage(getLoginMessage("User with specified name not found").toSendable());
+                conn.sendMessage(MessageFactory.getLoginMessage("User with specified name not found").toSendable());
                 return;
             }
             if(result.size() > 2) {
-                conn.sendMessage(getLoginMessage("Duplicate identifier").toSendable());
+                conn.sendMessage(MessageFactory.getLoginMessage("Duplicate identifier").toSendable());
                 return;
             }
 
             if(result.get(0).password.equals(data.password)) {
-                conn.sendMessage(this.getIdentityMessage("" + result.get(0).id).toSendable());
+                conn.sendMessage(MessageFactory.getIdentityMessage("" + result.get(0).id).toSendable());
             } else {
-                conn.sendMessage(this.getError("Login unsuccessful: incorrect password").toSendable());
+                conn.sendMessage(MessageFactory.getError("Login unsuccessful: incorrect password").toSendable());
             }
 
         } catch (DataFormatException e) {
-            conn.sendMessage(getError(e.getMessage()).toSendable());
+            conn.sendMessage(MessageFactory.getError(e.getMessage()).toSendable());
         } catch (SQLException e) {
-            conn.sendMessage(getError(e.getMessage()).toSendable());
+            conn.sendMessage(MessageFactory.getError(e.getMessage()).toSendable());
         }
     }
 
@@ -80,15 +80,15 @@ public class MessageController extends Messenger {
             var result = statement.executeQuery();
             if(result.first()) {
                 long id = result.getLong("id");
-                conn.sendMessage(getIdentityMessage("" + id).toSendable());
+                conn.sendMessage(MessageFactory.getIdentityMessage("" + id).toSendable());
             } else {
-                conn.sendMessage(getError("Unable to create new user").toSendable());
+                conn.sendMessage(MessageFactory.getError("Unable to create new user").toSendable());
             }
 
         } catch (cz.vse.pexeso.common.exceptions.DataFormatException e) {
-            conn.sendMessage(getError(e.getMessage()).toSendable());
+            conn.sendMessage(MessageFactory.getError(e.getMessage()).toSendable());
         } catch (SQLException e) {
-            conn.sendMessage(getError(e.getMessage()).toSendable());
+            conn.sendMessage(MessageFactory.getError(e.getMessage()).toSendable());
         }
     }
 

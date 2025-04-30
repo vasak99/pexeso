@@ -11,16 +11,15 @@ public enum MessageType {
 
     CREATE_GAME("CREATE_GAME"),
 
+    GAME_START("GAME_START"),
+
     REDIRECT("REDIRECT"),
 
     IDENTITY("IDENTITY"),
 
+    REQUEST_IDENTITY("REQUEST_IDENTITY"),
+
     RESULT("RESULT"),
-    //START,
-    // CARD,
-    // PAIR,
-    // STATUS,
-    // RESULT;
 
     ERROR("ERROR"),
     REGISTER("REGISTER"),;
