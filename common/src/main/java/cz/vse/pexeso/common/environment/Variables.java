@@ -14,4 +14,6 @@ public class Variables {
 
     public static final String SERVER_ADDR = "127.0.0.1";
 
+    public static final String STATIC_PATH = "/static";
+
 }

@@ -21,6 +21,7 @@ import cz.vse.pexeso.database.DatabaseController;
 import cz.vse.pexeso.exceptions.CardsException;
 import cz.vse.pexeso.exceptions.PlayersException;
 import cz.vse.pexeso.game.Game;
+import cz.vse.pexeso.main.http.ImageServer;
 import cz.vse.pexeso.utils.Observable;
 import cz.vse.pexeso.utils.Observer;
 
@@ -29,6 +30,7 @@ public class GameServerRuntime implements Observer {
     public static final Logger log = LoggerFactory.getLogger(GameServerRuntime.class);
 
     private ServerSocket serverSocket;
+    private ImageServer imageServer;
     private boolean keepAlive;
 
     private Set<Connection> connections = new HashSet<Connection>();
@@ -44,11 +46,16 @@ public class GameServerRuntime implements Observer {
 
             this.dc = new DatabaseController();
             this.messageController = new MessageController(this, this.dc);
+
+            log.info("Starting image server");
+            this.imageServer = new ImageServer();
+            new Thread(this.imageServer).start();
+            log.info("Image server started");
         } catch (IOException e) {
-            log.error("IOException occurred while starting the server: " + e);
+            log.error("IOException occurred while starting the server: " + e.getMessage());
             return;
         } catch(SQLException e) {
-            log.error("An SQLException occurred while trying to connect to database: " + e);
+            log.error("An SQLException occurred while trying to connect to database: " + e.getMessage());
             return;
         }
 
@@ -79,6 +86,8 @@ public class GameServerRuntime implements Observer {
         for (var conn : this.connections) {
             conn.terminate();
         }
+
+        this.imageServer.terminate();
     }
 
     @Override
