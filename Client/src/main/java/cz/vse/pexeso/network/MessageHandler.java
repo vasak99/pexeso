@@ -62,23 +62,26 @@ public class MessageHandler implements Observable {
 
     @Override
     public void register(MessageTypeClient type, Observer observer) {
-        simpleObservers.get(type).add(observer);
+        boolean added = simpleObservers.get(type).add(observer);
+        log.debug("register {}: {}", type, added ? "SUCCESS" : "FAILED");
     }
 
     @Override
     public void registerWithData(MessageTypeClient type, ObserverWithData observerWithData) {
-        dataObservers.get(type).add(observerWithData);
+        boolean added = dataObservers.get(type).add(observerWithData);
+        log.debug("registerWithData {}: {}", type, added ? "SUCCESS" : "FAILED");
     }
 
     @Override
     public void unregister(MessageTypeClient type, Observer observer) {
-        simpleObservers.get(type).remove(observer);
+        boolean removed = simpleObservers.get(type).remove(observer);
+        log.debug("unregister {}: {}", type, removed ? "SUCCESS" : "FAILED");
     }
 
     @Override
     public void unregisterWithData(MessageTypeClient type, ObserverWithData observerWithData) {
         boolean removed = dataObservers.get(type).remove(observerWithData);
-        log.debug("unregister {}: {}", type, removed ? "SUCCESS" : "FAILED");
+        log.debug("unregisterWithData {}: {}", type, removed ? "SUCCESS" : "FAILED");
     }
 
     @Override

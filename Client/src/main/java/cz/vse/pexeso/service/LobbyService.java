@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 public class LobbyService {
     private static final Logger log = LoggerFactory.getLogger(LobbyService.class);
+
     private final AppServices appServices = AppServices.getInstance();
 
     public void join(GameRoom gameRoom) {
@@ -29,7 +30,23 @@ public class LobbyService {
         appServices.getClientSession().setCurrentGameRoom(gameRoom);
     }
 
-    public GameRoom getCurrentGameRoom() {
-        return appServices.getClientSession().getCurrentGameRoom();
+    public String getCurrentGameRoomId() {
+        GameRoom gameRoom = appServices.getClientSession().getCurrentGameRoom();
+        if (gameRoom != null) {
+            return gameRoom.getGameId();
+        }
+        return null;
+    }
+
+    public boolean isHosting() {
+        return appServices.getClientSession().isHostingAGameRoom();
+    }
+
+    public boolean isReady() {
+        return appServices.getClientSession().isReady();
+    }
+
+    public void setReady(boolean ready) {
+        appServices.getClientSession().setReady(ready);
     }
 }

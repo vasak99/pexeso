@@ -16,9 +16,14 @@ import org.slf4j.LoggerFactory;
 
 public class RegisterController {
     private static final Logger log = LoggerFactory.getLogger(RegisterController.class);
+
     private final AppServices appServices = AppServices.getInstance();
     private final SceneManager sceneManager = SceneManager.getInstance();
     private final RegisterService registerService = new RegisterService();
+
+    private final ObserverWithData errorObserver = this::handleInvalidRegistration;
+    private final ObserverWithData successObserver = this::handleSuccessfulRegistration;
+
     @FXML
     private TextField usernameField;
     @FXML
@@ -27,12 +32,10 @@ public class RegisterController {
     private PasswordField confirmPasswordField;
     @FXML
     private Label warningLabel;
-    private final ObserverWithData errorObserver = this::handleInvalidRegistration;    private final ObserverWithData successObserver = this::handleSuccessfulRegistration;
 
     @FXML
     private void initialize() {
-        appServices.getMessageHandler().registerWithData(MessageTypeClient.AUTH_SUCCESS, successObserver);
-        appServices.getMessageHandler().registerWithData(MessageTypeClient.ERROR, errorObserver);
+        register();
         log.info("RegisterController initialized.");
     }
 
@@ -67,12 +70,15 @@ public class RegisterController {
         confirmPasswordField.clear();
     }
 
+    private void register() {
+        appServices.getMessageHandler().registerWithData(MessageTypeClient.AUTH_SUCCESS, successObserver);
+        appServices.getMessageHandler().registerWithData(MessageTypeClient.ERROR, errorObserver);
+    }
+
     private void unregister() {
         appServices.getMessageHandler().unregisterWithData(MessageTypeClient.AUTH_SUCCESS, successObserver);
         appServices.getMessageHandler().unregisterWithData(MessageTypeClient.ERROR, errorObserver);
     }
-
-
 
 
 }

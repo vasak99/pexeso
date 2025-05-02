@@ -16,23 +16,26 @@ import org.slf4j.LoggerFactory;
 
 public class LoginController {
     private static final Logger log = LoggerFactory.getLogger(LoginController.class);
+
     private final AppServices appServices = AppServices.getInstance();
     private final SceneManager sceneManager = SceneManager.getInstance();
     private final LoginService loginService = new LoginService();
+
+    private final ObserverWithData errorObserver = this::handleInvalidLogin;
+    private final ObserverWithData successObserver = this::handleSuccessfulLogin;
+
     @FXML
     private TextField usernameField;
     @FXML
     private PasswordField passwordField;
     @FXML
     private Label warningLabel;
-    private final ObserverWithData errorObserver = this::handleInvalidLogin;
 
     @FXML
     private void initialize() {
-        appServices.getMessageHandler().registerWithData(MessageTypeClient.AUTH_SUCCESS, successObserver);
-        appServices.getMessageHandler().registerWithData(MessageTypeClient.ERROR, errorObserver);
+        register();
         log.info("LoginController initialized.");
-    }    private final ObserverWithData successObserver = this::handleSuccessfulLogin;
+    }
 
     @FXML
     private void handleLoginClick() {
@@ -64,12 +67,15 @@ public class LoginController {
         passwordField.clear();
     }
 
+    private void register() {
+        appServices.getMessageHandler().registerWithData(MessageTypeClient.AUTH_SUCCESS, successObserver);
+        appServices.getMessageHandler().registerWithData(MessageTypeClient.ERROR, errorObserver);
+    }
+
     private void unregister() {
         appServices.getMessageHandler().unregisterWithData(MessageTypeClient.AUTH_SUCCESS, successObserver);
         appServices.getMessageHandler().unregisterWithData(MessageTypeClient.ERROR, errorObserver);
     }
-
-
 
 
 }

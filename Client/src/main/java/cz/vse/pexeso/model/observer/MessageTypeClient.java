@@ -7,7 +7,5 @@ public enum MessageTypeClient {
 
     ERROR,
 
-    ERROR_LOBBY,
-
     GAME_TABLE_CHANGE,
 }

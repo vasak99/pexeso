@@ -10,6 +10,7 @@ import java.util.List;
 
 public class GameRoomWindowService {
     private static final Logger log = LoggerFactory.getLogger(GameRoomWindowService.class);
+
     private final AppServices appServices = AppServices.getInstance();
 
 
@@ -39,6 +40,7 @@ public class GameRoomWindowService {
         GameRoom gameRoom = new GameRoom(hostId, capacity, cardCount);
         GameRoom.gameRooms.add(gameRoom);
         appServices.getClientSession().setCurrentGameRoom(gameRoom);
+        appServices.getClientSession().setHostingAGameRoom(true);
 
         log.info("Redirecting");
         //Redirect.redirect((String) redirectData);
@@ -54,6 +56,7 @@ public class GameRoomWindowService {
         GameRoom gameRoom = appServices.getClientSession().getCurrentGameRoom();
         appServices.getClientSession().setCurrentGameRoom(null);
         GameRoom.gameRooms.remove(gameRoom);
+        appServices.getClientSession().setHostingAGameRoom(false);
     }
 
     public List<LobbyPlayer> filterPlayers() {

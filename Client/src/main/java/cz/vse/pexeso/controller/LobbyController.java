@@ -21,20 +21,17 @@ import org.slf4j.LoggerFactory;
 
 public class LobbyController {
     private static final Logger log = LoggerFactory.getLogger(LobbyController.class);
+
     private final AppServices appServices = AppServices.getInstance();
     private final SceneManager sceneManager = SceneManager.getInstance();
     private final LobbyService lobbyService = new LobbyService();
+
     private final ObserverWithData errorObserver = this::showErrorMessage;
     private final ObserverWithData successObserver = this::handleRoomChangeSuccess;
-    @FXML
-    private Button manageRoomButton;
-    private boolean ready = false;
-    private boolean ownRoom = false;
-    @FXML
-    private Button readyButton;
+    private final Observer gameTableChange = this::updateGameRoomTable;
+
     @FXML
     private TableView<GameRoom> gameRoomTable;
-    private final Observer gameTableChange = this::updateGameRoomTable;
     @FXML
     private TableColumn<GameRoom, String> roomStatusColumn;
     @FXML
@@ -47,12 +44,14 @@ public class LobbyController {
     private TableColumn<GameRoom, Integer> roomCapacityColumn;
     @FXML
     private TableColumn<GameRoom, Void> actionsColumn;
+    @FXML
+    private Button manageRoomButton;
+    @FXML
+    private Button readyButton;
 
     @FXML
     private void initialize() {
-        appServices.getMessageHandler().register(MessageTypeClient.GAME_TABLE_CHANGE, gameTableChange);
-        appServices.getMessageHandler().registerWithData(MessageTypeClient.ERROR, errorObserver);
-        appServices.getMessageHandler().registerWithData(MessageTypeClient.GAME_ROOM_SUCCESS, successObserver);
+        initialRegister();
 
         configureGameRoomTable();
         updateGameRoomTable();
@@ -80,8 +79,8 @@ public class LobbyController {
 
             //Highlight user's room
             row.itemProperty().addListener((obs, oldItem, newItem) -> {
-                if (newItem != null && lobbyService.getCurrentGameRoom() != null) {
-                    if (newItem.getGameId().equals(lobbyService.getCurrentGameRoom().getGameId())) {
+                if (newItem != null && lobbyService.getCurrentGameRoomId() != null) {
+                    if (newItem.getGameId().equals(lobbyService.getCurrentGameRoomId())) {
                         row.setStyle("-fx-background-color: #e6e6e6;");
                     } else {
                         row.setStyle("");
@@ -100,15 +99,19 @@ public class LobbyController {
 
     @FXML
     private void handleManageRoomClick() {
-        if (ownRoom) {
+        if (lobbyService.getCurrentGameRoomId() != null) {
             GameRoomWindowController controller = sceneManager.openWindow(UIConstants.GAME_ROOM_MANAGER_FXML, "Manage game room");
             if (controller != null) {
+                unregister();
                 controller.setMode(Mode.MANAGE);
+                sceneManager.getOpenedWindow().setOnHidden(event -> register());
             }
         } else {
             GameRoomWindowController controller = sceneManager.openWindow(UIConstants.GAME_ROOM_FORM_FXML, "Create game room");
             if (controller != null) {
+                unregister();
                 controller.setMode(Mode.CREATE);
+                sceneManager.getOpenedWindow().setOnHidden(event -> register());
             }
         }
     }
@@ -128,26 +131,29 @@ public class LobbyController {
     private void updateGameRoomTable() {
         gameRoomTable.setItems(GameRoom.gameRooms);
 
-        if (lobbyService.getCurrentGameRoom() == null) {
-            manageRoomButton.setText("Create new room");
-            ownRoom = false;
-        } else {
+        if (lobbyService.getCurrentGameRoomId() == null) {
+            Platform.runLater(() -> manageRoomButton.setText("Create new room"));
+            manageRoomButton.setDisable(false);
+        } else if (lobbyService.isHosting()) {
             Platform.runLater(() -> manageRoomButton.setText("Manage my room"));
-            ownRoom = true;
+            manageRoomButton.setDisable(false);
+        } else {
+            Platform.runLater(() -> manageRoomButton.setText("Create new room"));
+            manageRoomButton.setDisable(true);
         }
 
-        if (lobbyService.getCurrentGameRoom() == null) {
+        if (lobbyService.getCurrentGameRoomId() == null) {
             readyButton.setText("Not ready");
             readyButton.setStyle("-fx-background-color: #ffc0c0;");
             readyButton.setDisable(true);
-        } else if (!ready) {
+        } else if (!lobbyService.isReady()) {
             readyButton.setDisable(false);
         }
     }
 
     @FXML
     private void handleReadyClick() {
-        ready = true;
+        lobbyService.setReady(true);
         readyButton.setText("Ready");
         readyButton.setStyle("-fx-background-color: #d0ffc0;");
         readyButton.setDisable(true);
@@ -155,18 +161,27 @@ public class LobbyController {
         lobbyService.ready();
     }
 
-    private void startGame() {
-        unregister();
-        sceneManager.switchScene(UIConstants.GAME_FXML);
-    }
-
     private void showErrorMessage(Object errorDescription) {
         Platform.runLater(() -> sceneManager.showErrorAlert((String) errorDescription));
     }
 
+    private void initialRegister() {
+        appServices.getMessageHandler().register(MessageTypeClient.GAME_TABLE_CHANGE, gameTableChange);
+        register();
+    }
+
+    private void register() {
+        appServices.getMessageHandler().registerWithData(MessageTypeClient.ERROR, errorObserver);
+        appServices.getMessageHandler().registerWithData(MessageTypeClient.GAME_ROOM_SUCCESS, successObserver);
+    }
+
     private void unregister() {
-        appServices.getMessageHandler().unregister(MessageTypeClient.GAME_TABLE_CHANGE, gameTableChange);
         appServices.getMessageHandler().unregisterWithData(MessageTypeClient.ERROR, errorObserver);
         appServices.getMessageHandler().unregisterWithData(MessageTypeClient.GAME_ROOM_SUCCESS, successObserver);
+    }
+
+    private void finalUnregister() {
+        appServices.getMessageHandler().unregister(MessageTypeClient.GAME_TABLE_CHANGE, gameTableChange);
+        unregister();
     }
 }

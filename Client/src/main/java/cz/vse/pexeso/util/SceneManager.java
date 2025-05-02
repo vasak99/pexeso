@@ -14,7 +14,9 @@ import java.util.Objects;
 
 public class SceneManager {
     private static final Logger log = LoggerFactory.getLogger(SceneManager.class);
+
     private static SceneManager instance;
+
     private Stage primaryStage;
     private Stage openedWindow;
 
@@ -82,5 +84,9 @@ public class SceneManager {
         alert.setTitle("Error");
         alert.setHeaderText(text);
         alert.showAndWait();
+    }
+
+    public Stage getOpenedWindow() {
+        return openedWindow;
     }
 }
