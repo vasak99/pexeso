@@ -9,7 +9,7 @@ import cz.vse.pexeso.utils.ArrayUtils;
 
 public class Deck {
 
-    public int deckSize = 60;
+    public int deckSize;
     private ArrayList<String> cards;
 
     private String[] allowedExtensions = new String[] { "jpg", "jpeg", "png" };
@@ -26,6 +26,7 @@ public class Deck {
                 this.cards.add(file.getName());
             }
         }
+        this.deckSize = this.cards.size();
     }
 
     public String getImage(int id) {
