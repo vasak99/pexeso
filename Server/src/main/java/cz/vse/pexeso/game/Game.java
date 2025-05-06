@@ -15,6 +15,7 @@ import cz.vse.pexeso.main.Connection;
 import cz.vse.pexeso.utils.Observable;
 import cz.vse.pexeso.utils.Observer;
 import cz.vse.pexeso.exceptions.CardsException;
+import cz.vse.pexeso.exceptions.DeckException;
 import cz.vse.pexeso.main.MessageFactory;
 import cz.vse.pexeso.common.message.MessageType;
 
@@ -33,7 +34,7 @@ public class Game implements Observer {
 
     private Acceptor acceptor;
 
-    public Game(int playersCapacity, int cardCount, int port) throws PlayersException, CardsException, IOException {
+    public Game(int playersCapacity, int cardCount, int port) throws PlayersException, CardsException, IOException, DeckException {
         if(playersCapacity < Variables.MIN_PLAYERS) {
             throw new PlayersException("Minimum number of players is " + Variables.MIN_PLAYERS);
         }

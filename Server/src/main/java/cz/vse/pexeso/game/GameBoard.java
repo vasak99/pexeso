@@ -9,15 +9,16 @@ import org.slf4j.LoggerFactory;
 
 import cz.vse.pexeso.utils.Rand;
 import cz.vse.pexeso.exceptions.CardsException;
+import cz.vse.pexeso.exceptions.DeckException;
 
 public class GameBoard {
 
     private static final Logger log = LoggerFactory.getLogger(GameBoard.class);
 
-    private int[][] matrix;
+    private Card[][] matrix;
     private Deck deck;
 
-    public GameBoard(int cardCount) throws CardsException {
+    public GameBoard(int cardCount) throws CardsException, DeckException {
         log.info("Attempting to create new game board");
 
         this.deck = new Deck();
@@ -29,12 +30,12 @@ public class GameBoard {
         int[] shuff = this.generateShuffle(cardCount, this.deck.deckSize);
 
         int[] dimensions = generateDimensions(cardCount);
-        this.matrix = new int[dimensions[0]][dimensions[1]];
+        this.matrix = new Card[dimensions[0]][dimensions[1]];
 
         for(int i = 0; i < shuff.length; i++) {
             int row = (int) ((float) i / (float) dimensions[1]);
             int col = i % dimensions[1];
-            this.matrix[row][col] = shuff[i];
+            this.matrix[row][col] = new Card(this.deck.getImage(shuff[i]));
         }
 
         for(var row : this.matrix) {

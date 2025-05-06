@@ -19,7 +19,9 @@ import cz.vse.pexeso.common.message.MessageType;
 import cz.vse.pexeso.common.message.payload.StartGameData;
 import cz.vse.pexeso.database.DatabaseController;
 import cz.vse.pexeso.exceptions.CardsException;
+import cz.vse.pexeso.exceptions.DeckException;
 import cz.vse.pexeso.exceptions.PlayersException;
+import cz.vse.pexeso.game.Deck;
 import cz.vse.pexeso.game.Game;
 import cz.vse.pexeso.main.http.ImageServer;
 import cz.vse.pexeso.utils.Observable;
@@ -40,6 +42,11 @@ public class GameServerRuntime implements Observer {
     private MessageController messageController;
 
     public GameServerRuntime(int port) {
+        try {
+            new Deck();
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
         try {
             log.info("Attempting to start socket");
             this.serverSocket = new ServerSocket(port);
@@ -125,6 +132,10 @@ public class GameServerRuntime implements Observer {
                     port = Variables.DEFAULT_PORT + i;
                     game = new Game(sgd.capacity, sgd.cardCount, port);
                 } catch (IOException e) {}
+                catch (DeckException e) {
+                    log.error("Unable to create game: " + e.getMessage());
+                    return;
+                }
 
             }
 
