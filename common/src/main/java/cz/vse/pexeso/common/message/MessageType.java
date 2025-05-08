@@ -23,6 +23,8 @@ public enum MessageType {
 
     KICK_PLAYER("KICK_PLAYER"),
 
+    START_GAME("START_GAME"),
+
     REDIRECT("REDIRECT"),
 
     IDENTITY("IDENTITY"),

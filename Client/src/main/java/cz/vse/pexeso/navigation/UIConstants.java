@@ -1,6 +1,6 @@
-package cz.vse.pexeso.util;
+package cz.vse.pexeso.navigation;
 
-public class UIConstants {
+public final class UIConstants {
     public static final String LOGIN_FXML = "/cz/vse/pexeso/fxml/login/login.fxml";
     public static final String REGISTER_FXML = "/cz/vse/pexeso/fxml/login/register.fxml";
 

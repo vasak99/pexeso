@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<GridPane prefHeight="400.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cz.vse.pexeso.controller.GameRoomWindowController">
+<GridPane prefHeight="400.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cz.vse.pexeso.controller.GameRoomManagerController">
     <columnConstraints>
         <ColumnConstraints hgrow="SOMETIMES" />
         <ColumnConstraints hgrow="SOMETIMES" />
@@ -18,7 +18,7 @@
       <RowConstraints vgrow="SOMETIMES" />
       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
     </rowConstraints>
-    <Label text="Card count" GridPane.halignment="CENTER" GridPane.hgrow="NEVER" GridPane.rowIndex="1" GridPane.valignment="CENTER" GridPane.vgrow="NEVER">
+    <Label text="Board size" GridPane.halignment="CENTER" GridPane.hgrow="NEVER" GridPane.rowIndex="1" GridPane.valignment="CENTER" GridPane.vgrow="NEVER">
         <font>
             <Font size="14.0" />
         </font>
@@ -33,11 +33,7 @@
             <Font size="14.0" />
         </font>
     </Label>
-    <Slider fx:id="cardCountSlider" blockIncrement="2.0" majorTickUnit="10.0" max="80.0" min="10.0" minorTickCount="0" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="40.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
-      <GridPane.margin>
-         <Insets right="10.0" />
-      </GridPane.margin></Slider>
-    <Slider fx:id="capacitySlider" blockIncrement="1.0" majorTickUnit="1.0" max="5.0" min="2.0" minorTickCount="0" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="2.0" GridPane.columnIndex="1">
+    <Slider fx:id="capacitySlider" blockIncrement="1.0" majorTickUnit="1.0" max="5.0" min="2.0" minorTickCount="0" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="2.0" GridPane.columnIndex="1" GridPane.halignment="CENTER">
       <GridPane.margin>
          <Insets right="10.0" />
       </GridPane.margin></Slider>
@@ -68,4 +64,5 @@
          <Font size="14.0" />
       </font>
    </Button>
+   <ChoiceBox fx:id="boardSizeChoiceBox" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
 </GridPane>

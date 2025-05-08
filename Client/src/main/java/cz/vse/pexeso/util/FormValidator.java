@@ -1,6 +1,9 @@
 package cz.vse.pexeso.util;
 
-public class FormValidator {
+public final class FormValidator {
+
+    private FormValidator() {
+    }
 
     public static boolean isEmpty(String... textFields) {
         for (String textField : textFields) {

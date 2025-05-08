@@ -3,13 +3,17 @@ package cz.vse.pexeso.model;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.util.List;
+
 public class GameRoom {
     public static final ObservableList<GameRoom> gameRooms = FXCollections.observableArrayList();
+
     private GameStatus status = GameStatus.WAITING_FOR_PLAYERS;
     private String gameId = "";
     private long hostId;
     private int capacity;
     private int cardCount;
+    private List<LobbyPlayer> players;
 
     public GameRoom(int capacity, int cardCount) {
         this.capacity = capacity;
@@ -95,5 +99,9 @@ public class GameRoom {
 
     public void setCardCount(int cardCount) {
         this.cardCount = cardCount;
+    }
+
+    public List<LobbyPlayer> getPlayers() {
+        return players;
     }
 }
