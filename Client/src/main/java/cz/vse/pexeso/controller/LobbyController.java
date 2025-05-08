@@ -1,34 +1,29 @@
 package cz.vse.pexeso.controller;
 
-import cz.vse.pexeso.controller.GameRoomWindowController.Mode;
+import cz.vse.pexeso.di.Injector;
+import cz.vse.pexeso.model.BoardSize;
 import cz.vse.pexeso.model.GameRoom;
-import cz.vse.pexeso.model.GameStatus;
-import cz.vse.pexeso.model.observer.MessageTypeClient;
-import cz.vse.pexeso.model.observer.Observer;
-import cz.vse.pexeso.model.observer.ObserverWithData;
-import cz.vse.pexeso.service.AppServices;
-import cz.vse.pexeso.service.LobbyService;
-import cz.vse.pexeso.util.SceneManager;
-import cz.vse.pexeso.util.UIConstants;
-import cz.vse.pexeso.view.GameRoomActionCell;
+import cz.vse.pexeso.model.model.LobbyModel;
+import cz.vse.pexeso.model.result.LobbyResultHandler;
+import cz.vse.pexeso.model.result.LobbyResultListener;
+import cz.vse.pexeso.navigation.Navigator;
+import cz.vse.pexeso.view.LobbyUIHelper;
 import javafx.application.Platform;
-import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.Button;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class LobbyController {
+public class LobbyController implements LobbyResultListener {
     private static final Logger log = LoggerFactory.getLogger(LobbyController.class);
 
-    private final AppServices appServices = AppServices.getInstance();
-    private final SceneManager sceneManager = SceneManager.getInstance();
-    private final LobbyService lobbyService = new LobbyService();
+    private final Navigator navigator;
+    private final LobbyModel lobbyModel;
 
-    private final ObserverWithData errorObserver = this::showErrorMessage;
-    private final ObserverWithData successObserver = this::handleRoomChangeSuccess;
-    private final Observer gameTableChange = this::updateGameRoomTable;
+    private final LobbyResultHandler resultHandler;
 
     @FXML
     private TableView<GameRoom> gameRoomTable;
@@ -39,7 +34,7 @@ public class LobbyController {
     @FXML
     private TableColumn<GameRoom, Long> hostColumn;
     @FXML
-    private TableColumn<GameRoom, Integer> cardCountColumn;
+    private TableColumn<GameRoom, BoardSize> boardSizeColumn;
     @FXML
     private TableColumn<GameRoom, Integer> roomCapacityColumn;
     @FXML
@@ -49,139 +44,114 @@ public class LobbyController {
     @FXML
     private Button readyButton;
 
+    public LobbyController(Navigator navigator, LobbyModel lobbyModel, Injector injector) {
+        this.navigator = navigator;
+        this.lobbyModel = lobbyModel;
+        this.resultHandler = injector.createLobbyResultHandler(this);
+    }
+
     @FXML
     private void initialize() {
-        initialRegister();
+        resultHandler.initialRegister();
 
-        configureGameRoomTable();
-        updateGameRoomTable();
+        LobbyUIHelper.initializeGameRoomTable(gameRoomTable, roomStatusColumn, gameIdColumn, hostColumn, boardSizeColumn,
+                roomCapacityColumn, actionsColumn, this, lobbyModel);
+        setupWindowCloseEvent();
         log.info("LobbyController initialized");
     }
 
-    private void configureGameRoomTable() {
-        gameRoomTable.setPlaceholder(new Label("No game room has been created yet"));
-        roomStatusColumn.setCellValueFactory(cellData -> {
-            GameRoom room = cellData.getValue();
-            if (room == null) {
-                return new ReadOnlyStringWrapper("");
-            }
-            GameStatus status = room.getStatus();
-            return new ReadOnlyStringWrapper(status.getValue());
+    private void setupWindowCloseEvent() {
+        Platform.runLater(() -> {
+            Stage stage = (Stage) gameRoomTable.getScene().getWindow();
+            stage.setOnCloseRequest(event -> resultHandler.finalUnregister());
         });
-        gameIdColumn.setCellValueFactory(new PropertyValueFactory<>("gameId"));
-        hostColumn.setCellValueFactory(new PropertyValueFactory<>("hostId"));
-        cardCountColumn.setCellValueFactory(new PropertyValueFactory<>("cardCount"));
-        roomCapacityColumn.setCellValueFactory(new PropertyValueFactory<>("capacity"));
-        setupActionsColumn();
-
-        gameRoomTable.setRowFactory(tableView -> {
-            TableRow<GameRoom> row = new TableRow<>();
-
-            //Highlight user's room
-            row.itemProperty().addListener((obs, oldItem, newItem) -> {
-                if (newItem != null && lobbyService.getCurrentGameRoomId() != null) {
-                    if (newItem.getGameId().equals(lobbyService.getCurrentGameRoomId())) {
-                        row.setStyle("-fx-background-color: #e6e6e6;");
-                    } else {
-                        row.setStyle("");
-                    }
-                } else {
-                    row.setStyle("");
-                }
-            });
-            return row;
-        });
-    }
-
-    private void setupActionsColumn() {
-        actionsColumn.setCellFactory(col -> new GameRoomActionCell(this));
     }
 
     @FXML
     private void handleManageRoomClick() {
-        if (lobbyService.getCurrentGameRoomId() != null) {
-            GameRoomWindowController controller = sceneManager.openWindow(UIConstants.GAME_ROOM_MANAGER_FXML, "Manage game room");
-            if (controller != null) {
-                unregister();
-                controller.setMode(Mode.MANAGE);
-                sceneManager.getOpenedWindow().setOnHidden(event -> register());
-            }
+        resultHandler.unregister();
+        Stage stage;
+        if (lobbyModel.isInARoom()) {
+            stage = navigator.openGameRoomManager();
         } else {
-            GameRoomWindowController controller = sceneManager.openWindow(UIConstants.GAME_ROOM_FORM_FXML, "Create game room");
-            if (controller != null) {
-                unregister();
-                controller.setMode(Mode.CREATE);
-                sceneManager.getOpenedWindow().setOnHidden(event -> register());
-            }
+            stage = navigator.openGameRoomCreator();
         }
-    }
-
-    public void joinGameRoom(GameRoom gameRoom) {
-        lobbyService.join(gameRoom);
-    }
-
-    public void leaveGameRoom(GameRoom gameRoom) {
-        lobbyService.leave(gameRoom);
-    }
-
-    private void handleRoomChangeSuccess(Object o) {
-        lobbyService.handleSuccess((String) o);
-    }
-
-    private void updateGameRoomTable() {
-        gameRoomTable.setItems(GameRoom.gameRooms);
-
-        if (lobbyService.getCurrentGameRoomId() == null) {
-            Platform.runLater(() -> manageRoomButton.setText("Create new room"));
-            manageRoomButton.setDisable(false);
-        } else if (lobbyService.isHosting()) {
-            Platform.runLater(() -> manageRoomButton.setText("Manage my room"));
-            manageRoomButton.setDisable(false);
-        } else {
-            Platform.runLater(() -> manageRoomButton.setText("Create new room"));
-            manageRoomButton.setDisable(true);
-        }
-
-        if (lobbyService.getCurrentGameRoomId() == null) {
-            readyButton.setText("Not ready");
-            readyButton.setStyle("-fx-background-color: #ffc0c0;");
-            readyButton.setDisable(true);
-        } else if (!lobbyService.isReady()) {
-            readyButton.setDisable(false);
+        if (stage != null) {
+            stage.setOnHidden(windowEvent -> resultHandler.register());
         }
     }
 
     @FXML
     private void handleReadyClick() {
-        lobbyService.setReady(true);
-        readyButton.setText("Ready");
-        readyButton.setStyle("-fx-background-color: #d0ffc0;");
-        readyButton.setDisable(true);
-
-        lobbyService.ready();
+        editReadyButton(true, "Ready", "#d0ffc0");
+        lobbyModel.attemptReady();
     }
 
-    private void showErrorMessage(Object errorDescription) {
-        Platform.runLater(() -> sceneManager.showErrorAlert((String) errorDescription));
+    public void joinGameRoom(GameRoom gameRoom) {
+        lobbyModel.attemptJoin(gameRoom);
     }
 
-    private void initialRegister() {
-        appServices.getMessageHandler().register(MessageTypeClient.GAME_TABLE_CHANGE, gameTableChange);
-        register();
+    public void leaveGameRoom() {
+        if (navigator.showConfirmation("Are you sure you want to leave this game room?")) {
+            lobbyModel.attemptLeave();
+        }
     }
 
-    private void register() {
-        appServices.getMessageHandler().registerWithData(MessageTypeClient.ERROR, errorObserver);
-        appServices.getMessageHandler().registerWithData(MessageTypeClient.GAME_ROOM_SUCCESS, successObserver);
+    @Override
+    public void onLobbySuccess(String gameId) {
+        lobbyModel.finalizeSuccess(gameId);
     }
 
-    private void unregister() {
-        appServices.getMessageHandler().unregisterWithData(MessageTypeClient.ERROR, errorObserver);
-        appServices.getMessageHandler().unregisterWithData(MessageTypeClient.GAME_ROOM_SUCCESS, successObserver);
+    @Override
+    public void onLobbyError(String errorDescription) {
+        Platform.runLater(() -> navigator.showError(errorDescription));
     }
 
-    private void finalUnregister() {
-        appServices.getMessageHandler().unregister(MessageTypeClient.GAME_TABLE_CHANGE, gameTableChange);
-        unregister();
+    @Override
+    public void onLobbyUpdate() {
+        gameRoomTable.setItems(GameRoom.gameRooms);
+
+        updateManageRoomButon();
+        updateReadyButton();
+    }
+
+    private void updateManageRoomButon() {
+        String currentRoomId = lobbyModel.getCurrentGameRoomId();
+        boolean isHost = lobbyModel.isHosting();
+
+        if (currentRoomId == null) {
+            editManageRoomButton(false, "Create new room");
+        } else if (isHost) {
+            editManageRoomButton(false, "Manage my room");
+        } else {
+            editManageRoomButton(true, "Create new room");
+        }
+    }
+
+    private void updateReadyButton() {
+        String currentRoomId = lobbyModel.getCurrentGameRoomId();
+        boolean isReady = lobbyModel.isReady();
+
+        if (currentRoomId == null) {
+            editReadyButton(true, "Not ready", "#ffc0c0");
+        } else if (!isReady) {
+            editReadyButton(false, null, null);
+        }
+    }
+
+    private void editManageRoomButton(boolean disabled, String text) {
+        manageRoomButton.setDisable(disabled);
+        Platform.runLater(() -> manageRoomButton.setText(text));
+    }
+
+    private void editReadyButton(boolean disabled, String text, String style) {
+        readyButton.setDisable(disabled);
+
+        if (text != null) {
+            readyButton.setText(text);
+        }
+        if (style != null) {
+            readyButton.setStyle("-fx-background-color:" + style + ";");
+        }
     }
 }
