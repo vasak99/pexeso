@@ -1,5 +1,19 @@
 package cz.vse.pexeso.main;
 
+import cz.vse.pexeso.common.environment.Variables;
+import cz.vse.pexeso.common.exceptions.DataFormatException;
+import cz.vse.pexeso.common.message.Message;
+import cz.vse.pexeso.common.message.MessageType;
+import cz.vse.pexeso.common.message.payload.CreateGamePayload;
+import cz.vse.pexeso.database.DatabaseController;
+import cz.vse.pexeso.exceptions.CardsException;
+import cz.vse.pexeso.exceptions.PlayersException;
+import cz.vse.pexeso.game.Game;
+import cz.vse.pexeso.utils.Observable;
+import cz.vse.pexeso.utils.Observer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -9,20 +23,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import cz.vse.pexeso.common.environment.Variables;
-import cz.vse.pexeso.common.exceptions.DataFormatException;
-import cz.vse.pexeso.common.message.Message;
-import cz.vse.pexeso.common.message.MessageType;
-import cz.vse.pexeso.common.message.payload.StartGameData;
-import cz.vse.pexeso.database.DatabaseController;
-import cz.vse.pexeso.exceptions.CardsException;
-import cz.vse.pexeso.exceptions.PlayersException;
-import cz.vse.pexeso.game.Game;
-import cz.vse.pexeso.utils.Observable;
-import cz.vse.pexeso.utils.Observer;
 
 public class GameServerRuntime implements Observer {
 
@@ -104,7 +104,7 @@ public class GameServerRuntime implements Observer {
 
         int port = 1;
         try {
-            StartGameData sgd = new StartGameData(data);
+            CreateGamePayload cgp = new CreateGamePayload(data);
 
             Game game = null;
 
@@ -114,7 +114,7 @@ public class GameServerRuntime implements Observer {
                 }
                 try {
                     port = Variables.DEFAULT_PORT + i;
-                    game = new Game(sgd.capacity, sgd.cardCount, port);
+                    game = new Game(cgp.capacity, cgp.cardCount, port);
                 } catch (IOException e) {}
 
             }
@@ -124,7 +124,7 @@ public class GameServerRuntime implements Observer {
             try {
                 Message msg = new Message();
                 msg.setType(MessageType.REDIRECT);
-                msg.setData(InetAddress.getLocalHost().getLocalHost() + ":" + port);
+                msg.setData(InetAddress.getLocalHost().getHostAddress() + ":" + port);
                 conn.sendMessage(msg.toSendable());
             } catch (UnknownHostException e) {}
         } catch (DataFormatException e) {
@@ -136,12 +136,12 @@ public class GameServerRuntime implements Observer {
             Message msg = new Message();
             msg.setType(MessageType.ERROR);
             msg.setData(e.getMessage());
-            conn.sendMessage(e.getMessage());
+            conn.sendMessage(msg.toSendable());
         } catch (PlayersException e) {
             Message msg = new Message();
             msg.setType(MessageType.ERROR);
             msg.setData(e.getMessage());
-            conn.sendMessage(e.getMessage());
+            conn.sendMessage(msg.toSendable());
         }
     }
 

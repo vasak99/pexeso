@@ -1,12 +1,13 @@
 package cz.vse.pexeso.controller;
 
-import cz.vse.pexeso.model.ClientSession;
-import cz.vse.pexeso.model.User;
-import cz.vse.pexeso.model.observer.MessageTypeClient;
-import cz.vse.pexeso.network.MessageBuilder;
-import cz.vse.pexeso.service.AppServices;
-import cz.vse.pexeso.util.SceneManager;
-import cz.vse.pexeso.util.UIConstants;
+import cz.vse.pexeso.di.Injector;
+import cz.vse.pexeso.model.UserCredentials;
+import cz.vse.pexeso.model.model.AuthModel;
+import cz.vse.pexeso.model.result.AuthResultHandler;
+import cz.vse.pexeso.model.result.AuthResultListener;
+import cz.vse.pexeso.navigation.Navigator;
+import cz.vse.pexeso.util.FormValidator;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
@@ -14,11 +15,14 @@ import javafx.scene.control.TextField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class LoginController {
-    public static final Logger log = LoggerFactory.getLogger(LoginController.class);
-    @FXML
-    private Label registrationConfirmationLabel;
-    User user;
+public class LoginController implements AuthResultListener {
+    private static final Logger log = LoggerFactory.getLogger(LoginController.class);
+
+    private final Navigator navigator;
+    private final AuthModel authModel;
+
+    private final AuthResultHandler resultHandler;
+
     @FXML
     private TextField usernameField;
     @FXML
@@ -26,60 +30,51 @@ public class LoginController {
     @FXML
     private Label warningLabel;
 
+    public LoginController(Navigator navigator, AuthModel authModel, Injector injector) {
+        this.navigator = navigator;
+        this.authModel = authModel;
+        this.resultHandler = injector.createAuthResultHandler(this);
+    }
+
     @FXML
     private void initialize() {
-        AppServices.initialize();
-        AppServices.getMessageHandler().registerWithData(MessageTypeClient.LOGIN, this::handleSuccessfulLogin);
-        AppServices.getMessageHandler().registerWithData(MessageTypeClient.ERROR_LOGIN, this::handleInvalidLogin);
-        if (AppServices.justRegistered) {
-            registrationConfirmationLabel.setVisible(true);
-            AppServices.justRegistered = false;
-        }
+        resultHandler.register();
         log.info("LoginController initialized.");
     }
 
-    /**
-     * Validates the input fields and sends a login message to the server.
-     */
     @FXML
     private void handleLoginClick() {
-        registrationConfirmationLabel.setVisible(false);
-        if (usernameField.getText().isEmpty() || passwordField.getText().isEmpty()) {
+        String username = usernameField.getText();
+        String password = passwordField.getText();
+
+        if (FormValidator.isEmpty(username, password)) {
             warningLabel.setText("Please fill in all fields.");
-        } else {
-            warningLabel.setText("");
-            user = new User(usernameField.getText(), passwordField.getText());
-
-            sendLoginMessage(user);
+            return;
         }
-    }
-
-    private void sendLoginMessage(User user) {
-        String message = MessageBuilder.buildLoginMessage(user);
-        AppServices.getConnection().sendMessage(message);
-        log.info("Login credentials submitted for verification.");
-    }
-
-    private void handleSuccessfulLogin(Object playerId) {
-        log.info("Login successful.");
-        AppServices.setClientSession(new ClientSession((String) playerId, user));
-        SceneManager.switchScene(UIConstants.LOBBY_FXML);
-    }
-
-    private void handleInvalidLogin(Object errorMessage) {
-        log.info("Login failed: {}", errorMessage);
-
-        usernameField.clear();
-        passwordField.clear();
-        warningLabel.setText(errorMessage + ", please try again.");
+        authModel.setCredentials(new UserCredentials(username, password));
+        authModel.attemptLogin();
     }
 
     @FXML
     private void handleRegisterLinkClick() {
-        log.info("Switching to register screen.");
-        usernameField.clear();
-        passwordField.clear();
-        warningLabel.setText("");
-        SceneManager.switchScene(UIConstants.REGISTER_FXML);
+        log.info("Switching to register screen");
+        resultHandler.unregister();
+        navigator.goToRegister();
+    }
+
+    @Override
+    public void onAuthSuccess(long playerId) {
+        authModel.finalizeAuth(playerId, usernameField.getText(), passwordField.getText());
+        resultHandler.unregister();
+        Platform.runLater(navigator::goToLobby);
+    }
+
+    @Override
+    public void onAuthError(String errorMessage) {
+        Platform.runLater(() -> {
+            warningLabel.setText(errorMessage + ", please try again.");
+            usernameField.clear();
+            passwordField.clear();
+        });
     }
 }
