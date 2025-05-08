@@ -74,7 +74,7 @@ public class MessageController extends Messenger {
             RegisterPayload data = new RegisterPayload(msg.getData());
 
             var statement = this.dc.getDbConnection().prepareStatement("insert into users(name, password) values (?, ?) returning id;");
-            statement.setString(1, data.name);
+            statement.setString(1, data.username);
             statement.setString(2, data.password);
 
             var result = statement.executeQuery();

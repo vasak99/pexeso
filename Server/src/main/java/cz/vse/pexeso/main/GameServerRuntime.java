@@ -4,7 +4,7 @@ import cz.vse.pexeso.common.environment.Variables;
 import cz.vse.pexeso.common.exceptions.DataFormatException;
 import cz.vse.pexeso.common.message.Message;
 import cz.vse.pexeso.common.message.MessageType;
-import cz.vse.pexeso.common.message.payload.StartGameData;
+import cz.vse.pexeso.common.message.payload.CreateGamePayload;
 import cz.vse.pexeso.database.DatabaseController;
 import cz.vse.pexeso.exceptions.CardsException;
 import cz.vse.pexeso.exceptions.PlayersException;
@@ -104,7 +104,7 @@ public class GameServerRuntime implements Observer {
 
         int port = 1;
         try {
-            StartGameData sgd = new StartGameData(data);
+            CreateGamePayload cgp = new CreateGamePayload(data);
 
             Game game = null;
 
@@ -114,7 +114,7 @@ public class GameServerRuntime implements Observer {
                 }
                 try {
                     port = Variables.DEFAULT_PORT + i;
-                    game = new Game(sgd.capacity, sgd.cardCount, port);
+                    game = new Game(cgp.capacity, cgp.cardCount, port);
                 } catch (IOException e) {}
 
             }
