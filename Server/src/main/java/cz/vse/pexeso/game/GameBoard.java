@@ -23,11 +23,11 @@ public class GameBoard {
 
         this.deck = new Deck();
 
-        if(cardCount < deck.deckSize) {
+        if(cardCount > deck.deckSize() * 2) {
             throw new CardsException("Not enough cards in deck");
         }
 
-        int[] shuff = this.generateShuffle(cardCount, this.deck.deckSize);
+        int[] shuff = this.generateShuffle(cardCount, this.deck.deckSize());
 
         int[] dimensions = generateDimensions(cardCount);
         this.matrix = new Card[dimensions[0]][dimensions[1]];
@@ -36,14 +36,6 @@ public class GameBoard {
             int row = (int) ((float) i / (float) dimensions[1]);
             int col = i % dimensions[1];
             this.matrix[row][col] = new Card(this.deck.getImage(shuff[i]));
-        }
-
-        for(var row : this.matrix) {
-            String rr = "";
-            for(var col : row) {
-                rr += col + "\t";
-            }
-            System.out.println(rr);
         }
 
         log.info("Game board created successfully");
@@ -73,7 +65,7 @@ public class GameBoard {
         Set<Integer> ord = new HashSet<Integer>();
 
         while(ord.size() < cardCount/2) {
-            int id = Rand.between(0, deckSize);
+            int id = Rand.between(0, deckSize - 1);
             ord.add(id);
         }
 
@@ -94,6 +86,48 @@ public class GameBoard {
         }
 
         return ret;
+    }
+
+    public Card revealCard(int row, int col) {
+        this.matrix[row][col].reveal();
+        return this.matrix[row][col];
+    }
+
+    public void hideAll() {
+        for(var row : this.matrix) {
+            for(var col : row) {
+                col.hide();
+            }
+        }
+    }
+
+    public void removeCard(int row, int col) {
+        this.matrix[row][col] = null;
+    }
+
+    public String getAsData() {
+        String data = "";
+        for(int i = 0; i < this.matrix.length; i++) {
+            data += "[";
+            for(int j = 0; j < this.matrix[i].length; j++) {
+                if(this.matrix[i][j].getRevealed()) {
+                    data += this.matrix[i][j].getImage();
+                } else {
+                    data += "x";
+                }
+
+                if(j < this.matrix[i].length - 1) {
+                    data += ",";
+                }
+            }
+            data += "]";
+            if(i < this.matrix.length - 1) {
+                data += ";";
+            }
+        }
+        System.out.println(data);
+
+        return data;
     }
 
 }

@@ -5,6 +5,8 @@ public enum MessageType {
 
     REVEAL("REVEAL"),
 
+    BOARD("BOARD"),
+
     STATUS("STATUS"),
 
     MOVE("MOVE"),

@@ -9,10 +9,9 @@ import cz.vse.pexeso.utils.ArrayUtils;
 
 public class Deck {
 
-    public int deckSize;
     private ArrayList<String> cards;
 
-    private String[] allowedExtensions = new String[] { "jpg", "jpeg", "png" };
+    private String[] allowedExtensions = new String[] { "jpg", "jpeg", "png", "webp" };
 
     public Deck() throws DeckException {
         File folder = new File(System.getProperty("user.dir") + Variables.STATIC_PATH);
@@ -26,11 +25,14 @@ public class Deck {
                 this.cards.add(file.getName());
             }
         }
-        this.deckSize = this.cards.size();
     }
 
     public String getImage(int id) {
         return this.cards.get(id);
+    }
+
+    public int deckSize() {
+        return this.cards.size();
     }
 
 }

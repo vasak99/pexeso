@@ -66,6 +66,12 @@ public class GameServerRuntime implements Observer {
             return;
         }
 
+        try {
+            new Game(5, 30, 8081);
+        } catch (Exception e) {
+            log.info(e.getMessage());
+        }
+
         keepAlive = true;
 
         log.info("Listening for connections");
@@ -87,6 +93,7 @@ public class GameServerRuntime implements Observer {
                 log.error("IOException occurred while creating connection: " + e);
             }
         }
+
     }
 
     public void terminate() {

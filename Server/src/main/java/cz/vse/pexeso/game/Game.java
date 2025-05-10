@@ -42,8 +42,6 @@ public class Game implements Observer {
             throw new PlayersException("Maximum number of players is " + Variables.MAX_PLAYERS);
         }
 
-        this.gameBoard = new GameBoard(cardCount);
-
         this.connections = new HashMap<>();
         this.serverSocket = new ServerSocket(port);
         this.playersCapacity = playersCapacity;
@@ -57,7 +55,8 @@ public class Game implements Observer {
     public void startGame() {
         this.acceptor.terminate();
         this.isStarted = true;
-        this.sendToAll(MessageFactory.getGameStartMessage());
+        String data = this.gameBoard.getAsData();
+        this.sendToAll(MessageFactory.getGameStartMessage(data));
     }
 
     private void sendTo(String player, Message message) {
@@ -92,6 +91,7 @@ public class Game implements Observer {
     }
 
     public void revealCard(int row, int column) {
+        Card card = this.gameBoard.revealCard(row, column);
 
     }
 

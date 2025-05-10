@@ -35,9 +35,9 @@ public class MessageFactory {
         return ret;
     }
 
-    public static Message getGameStartMessage() {
+    public static Message getGameStartMessage(String data) {
         Message ret = createMessage(MessageType.GAME_START);
-        ret.setData("");
+        ret.setData(data);
         return ret;
     }
 
