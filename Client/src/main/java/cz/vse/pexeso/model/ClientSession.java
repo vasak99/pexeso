@@ -1,29 +1,42 @@
 package cz.vse.pexeso.model;
 
-import cz.vse.pexeso.service.AppServices;
-import cz.vse.pexeso.util.SceneManager;
-import cz.vse.pexeso.util.UIConstants;
-
 public class ClientSession {
-    private final String playerId;
-    private final User user;
+    private final long playerId;
+    private final UserCredentials userCredentials;
+    private GameRoom currentGameRoom;
+    private boolean hostingAGameRoom;
+    private boolean ready;
 
-    public ClientSession(String playerId, User user) {
+    public ClientSession(long playerId, UserCredentials userCredentials) {
         this.playerId = playerId;
-        this.user = user;
+        this.userCredentials = userCredentials;
     }
 
-    public String getPlayerId() {
+    public long getPlayerId() {
         return playerId;
     }
 
-    public User getUser() {
-        return user;
+    public GameRoom getCurrentGameRoom() {
+        return currentGameRoom;
     }
 
-    public void logout() {
-        AppServices.clear();
+    public void setCurrentGameRoom(GameRoom currentGameRoom) {
+        this.currentGameRoom = currentGameRoom;
+    }
 
-        SceneManager.switchScene(UIConstants.LOGIN_FXML);
+    public boolean isHostingAGameRoom() {
+        return hostingAGameRoom;
+    }
+
+    public void setHostingAGameRoom(boolean hostingAGameRoom) {
+        this.hostingAGameRoom = hostingAGameRoom;
+    }
+
+    public boolean isReady() {
+        return ready;
+    }
+
+    public void setReady(boolean ready) {
+        this.ready = ready;
     }
 }

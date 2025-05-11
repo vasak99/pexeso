@@ -1,8 +1,5 @@
 package cz.vse.pexeso.main;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-
 import cz.vse.pexeso.common.exceptions.DataFormatException;
 import cz.vse.pexeso.common.message.Message;
 import cz.vse.pexeso.common.message.MessageType;
@@ -10,6 +7,9 @@ import cz.vse.pexeso.common.message.payload.LoginPayload;
 import cz.vse.pexeso.common.message.payload.RegisterPayload;
 import cz.vse.pexeso.database.DatabaseController;
 import cz.vse.pexeso.database.model.User;
+
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 
 public class MessageController {
@@ -48,11 +48,11 @@ public class MessageController {
 
             var result = User.fromResultSet(statement.executeQuery());
             if(result.size() < 1) {
-                conn.sendMessage(MessageFactory.getLoginMessage("User with specified name not found").toSendable());
+                conn.sendMessage(MessageFactory.getError("User with specified name not found").toSendable());
                 return;
             }
             if(result.size() > 2) {
-                conn.sendMessage(MessageFactory.getLoginMessage("Duplicate identifier").toSendable());
+                conn.sendMessage(MessageFactory.getError("Duplicate identifier").toSendable());
                 return;
             }
 
@@ -74,11 +74,11 @@ public class MessageController {
             RegisterPayload data = new RegisterPayload(msg.getData());
 
             var statement = this.dc.getDbConnection().prepareStatement("insert into users(name, password) values (?, ?) returning id;");
-            statement.setString(1, data.name);
+            statement.setString(1, data.username);
             statement.setString(2, data.password);
 
             var result = statement.executeQuery();
-            if(result.first()) {
+            if(result.next()) {
                 long id = result.getLong("id");
                 conn.sendMessage(MessageFactory.getIdentityMessage("" + id).toSendable());
             } else {

@@ -22,8 +22,8 @@ public class User {
 
         while(rs.next()) {
             long id = rs.getLong("id");
-            String name = rs.getString("id");
-            String password = rs.getString("id");
+            String name = rs.getString("name");
+            String password = rs.getString("password");
 
             ret.add(new User(id, name, password));
         }

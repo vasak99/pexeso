@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="750.0" prefWidth="750.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cz.vse.pexeso.controller.LobbyController">
+    <columnConstraints>
+        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints vgrow="SOMETIMES" />
+        <RowConstraints vgrow="NEVER" />
+        <RowConstraints minHeight="10.0" prefHeight="30.0" valignment="TOP" vgrow="SOMETIMES" />
+    </rowConstraints>
+    <VBox prefHeight="200.0" prefWidth="100.0">
+        <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="Available rooms">
+            <font>
+                <Font size="24.0" />
+            </font>
+        </Label>
+        <TableView fx:id="gameRoomTable" prefHeight="416.0" prefWidth="750.0">
+            <columns>
+                <TableColumn fx:id="roomStatusColumn" prefWidth="125.0" text="Status" />
+                <TableColumn fx:id="gameIdColumn" prefWidth="68.0" text="Game ID" />
+                <TableColumn fx:id="hostColumn" prefWidth="105.0" text="Host" />
+                <TableColumn fx:id="boardSizeColumn" prefWidth="105.0" text="Board size" />
+                <TableColumn fx:id="roomCapacityColumn" minWidth="0.0" prefWidth="112.0" text="Player capacity" />
+            <TableColumn fx:id="actionsColumn" minWidth="0.0" prefWidth="234.0" text="Actions" />
+            </columns>
+        </TableView>
+    </VBox>
+    <VBox alignment="TOP_CENTER" GridPane.rowIndex="2">
+        <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="Stats">
+            <font>
+                <Font size="24.0" />
+            </font>
+        </Label>
+    </VBox>
+    <HBox GridPane.rowIndex="1">
+        <Button fx:id="manageRoomButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onMouseClicked="#handleManageRoomClick" prefWidth="375.0" text="Create new room">
+            <font>
+                <Font size="18.0" />
+            </font>
+        </Button>
+        <Button fx:id="readyButton" disable="true" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onMouseClicked="#handleReadyClick" prefWidth="375.0" style="-fx-background-color: #ffc0c0;" text="Not ready">
+            <font>
+                <Font size="18.0" />
+            </font>
+        </Button>
+    </HBox>
+</GridPane>
