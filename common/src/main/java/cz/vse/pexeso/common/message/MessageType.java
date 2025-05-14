@@ -13,8 +13,6 @@ public enum MessageType {
 
     CREATE_GAME("CREATE_GAME"),
 
-    GAME_START("GAME_START"),
-
     DELETE_GAME("DELETE_GAME"),
 
     EDIT_GAME("EDIT_GAME"),

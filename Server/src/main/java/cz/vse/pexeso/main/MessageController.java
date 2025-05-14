@@ -3,10 +3,13 @@ package cz.vse.pexeso.main;
 import cz.vse.pexeso.common.exceptions.DataFormatException;
 import cz.vse.pexeso.common.message.Message;
 import cz.vse.pexeso.common.message.MessageType;
+import cz.vse.pexeso.common.message.payload.JoinGamePayload;
 import cz.vse.pexeso.common.message.payload.LoginPayload;
 import cz.vse.pexeso.common.message.payload.RegisterPayload;
 import cz.vse.pexeso.database.DatabaseController;
 import cz.vse.pexeso.database.model.User;
+import cz.vse.pexeso.game.Game;
+import cz.vse.pexeso.utils.Utils;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -25,13 +28,16 @@ public class MessageController {
     public void handleMessage(Connection conn, Message msg) {
         switch(msg.getType()) {
             case MessageType.CREATE_GAME:
-                this.gsr.createGame(conn, msg.getData());
+                this.gsr.createGame(conn, msg);
                 break;
             case MessageType.LOGIN:
                 this.login(conn, msg);
                 break;
             case MessageType.REGISTER:
                 this.register(conn, msg);
+                break;
+            case MessageType.JOIN_GAME:
+                this.joinGame(conn, msg);
                 break;
             default:
                 break;
@@ -90,6 +96,30 @@ public class MessageController {
         } catch (SQLException e) {
             conn.sendMessage(MessageFactory.getError(e.getMessage()).toSendable());
         }
+    }
+
+    private void joinGame(Connection conn, Message msg) {
+        JoinGamePayload data = new JoinGamePayload(msg);
+        Game game = this.gsr.getGameById(data.gameId);
+
+        if(game == null) {
+            conn.sendMessage(MessageFactory.getError("Game not found").toSendable());
+            return;
+        }
+
+        if(game.isFull()) {
+            conn.sendMessage(MessageFactory.getError("Game is full").toSendable());
+            return;
+        }
+
+        String host = Utils.getLocalAddress();
+
+        if(host.equals("localhost")) {
+            conn.sendMessage(MessageFactory.getError("Could not load server address").toSendable());
+            return;
+        }
+
+        conn.sendMessage(MessageFactory.getRegisterMessage(host + ":" + game.getPort()).toSendable());
     }
 
 }

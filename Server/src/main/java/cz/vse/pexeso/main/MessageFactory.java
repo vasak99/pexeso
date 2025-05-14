@@ -36,8 +36,20 @@ public class MessageFactory {
     }
 
     public static Message getGameStartMessage(String data) {
-        Message ret = createMessage(MessageType.GAME_START);
+        Message ret = createMessage(MessageType.START_GAME);
         ret.setData(data);
+        return ret;
+    }
+
+    public static Message getRedirectMessage(String host, String port) {
+        Message ret = createMessage(MessageType.REDIRECT);
+        ret.setData(host + ":" + port);
+        return ret;
+    }
+
+    public static Message getRedirectMessage(String host, int port) {
+        Message ret = createMessage(MessageType.REDIRECT);
+        ret.setData(host + ":" + port);
         return ret;
     }
 
