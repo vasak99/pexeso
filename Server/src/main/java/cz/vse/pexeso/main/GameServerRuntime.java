@@ -5,30 +5,33 @@ import cz.vse.pexeso.common.exceptions.DataFormatException;
 import cz.vse.pexeso.common.message.Message;
 import cz.vse.pexeso.common.message.MessageType;
 import cz.vse.pexeso.common.message.payload.CreateGamePayload;
+import cz.vse.pexeso.common.message.payload.LobbyUpdatePayload;
 import cz.vse.pexeso.database.DatabaseController;
-import cz.vse.pexeso.exceptions.CardsException;
 import cz.vse.pexeso.exceptions.PlayersException;
 import cz.vse.pexeso.game.Game;
 import cz.vse.pexeso.utils.Observable;
 import cz.vse.pexeso.utils.Observer;
+import cz.vse.pexeso.utils.Utils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.ServerSocket;
-import java.net.UnknownHostException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import cz.vse.pexeso.main.http.ImageServer;
 
 public class GameServerRuntime implements Observer {
 
     public static final Logger log = LoggerFactory.getLogger(GameServerRuntime.class);
 
     private ServerSocket serverSocket;
+    private ImageServer imageServer;
     private boolean keepAlive;
 
     private Set<Connection> connections = new HashSet<Connection>();
@@ -44,11 +47,16 @@ public class GameServerRuntime implements Observer {
 
             this.dc = new DatabaseController();
             this.messageController = new MessageController(this, this.dc);
+
+            log.info("Starting image server");
+            this.imageServer = new ImageServer();
+            new Thread(this.imageServer).start();
+            log.info("Image server started");
         } catch (IOException e) {
-            log.error("IOException occurred while starting the server: " + e);
+            log.error("IOException occurred while starting the server: " + e.getMessage());
             return;
         } catch(SQLException e) {
-            log.error("An SQLException occurred while trying to connect to database: " + e);
+            log.error("An SQLException occurred while trying to connect to database: " + e.getMessage());
             return;
         }
 
@@ -73,12 +81,15 @@ public class GameServerRuntime implements Observer {
                 log.error("IOException occurred while creating connection: " + e);
             }
         }
+
     }
 
     public void terminate() {
         for (var conn : this.connections) {
             conn.terminate();
         }
+
+        this.imageServer.terminate();
     }
 
     @Override
@@ -93,7 +104,8 @@ public class GameServerRuntime implements Observer {
         }
     }
 
-    public void createGame(Connection conn, String data) {
+    public void createGame(Connection conn, Message inmsg) {
+        String data = inmsg.getData();
         if(this.games.size() >= Variables.MAX_GAMES) {
             Message msg = new Message();
             msg.setType(MessageType.ERROR);
@@ -114,35 +126,25 @@ public class GameServerRuntime implements Observer {
                 }
                 try {
                     port = Variables.DEFAULT_PORT + i;
-                    game = new Game(cgp.capacity, cgp.cardCount, port);
+                    game = new Game(inmsg.getPlayerId(), cgp.capacity, cgp.cardCount, port, this.dc);
                 } catch (IOException e) {}
-
             }
 
             this.games.put(game.getId(), game);
 
-            try {
-                Message msg = new Message();
-                msg.setType(MessageType.REDIRECT);
-                msg.setData(InetAddress.getLocalHost().getHostAddress() + ":" + port);
-                conn.sendMessage(msg.toSendable());
-            } catch (UnknownHostException e) {}
+            conn.sendMessage(MessageFactory.getRedirectMessage(Utils.getLocalAddress(), port).toSendable());
+
+            this.connections.remove(conn);
+            conn.terminate();
         } catch (DataFormatException e) {
-            Message msg = new Message();
-            msg.setType(MessageType.ERROR);
-            msg.setData("Provided data has wrong format");
-            conn.sendMessage(msg.toSendable());
-        } catch (CardsException e) {
-            Message msg = new Message();
-            msg.setType(MessageType.ERROR);
-            msg.setData(e.getMessage());
-            conn.sendMessage(msg.toSendable());
+            conn.sendMessage(MessageFactory.getError("Provided data has wrong format").toSendable());
         } catch (PlayersException e) {
-            Message msg = new Message();
-            msg.setType(MessageType.ERROR);
-            msg.setData(e.getMessage());
-            conn.sendMessage(msg.toSendable());
+            conn.sendMessage(MessageFactory.getError(e.getMessage()).toSendable());
         }
+    }
+
+    public Game getGameById(String gameId) {
+        return this.games.get(gameId);
     }
 
 }

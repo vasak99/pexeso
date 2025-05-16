@@ -1,27 +1,43 @@
 package cz.vse.pexeso.common.message.payload;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import cz.vse.pexeso.common.exceptions.DataFormatException;
-import cz.vse.pexeso.common.utils.MessageComponent;
 
 public class LoginPayload implements MessagePayload {
     public String username;
     public String password;
 
-    public LoginPayload(String username, String password) {
+    public LoginPayload(@JsonProperty("username") String username, @JsonProperty("password") String password) {
         this.username = username;
         this.password = password;
     }
 
     public String toSendable() {
-        return "" + this.username + MessageComponent.DATA_SEPARATOR.getValue() + this.password;
+        String ret = "";
+
+        var mapper = new ObjectMapper();
+
+        try {
+            ret = mapper.writeValueAsString(this);
+        } catch (Exception e) {}
+
+        return ret;
     }
 
     public LoginPayload(String data) throws DataFormatException {
-        String[] sep = data.split(MessageComponent.DATA_SEPARATOR.getValue());
-        if(sep.length != 2) {
-            throw new DataFormatException("Login data in wrong format");
+        var mapper = new ObjectMapper();
+
+        try {
+            var dd = mapper.readValue(data, LoginPayload.class);
+            System.out.println(dd.username);
+            System.out.println(dd.password);
+            this.username = dd.username;
+            this.password = dd.password;
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return;
         }
-        this.username = sep[0];
-        this.password = sep[1];
     }
 }

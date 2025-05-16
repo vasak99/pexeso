@@ -1,16 +1,21 @@
 package cz.vse.pexeso.common.utils;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import cz.vse.pexeso.common.message.Message;
 
+
 public class StreamReader {
 
     public static String readPacket(ObjectInputStream ois) throws ClassNotFoundException, IOException, InterruptedException {
+        String res = null;
 
-        String res = (String) ois.readObject();
+        try {
+            res = (String) ois.readObject();
+        } catch (EOFException e) {}
 
         return res;
     }

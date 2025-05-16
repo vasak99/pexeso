@@ -28,6 +28,7 @@ public class Message {
         String[] strEntries = msg.split(MessageComponent.SEPARATOR.getValue());
 
         boolean isInMsg = false;
+
         for(var ent : strEntries) {
             if(ent.equals(MessageComponent.START.getValue())) {
                 isInMsg = true;
@@ -36,6 +37,7 @@ public class Message {
             if(ent.equals(MessageComponent.END.getValue())) {
                 break;
             }
+
             if(!isInMsg) { continue; }
 
             String[] spl = ent.split(MessageComponent.KEY_VALUE_SEPARATOR.getValue());
@@ -80,7 +82,9 @@ public class Message {
     }
 
     public MessageType getType() {
-        return MessageType.valueOf(this.entries.get(MessageComponent.TYPE));
+        String ret = this.entries.get(MessageComponent.TYPE);
+        if(ret == null) { return null; }
+        return MessageType.valueOf(ret);
     }
 
     public String getGameId() {

@@ -5,6 +5,10 @@ public enum MessageType {
 
     REVEAL("REVEAL"),
 
+    BOARD("BOARD"),
+
+    LOBBY_UPDATE("LOBBY_UPDATE"),
+
     STATUS("STATUS"),
 
     MOVE("MOVE"),
@@ -29,12 +33,9 @@ public enum MessageType {
 
     IDENTITY("IDENTITY"),
 
+    REQUEST_IDENTITY("REQUEST_IDENTITY"),
+
     RESULT("RESULT"),
-    //START,
-    // CARD,
-    // PAIR,
-    // STATUS,
-    // RESULT;
 
     ERROR("ERROR"),
     REGISTER("REGISTER"),;
