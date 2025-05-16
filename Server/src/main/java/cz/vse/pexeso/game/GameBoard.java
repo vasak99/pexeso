@@ -125,7 +125,6 @@ public class GameBoard {
                 data += ";";
             }
         }
-        System.out.println(data);
 
         return data;
     }

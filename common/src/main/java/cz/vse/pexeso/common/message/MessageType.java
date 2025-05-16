@@ -7,6 +7,8 @@ public enum MessageType {
 
     BOARD("BOARD"),
 
+    LOBBY_UPDATE("LOBBY_UPDATE"),
+
     STATUS("STATUS"),
 
     MOVE("MOVE"),

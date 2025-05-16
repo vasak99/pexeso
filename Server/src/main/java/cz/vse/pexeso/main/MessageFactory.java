@@ -2,6 +2,7 @@ package cz.vse.pexeso.main;
 
 import cz.vse.pexeso.common.message.Message;
 import cz.vse.pexeso.common.message.MessageType;
+import cz.vse.pexeso.common.message.payload.LobbyUpdatePayload;
 
 public class MessageFactory {
 
@@ -51,6 +52,13 @@ public class MessageFactory {
         Message ret = createMessage(MessageType.REDIRECT);
         ret.setData(host + ":" + port);
         return ret;
+    }
+
+    public static Message getLobbyMessage(LobbyUpdatePayload data) {
+        Message ret = createMessage(MessageType.LOBBY_UPDATE);
+        ret.setData(data.toSendable());
+        return ret;
+
     }
 
     private static Message createMessage(MessageType type) {

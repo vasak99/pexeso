@@ -82,7 +82,9 @@ public class Message {
     }
 
     public MessageType getType() {
-        return MessageType.valueOf(this.entries.get(MessageComponent.TYPE));
+        String ret = this.entries.get(MessageComponent.TYPE);
+        if(ret == null) { return null; }
+        return MessageType.valueOf(ret);
     }
 
     public String getGameId() {

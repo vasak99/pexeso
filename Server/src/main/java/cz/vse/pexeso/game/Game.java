@@ -23,6 +23,7 @@ import cz.vse.pexeso.common.message.MessageType;
 import cz.vse.pexeso.common.message.payload.EditGamePayload;
 import cz.vse.pexeso.common.message.payload.KickPlayerPayload;
 import cz.vse.pexeso.common.message.payload.LobbyUpdatePayload;
+import cz.vse.pexeso.common.message.payload.SendablePlayer;
 import cz.vse.pexeso.database.DatabaseController;
 
 public class Game implements Observer {
@@ -174,6 +175,8 @@ public class Game implements Observer {
 
         this.playersCapacity = data.capacity;
         this.cardCount = data.cardCount;
+
+        sendToAll(MessageFactory.getLobbyMessage(getLobbyData()));
     }
 
     public void deleteGame(Connection conn, Message msg) {
@@ -198,6 +201,8 @@ public class Game implements Observer {
 
         if(this.players.size() < 1) {
             this.terminate();
+        } else {
+            sendToAll(MessageFactory.getLobbyMessage(getLobbyData()));
         }
     }
 
@@ -211,6 +216,8 @@ public class Game implements Observer {
         String playerId = msg.getPlayerId();
 
         this.players.get(playerId).setReady();
+
+        sendToAll(MessageFactory.getLobbyMessage(this.getLobbyData()));
     }
 
     public void kickPlayer(Connection conn, Message msg) {
@@ -226,6 +233,9 @@ public class Game implements Observer {
 
         var kickedPlayer = this.players.remove(data.playerId);
         sendTo(kickedPlayer.getConnection(), MessageFactory.getRedirectMessage(Utils.getLocalAddress(), Variables.DEFAULT_PORT));
+
+        LobbyUpdatePayload ret = this.getLobbyData();
+        sendToAll(MessageFactory.getLobbyMessage(ret));
     }
 
     private boolean checkGameId(Connection conn, Message msg) {
@@ -263,13 +273,16 @@ public class Game implements Observer {
     public LobbyUpdatePayload getLobbyData() {
         var ret = new LobbyUpdatePayload();
 
-        var playersList = new ArrayList<String>();
+        var playersList = new ArrayList<SendablePlayer>();
         for(var pl : this.players.entrySet()) {
-            playersList.add(pl.getValue().getName());
+            Player pp = pl.getValue();
+            playersList.add(new SendablePlayer(pp.getName(), pp.isReady()));
         }
 
         ret.gameBoard = this.gameBoard.getAsData();
         ret.players = playersList;
+        ret.cardCount = this.cardCount;
+        ret.playersCapacity = this.playersCapacity;
 
         return ret;
     }

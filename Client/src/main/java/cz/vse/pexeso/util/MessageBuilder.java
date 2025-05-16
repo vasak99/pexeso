@@ -2,6 +2,7 @@ package cz.vse.pexeso.util;
 
 import cz.vse.pexeso.common.message.Message;
 import cz.vse.pexeso.common.message.MessageType;
+import cz.vse.pexeso.common.message.payload.LoginPayload;
 import cz.vse.pexeso.common.utils.MessageComponent;
 import cz.vse.pexeso.model.GameRoom;
 import cz.vse.pexeso.model.LobbyPlayer;
@@ -37,7 +38,7 @@ public final class MessageBuilder {
     public static String buildLoginMessage(UserCredentials userCredentials) {
         log.debug("Building login message for userCredentials: {}", userCredentials.username());
 
-        String data = userCredentials.username() + DATA_SEPARATOR + userCredentials.password();
+        String data = new LoginPayload(userCredentials.username(), userCredentials.password()).toSendable();
 
         return build(MessageType.LOGIN, null, null, data);
     }
