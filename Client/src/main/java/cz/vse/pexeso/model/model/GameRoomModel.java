@@ -5,6 +5,10 @@ import cz.vse.pexeso.model.LobbyPlayer;
 import cz.vse.pexeso.model.service.GameRoomService;
 import cz.vse.pexeso.model.service.SessionService;
 import cz.vse.pexeso.network.RedirectService;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+
+import java.util.List;
 
 public class GameRoomModel {
     private final GameRoomService gameRoomService;
@@ -77,5 +81,28 @@ public class GameRoomModel {
 
     public String getCurrentGameId() {
         return sessionService.getSession().getCurrentGameRoom().getGameId();
+    }
+
+    public boolean areAllPlayersReady(List<LobbyPlayer> players) {
+        if (players.isEmpty()) {
+            return false;
+        }
+
+        for (LobbyPlayer lobbyPlayer : players) {
+            if (lobbyPlayer.getStatus() == LobbyPlayer.PlayerStatus.NOT_READY) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public ObservableList<LobbyPlayer> filterPlayers() {
+        ObservableList<LobbyPlayer> currentlyDisplayedPlayers = FXCollections.observableArrayList();
+
+        currentlyDisplayedPlayers.setAll(LobbyPlayer.lobbyPlayers.stream()
+                .filter(player -> player.getCurrentGameId().equals(getCurrentGameId()))
+                .toList());
+
+        return currentlyDisplayedPlayers;
     }
 }

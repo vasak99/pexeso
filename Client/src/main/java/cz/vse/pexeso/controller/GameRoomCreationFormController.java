@@ -1,7 +1,7 @@
 package cz.vse.pexeso.controller;
 
 import cz.vse.pexeso.di.Injector;
-import cz.vse.pexeso.model.BoardSize;
+import cz.vse.pexeso.model.GameRoom;
 import cz.vse.pexeso.model.model.GameRoomModel;
 import cz.vse.pexeso.model.result.GameRoomResultHandler;
 import cz.vse.pexeso.model.result.GameRoomResultListener;
@@ -13,7 +13,6 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.paint.Color;
-import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +27,7 @@ public class GameRoomCreationFormController implements GameRoomResultListener {
     @FXML
     private Slider capacitySlider;
     @FXML
-    private ChoiceBox<BoardSize> boardSizeChoiceBox;
+    private ChoiceBox<GameRoom.BoardSize> boardSizeChoiceBox;
     @FXML
     private Label warningLabel;
 
@@ -42,19 +41,9 @@ public class GameRoomCreationFormController implements GameRoomResultListener {
     private void initialize() {
         resultHandler.register();
 
-        GameRoomUIHelper.setupCapacitySlider(capacitySlider);
-        GameRoomUIHelper.setupBoardSizeChoiceBox(boardSizeChoiceBox);
-
-        setupWindowCloseEvent();
+        GameRoomUIHelper.setupCreatorUI(capacitySlider, boardSizeChoiceBox, warningLabel, resultHandler);
 
         log.info("GameRoomCreationFormController initialized.");
-    }
-
-    private void setupWindowCloseEvent() {
-        Platform.runLater(() -> {
-            Stage stage = (Stage) warningLabel.getScene().getWindow();
-            stage.setOnCloseRequest(event -> resultHandler.unregister());
-        });
     }
 
     @FXML

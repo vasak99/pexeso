@@ -1,22 +1,18 @@
 package cz.vse.pexeso.controller;
 
 import cz.vse.pexeso.di.Injector;
-import cz.vse.pexeso.model.BoardSize;
+import cz.vse.pexeso.model.GameRoom;
 import cz.vse.pexeso.model.LobbyPlayer;
-import cz.vse.pexeso.model.PlayerStatus;
 import cz.vse.pexeso.model.model.GameRoomModel;
 import cz.vse.pexeso.model.result.GameRoomResultHandler;
 import cz.vse.pexeso.model.result.GameRoomResultListener;
 import cz.vse.pexeso.navigation.Navigator;
 import cz.vse.pexeso.view.GameRoomUIHelper;
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
-import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +27,7 @@ public class GameRoomManagerController implements GameRoomResultListener {
     @FXML
     private Slider capacitySlider;
     @FXML
-    private ChoiceBox<BoardSize> boardSizeChoiceBox;
+    private ChoiceBox<GameRoom.BoardSize> boardSizeChoiceBox;
     @FXML
     private Button deleteRoomButton;
     @FXML
@@ -49,7 +45,6 @@ public class GameRoomManagerController implements GameRoomResultListener {
     @FXML
     private Label warningLabel;
 
-    private final ObservableList<LobbyPlayer> currentlyDisplayedPlayers = FXCollections.observableArrayList();
     private LastAction lastAction = LastAction.NONE;
 
     public GameRoomManagerController(Navigator navigator, GameRoomModel gameRoomModel, Injector injector) {
@@ -61,24 +56,11 @@ public class GameRoomManagerController implements GameRoomResultListener {
     @FXML
     private void initialize() {
         resultHandler.register();
+        GameRoomUIHelper.setupManagerUI(playerTable, playerNameColumn, playerStatusColumn, actionColumn, this, gameRoomModel, capacitySlider, boardSizeChoiceBox, warningLabel, resultHandler, saveChangesButton);
 
-        GameRoomUIHelper.setupCapacitySlider(capacitySlider);
-        GameRoomUIHelper.setupBoardSizeChoiceBox(boardSizeChoiceBox);
-
-        GameRoomUIHelper.initializePlayerTable(playerTable, playerNameColumn, playerStatusColumn, actionColumn, this, gameRoomModel);
-        boardSizeChoiceBox.getSelectionModel().select(BoardSize.fromValue(gameRoomModel.getCurrentRoomCardCount()));
-        capacitySlider.setValue(gameRoomModel.getCurrentRoomCapacity());
-
-        setupWindowCloseEvent();
+        updatePlayerTable();
 
         log.info("GameRoomManagerController initialized");
-    }
-
-    private void setupWindowCloseEvent() {
-        Platform.runLater(() -> {
-            Stage stage = (Stage) warningLabel.getScene().getWindow();
-            stage.setOnCloseRequest(event -> resultHandler.unregister());
-        });
     }
 
     @FXML
@@ -118,7 +100,7 @@ public class GameRoomManagerController implements GameRoomResultListener {
     public void onGameRoomSuccess(Object data) {
         switch (lastAction) {
             case EDIT -> editGameSuccess();
-            case DELETE -> deleteGameSuccess();
+            case DELETE -> deleteGameSuccess((String) data);
             case START -> startGameSuccess();
             case KICK -> kickPlayerSuccess();
             default -> log.warn("Invalid success");
@@ -133,11 +115,12 @@ public class GameRoomManagerController implements GameRoomResultListener {
 
     private void editGameSuccess() {
         gameRoomModel.finalizeGameEdit((int) capacitySlider.getValue(), boardSizeChoiceBox.getValue().value);
+        GameRoomUIHelper.updateFields(gameRoomModel, capacitySlider, boardSizeChoiceBox, saveChangesButton);
         editWarningLabel(Color.GREEN, "Changes saved");
     }
 
-    private void deleteGameSuccess() {
-        gameRoomModel.finalizeGameDeletion();
+    private void deleteGameSuccess(String redirectData) {
+        gameRoomModel.finalizeGameDeletion(redirectData);
         disableEverything();
         editWarningLabel(Color.GREEN, "Room deleted, you may now close the window");
     }
@@ -177,18 +160,8 @@ public class GameRoomManagerController implements GameRoomResultListener {
     }
 
     private void updatePlayerTable() {
-        currentlyDisplayedPlayers.setAll(LobbyPlayer.lobbyPlayers.stream()
-                .filter(player -> player.getCurrentGameId().equals(gameRoomModel.getCurrentGameId()))
-                .toList());
-        playerTable.setItems(currentlyDisplayedPlayers);
-
-        for (LobbyPlayer lobbyPlayer : currentlyDisplayedPlayers) {
-            if (lobbyPlayer.getStatus() == PlayerStatus.NOT_READY) {
-                startGameButton.setDisable(true);
-                return;
-            }
-        }
-        startGameButton.setDisable(false);
+        playerTable.setItems(gameRoomModel.filterPlayers());
+        startGameButton.setDisable(!gameRoomModel.areAllPlayersReady(playerTable.getItems()));
     }
 
     private enum LastAction {

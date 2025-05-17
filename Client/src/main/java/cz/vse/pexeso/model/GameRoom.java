@@ -104,4 +104,42 @@ public class GameRoom {
     public List<LobbyPlayer> getPlayers() {
         return players;
     }
+
+    public enum GameStatus {
+        WAITING_FOR_PLAYERS("Waiting for players"),
+        READY_TO_START("Ready to start"),
+        IN_PROGRESS("In progress"),
+        FINISHED("Finished");
+
+        private final String value;
+
+        GameStatus(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return this.value;
+        }
+    }
+
+    public enum BoardSize {
+        SMALL(16),
+        MEDIUM(36),
+        LARGE(64);
+
+        public final int value;
+
+        BoardSize(int value) {
+            this.value = value;
+        }
+
+        public static BoardSize fromValue(int value) {
+            for (BoardSize boardSize : BoardSize.values()) {
+                if (boardSize.value == value) {
+                    return boardSize;
+                }
+            }
+            return null;
+        }
+    }
 }

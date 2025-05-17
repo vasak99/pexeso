@@ -24,7 +24,7 @@ public class Client extends Application {
         SceneManager sceneManager = injector.getSceneManager();
         sceneManager.setStage(primaryStage);
 
-        sceneManager.switchScene(UIConstants.LOGIN_FXML);
+        sceneManager.switchScene(UIConstants.AUTH_FXML);
         primaryStage.setTitle("Pexeso");
         primaryStage.show();
     }

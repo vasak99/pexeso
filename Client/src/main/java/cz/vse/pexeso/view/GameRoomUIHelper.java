@@ -2,28 +2,56 @@ package cz.vse.pexeso.view;
 
 import cz.vse.pexeso.common.environment.Variables;
 import cz.vse.pexeso.controller.GameRoomManagerController;
-import cz.vse.pexeso.model.BoardSize;
 import cz.vse.pexeso.model.GameRoom;
 import cz.vse.pexeso.model.LobbyPlayer;
-import cz.vse.pexeso.model.PlayerStatus;
 import cz.vse.pexeso.model.model.GameRoomModel;
+import cz.vse.pexeso.model.result.GameRoomResultHandler;
+import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
+import javafx.stage.Stage;
 
 public final class GameRoomUIHelper {
     private GameRoomUIHelper() {
     }
 
-    public static void initializePlayerTable(TableView<LobbyPlayer> playerTable,
-                                             TableColumn<LobbyPlayer, String> playerNameColumn,
-                                             TableColumn<LobbyPlayer, String> playerStatusColumn,
-                                             TableColumn<LobbyPlayer, Void> actionColumn,
-                                             GameRoomManagerController controller,
-                                             GameRoomModel gameRoomModel
+    public static void setupManagerUI(TableView<LobbyPlayer> playerTable,
+                                      TableColumn<LobbyPlayer, String> playerNameColumn,
+                                      TableColumn<LobbyPlayer, String> playerStatusColumn,
+                                      TableColumn<LobbyPlayer, Void> actionColumn,
+                                      GameRoomManagerController controller,
+                                      GameRoomModel gameRoomModel,
+                                      Slider capacitySlider,
+                                      ChoiceBox<GameRoom.BoardSize> boardSizeChoiceBox,
+                                      Label warningLabel,
+                                      GameRoomResultHandler resultHandler,
+                                      Button saveChangesButton) {
+        setupCreatorUI(capacitySlider, boardSizeChoiceBox, warningLabel, resultHandler);
+
+        initializePlayerTable(playerTable, playerNameColumn, playerStatusColumn, actionColumn, controller, gameRoomModel);
+        updateFields(gameRoomModel, capacitySlider, boardSizeChoiceBox, saveChangesButton);
+        saveChangesButton.setDisable(true);
+    }
+
+    public static void setupCreatorUI(Slider capacitySlider,
+                                      ChoiceBox<GameRoom.BoardSize> boardSizeChoiceBox,
+                                      Label warningLabel,
+                                      GameRoomResultHandler resultHandler) {
+        initializeCapacitySlider(capacitySlider);
+        initializeBoardSizeChoiceBox(boardSizeChoiceBox);
+        setupWindowCloseEvent(warningLabel, resultHandler);
+    }
+
+    private static void initializePlayerTable(TableView<LobbyPlayer> playerTable,
+                                              TableColumn<LobbyPlayer, String> playerNameColumn,
+                                              TableColumn<LobbyPlayer, String> playerStatusColumn,
+                                              TableColumn<LobbyPlayer, Void> actionColumn,
+                                              GameRoomManagerController controller,
+                                              GameRoomModel gameRoomModel
     ) {
         playerTable.setPlaceholder(new Label("No other players in this game room"));
 
@@ -34,7 +62,7 @@ public final class GameRoomUIHelper {
             if (player == null) {
                 return new ReadOnlyStringWrapper("");
             }
-            PlayerStatus status = player.getStatus();
+            LobbyPlayer.PlayerStatus status = player.getStatus();
             return new ReadOnlyStringWrapper(status.getValue());
         });
 
@@ -43,8 +71,6 @@ public final class GameRoomUIHelper {
             private final HBox actionBox = new HBox(5, kickButton);
 
             {
-                //kickButton.setStyle("");
-
                 kickButton.setOnAction(event -> {
                     LobbyPlayer lobbyPlayer = getTableView().getItems().get(getIndex());
                     controller.kickPlayer(lobbyPlayer);
@@ -96,14 +122,44 @@ public final class GameRoomUIHelper {
         });
     }
 
-    public static void setupCapacitySlider(Slider capacitySlider) {
+    private static void initializeCapacitySlider(Slider capacitySlider) {
         capacitySlider.setMin(Variables.MIN_PLAYERS);
         capacitySlider.setMax(Variables.MAX_PLAYERS);
     }
 
-    public static void setupBoardSizeChoiceBox(ChoiceBox<BoardSize> boardSizeChoiceBox) {
-        ObservableList<BoardSize> sizes = FXCollections.observableArrayList();
-        sizes.setAll(BoardSize.SMALL, BoardSize.MEDIUM, BoardSize.LARGE);
+    private static void initializeBoardSizeChoiceBox(ChoiceBox<GameRoom.BoardSize> boardSizeChoiceBox) {
+        ObservableList<GameRoom.BoardSize> sizes = FXCollections.observableArrayList();
+        sizes.setAll(GameRoom.BoardSize.SMALL, GameRoom.BoardSize.MEDIUM, GameRoom.BoardSize.LARGE);
         boardSizeChoiceBox.setItems(sizes);
+    }
+
+    public static void updateFields(GameRoomModel gameRoomModel, Slider capacitySlider, ChoiceBox<GameRoom.BoardSize> boardSizeChoiceBox, Button saveChangesButton) {
+        double originalCapacity = gameRoomModel.getCurrentRoomCapacity();
+        GameRoom.BoardSize originalBoardSize = GameRoom.BoardSize.fromValue(gameRoomModel.getCurrentRoomCardCount());
+
+        capacitySlider.setValue(originalCapacity);
+        boardSizeChoiceBox.getSelectionModel().select(originalBoardSize);
+
+        capacitySlider.setOnMouseClicked(mouseEvent -> {
+            boolean newCapacity = originalCapacity != capacitySlider.getValue();
+            boolean newBoardSize = originalBoardSize != boardSizeChoiceBox.getValue();
+            updateSaveChangesButton(saveChangesButton, newCapacity, newBoardSize);
+        });
+        boardSizeChoiceBox.getSelectionModel().selectedItemProperty().addListener((observableValue, boardSize, t1) -> {
+            boolean newCapacity = originalCapacity != capacitySlider.getValue();
+            boolean newBoardSize = originalBoardSize != boardSizeChoiceBox.getValue();
+            updateSaveChangesButton(saveChangesButton, newCapacity, newBoardSize);
+        });
+    }
+
+    private static void updateSaveChangesButton(Button saveChangesButton, boolean newCapacity, boolean newBoardSize) {
+        saveChangesButton.setDisable(!newCapacity && !newBoardSize);
+    }
+
+    private static void setupWindowCloseEvent(Label warningLabel, GameRoomResultHandler resultHandler) {
+        Platform.runLater(() -> {
+            Stage stage = (Stage) warningLabel.getScene().getWindow();
+            stage.setOnCloseRequest(event -> resultHandler.unregister());
+        });
     }
 }

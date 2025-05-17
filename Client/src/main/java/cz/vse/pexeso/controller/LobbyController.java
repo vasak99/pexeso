@@ -1,7 +1,6 @@
 package cz.vse.pexeso.controller;
 
 import cz.vse.pexeso.di.Injector;
-import cz.vse.pexeso.model.BoardSize;
 import cz.vse.pexeso.model.GameRoom;
 import cz.vse.pexeso.model.model.LobbyModel;
 import cz.vse.pexeso.model.result.LobbyResultHandler;
@@ -34,7 +33,7 @@ public class LobbyController implements LobbyResultListener {
     @FXML
     private TableColumn<GameRoom, Long> hostColumn;
     @FXML
-    private TableColumn<GameRoom, BoardSize> boardSizeColumn;
+    private TableColumn<GameRoom, GameRoom.BoardSize> boardSizeColumn;
     @FXML
     private TableColumn<GameRoom, Integer> roomCapacityColumn;
     @FXML
@@ -53,18 +52,8 @@ public class LobbyController implements LobbyResultListener {
     @FXML
     private void initialize() {
         resultHandler.initialRegister();
-
-        LobbyUIHelper.initializeGameRoomTable(gameRoomTable, roomStatusColumn, gameIdColumn, hostColumn, boardSizeColumn,
-                roomCapacityColumn, actionsColumn, this, lobbyModel);
-        setupWindowCloseEvent();
+        LobbyUIHelper.setup(gameRoomTable, roomStatusColumn, gameIdColumn, hostColumn, boardSizeColumn, roomCapacityColumn, actionsColumn, this, lobbyModel, resultHandler);
         log.info("LobbyController initialized");
-    }
-
-    private void setupWindowCloseEvent() {
-        Platform.runLater(() -> {
-            Stage stage = (Stage) gameRoomTable.getScene().getWindow();
-            stage.setOnCloseRequest(event -> resultHandler.finalUnregister());
-        });
     }
 
     @FXML

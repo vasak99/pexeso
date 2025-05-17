@@ -1,6 +1,9 @@
 package cz.vse.pexeso.navigation;
 
-import cz.vse.pexeso.controller.*;
+import cz.vse.pexeso.controller.AuthController;
+import cz.vse.pexeso.controller.GameRoomCreationFormController;
+import cz.vse.pexeso.controller.GameRoomManagerController;
+import cz.vse.pexeso.controller.LobbyController;
 import cz.vse.pexeso.di.Injector;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -74,11 +77,8 @@ public class SceneManager {
     }
 
     private Object createController(Class<?> controllerClass) {
-        if (controllerClass == LoginController.class) {
-            return new LoginController(injector.getNavigator(), injector.getAuthModel(), injector);
-        }
-        if (controllerClass == RegisterController.class) {
-            return new RegisterController(injector.getNavigator(), injector.getAuthModel(), injector);
+        if (controllerClass == AuthController.class) {
+            return new AuthController(injector.getNavigator(), injector.getAuthModel(), injector);
         }
         if (controllerClass == LobbyController.class) {
             return new LobbyController(injector.getNavigator(), injector.getLobbyModel(), injector);

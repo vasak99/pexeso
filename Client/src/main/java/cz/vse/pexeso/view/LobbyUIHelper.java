@@ -1,30 +1,52 @@
 package cz.vse.pexeso.view;
 
 import cz.vse.pexeso.controller.LobbyController;
-import cz.vse.pexeso.model.BoardSize;
 import cz.vse.pexeso.model.GameRoom;
-import cz.vse.pexeso.model.GameStatus;
 import cz.vse.pexeso.model.model.LobbyModel;
+import cz.vse.pexeso.model.result.LobbyResultHandler;
+import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
+import javafx.stage.Stage;
 
 public final class LobbyUIHelper {
 
     private LobbyUIHelper() {
     }
 
-    public static void initializeGameRoomTable(TableView<GameRoom> gameRoomTable,
-                                               TableColumn<GameRoom, String> roomStatusColumn,
-                                               TableColumn<GameRoom, String> gameIdColumn,
-                                               TableColumn<GameRoom, Long> hostColumn,
-                                               TableColumn<GameRoom, BoardSize> boardSizeColumn,
-                                               TableColumn<GameRoom, Integer> roomCapacityColumn,
-                                               TableColumn<GameRoom, Void> actionsColumn,
-                                               LobbyController controller,
-                                               LobbyModel lobbyModel) {
+    public static void setup(TableView<GameRoom> gameRoomTable,
+                             TableColumn<GameRoom, String> roomStatusColumn,
+                             TableColumn<GameRoom, String> gameIdColumn,
+                             TableColumn<GameRoom, Long> hostColumn,
+                             TableColumn<GameRoom, GameRoom.BoardSize> boardSizeColumn,
+                             TableColumn<GameRoom, Integer> roomCapacityColumn,
+                             TableColumn<GameRoom, Void> actionsColumn,
+                             LobbyController controller,
+                             LobbyModel lobbyModel,
+                             LobbyResultHandler resultHandler) {
+        initializeGameRoomTable(gameRoomTable, roomStatusColumn, gameIdColumn, hostColumn, boardSizeColumn, roomCapacityColumn, actionsColumn, controller, lobbyModel);
+        setupWindowCloseEvent(gameRoomTable, resultHandler);
+    }
+
+    private static void setupWindowCloseEvent(TableView<GameRoom> gameRoomTable, LobbyResultHandler resultHandler) {
+        Platform.runLater(() -> {
+            Stage stage = (Stage) gameRoomTable.getScene().getWindow();
+            stage.setOnCloseRequest(event -> resultHandler.finalUnregister());
+        });
+    }
+
+    private static void initializeGameRoomTable(TableView<GameRoom> gameRoomTable,
+                                                TableColumn<GameRoom, String> roomStatusColumn,
+                                                TableColumn<GameRoom, String> gameIdColumn,
+                                                TableColumn<GameRoom, Long> hostColumn,
+                                                TableColumn<GameRoom, GameRoom.BoardSize> boardSizeColumn,
+                                                TableColumn<GameRoom, Integer> roomCapacityColumn,
+                                                TableColumn<GameRoom, Void> actionsColumn,
+                                                LobbyController controller,
+                                                LobbyModel lobbyModel) {
         gameRoomTable.setPlaceholder(new Label("No game room has been created yet"));
 
         roomStatusColumn.setCellValueFactory(cellData -> {
@@ -32,7 +54,7 @@ public final class LobbyUIHelper {
             if (room == null) {
                 return new ReadOnlyStringWrapper("");
             }
-            GameStatus status = room.getStatus();
+            GameRoom.GameStatus status = room.getStatus();
             return new ReadOnlyStringWrapper(status.getValue());
         });
 
@@ -45,7 +67,7 @@ public final class LobbyUIHelper {
             if (room == null) {
                 return new ReadOnlyObjectWrapper<>(null);
             }
-            BoardSize boardSize = BoardSize.fromValue(room.getCardCount());
+            GameRoom.BoardSize boardSize = GameRoom.BoardSize.fromValue(room.getCardCount());
             return new ReadOnlyObjectWrapper<>(boardSize);
         });
         roomCapacityColumn.setCellValueFactory(new PropertyValueFactory<>("capacity"));
@@ -82,7 +104,7 @@ public final class LobbyUIHelper {
                 }
 
                 boolean isHost = lobbyModel.isHost(gameRoom);
-                boolean isJoinable = gameRoom.getStatus() == GameStatus.WAITING_FOR_PLAYERS;
+                boolean isJoinable = gameRoom.getStatus() == GameRoom.GameStatus.WAITING_FOR_PLAYERS;
                 boolean alreadyJoined = lobbyModel.getCurrentGameRoomId() != null &&
                         lobbyModel.getCurrentGameRoomId().equals(gameRoom.getGameId());
 
