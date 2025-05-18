@@ -2,6 +2,7 @@ package cz.vse.pexeso.main;
 
 import cz.vse.pexeso.common.message.Message;
 import cz.vse.pexeso.common.message.MessageType;
+import cz.vse.pexeso.common.message.payload.GameListPayload;
 import cz.vse.pexeso.common.message.payload.LobbyUpdatePayload;
 
 public class MessageFactory {
@@ -59,6 +60,12 @@ public class MessageFactory {
         ret.setData(data.toSendable());
         return ret;
 
+    }
+
+    public static Message getGsrUpdateMessage(GameListPayload data) {
+        Message ret = createMessage(MessageType.GAME_SERVER_UPDATE);
+        ret.setData(data.toSendable());
+        return ret;
     }
 
     private static Message createMessage(MessageType type) {

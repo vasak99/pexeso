@@ -9,6 +9,8 @@ public enum MessageType {
 
     LOBBY_UPDATE("LOBBY_UPDATE"),
 
+    GAME_SERVER_UPDATE("GSR_UPDATE"),
+
     STATUS("STATUS"),
 
     MOVE("MOVE"),

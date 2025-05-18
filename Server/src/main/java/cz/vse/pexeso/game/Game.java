@@ -36,6 +36,7 @@ public class Game implements Observer {
 
     private boolean isStarted = false;
     private String gameId;
+    private String gameName;
 
     private int playersCapacity;
     private int cardCount;
@@ -45,7 +46,7 @@ public class Game implements Observer {
 
     private Acceptor acceptor;
 
-    public Game(String creatorId, int playersCapacity, int cardCount, int port, DatabaseController dc) throws PlayersException, IOException {
+    public Game(String name, String creatorId, int playersCapacity, int cardCount, int port, DatabaseController dc) throws PlayersException, IOException {
         if(playersCapacity < Variables.MIN_PLAYERS) {
             throw new PlayersException("Minimum number of players is " + Variables.MIN_PLAYERS);
         }
@@ -53,6 +54,7 @@ public class Game implements Observer {
             throw new PlayersException("Maximum number of players is " + Variables.MAX_PLAYERS);
         }
 
+        this.gameName = name;
         this.creatorId = creatorId;
         this.players = new HashMap<>();
         this.serverSocket = new ServerSocket(port);
@@ -112,6 +114,10 @@ public class Game implements Observer {
 
     public String getId() {
         return this.gameId;
+    }
+
+    public String getName() {
+        return this.gameName;
     }
 
     @Override
