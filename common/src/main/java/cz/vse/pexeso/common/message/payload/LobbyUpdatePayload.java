@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class LobbyUpdatePayload implements MessagePayload {
 
-    public String gameBoard;
     public List<SendablePlayer> players;
 
     public int cardCount;
@@ -39,7 +38,6 @@ public class LobbyUpdatePayload implements MessagePayload {
         catch (IOException e) {}
 
         if(deserialized != null) {
-            this.gameBoard = deserialized.gameBoard;
             this.players = deserialized.players;
         }
     }

@@ -347,7 +347,6 @@ public class Game implements Observer {
             playersList.add(new SendablePlayer(pp.getName(), pp.isReady(), pp.getScore()));
         }
 
-        ret.gameBoard = this.gameBoard.getAsData();
         ret.players = playersList;
         ret.cardCount = this.cardCount;
         ret.playersCapacity = this.playersCapacity;
