@@ -5,7 +5,6 @@ import cz.vse.pexeso.common.exceptions.DataFormatException;
 import cz.vse.pexeso.common.message.Message;
 import cz.vse.pexeso.common.message.MessageType;
 import cz.vse.pexeso.common.message.payload.CreateGamePayload;
-import cz.vse.pexeso.common.message.payload.LobbyUpdatePayload;
 import cz.vse.pexeso.database.DatabaseController;
 import cz.vse.pexeso.exceptions.PlayersException;
 import cz.vse.pexeso.game.Game;
@@ -19,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -39,6 +37,7 @@ public class GameServerRuntime implements Observer {
 
     private DatabaseController dc;
     private MessageController messageController;
+    private GameLobbyUpdater glu;
 
     public GameServerRuntime(int port) {
         try {
@@ -59,6 +58,9 @@ public class GameServerRuntime implements Observer {
             log.error("An SQLException occurred while trying to connect to database: " + e.getMessage());
             return;
         }
+
+        this.glu = new GameLobbyUpdater(this);
+        new Thread(this.glu).start();
 
         keepAlive = true;
 
@@ -84,12 +86,17 @@ public class GameServerRuntime implements Observer {
 
     }
 
+    public Map<String, Game> getAllGames() {
+        return this.games;
+    }
+
     public void terminate() {
         for (var conn : this.connections) {
             conn.terminate();
         }
 
         this.imageServer.terminate();
+        this.glu.terminate();
     }
 
     @Override
@@ -126,7 +133,7 @@ public class GameServerRuntime implements Observer {
                 }
                 try {
                     port = Variables.DEFAULT_PORT + i;
-                    game = new Game(inmsg.getPlayerId(), cgp.capacity, cgp.cardCount, port, this.dc);
+                    game = new Game(cgp.gameName, inmsg.getPlayerId(), cgp.capacity, cgp.cardCount, port, this.dc);
                 } catch (IOException e) {}
             }
 
@@ -145,6 +152,12 @@ public class GameServerRuntime implements Observer {
 
     public Game getGameById(String gameId) {
         return this.games.get(gameId);
+    }
+
+    public void sendToAll(Message msg) {
+        for(var conn : this.connections) {
+            conn.sendMessage(msg.toSendable());
+        }
     }
 
 }

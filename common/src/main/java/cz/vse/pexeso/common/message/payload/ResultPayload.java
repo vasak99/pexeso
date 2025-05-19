@@ -1,19 +1,37 @@
 package cz.vse.pexeso.common.message.payload;
 
-public class ResultPayload implements MessagePayload {
-    private int player1Score;
-    private int player2Score;
-    private String result; // win/draw
-    private String winningPlayer; // null if draw
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-    public ResultPayload(int player1Score, int player2Score, String result, String winningPlayer) {
-        this.player1Score = player1Score;
-        this.player2Score = player2Score;
-        this.result = result;
-        this.winningPlayer = winningPlayer;
+public class ResultPayload implements MessagePayload {
+
+    public SendablePlayer[] scores;
+    public SendablePlayer winner;
+
+    public ResultPayload(SendablePlayer[] scores, SendablePlayer winner) {
+        this.scores = scores;
+        this.winner = winner;
+    }
+
+    public ResultPayload(String data) {
+        var mapper = new ObjectMapper();
+
+        try {
+            ResultPayload parsed = mapper.readValue(data, ResultPayload.class);
+
+            this.scores = parsed.scores;
+            this.winner = parsed.winner;
+        } catch (Exception e) {}
     }
 
     public String toSendable() {
-        return "";
+        var mapper = new ObjectMapper();
+
+        String ret = "";
+
+        try {
+            ret = mapper.writeValueAsString(this);
+        } catch (Exception e) {}
+
+        return ret;
     }
 }

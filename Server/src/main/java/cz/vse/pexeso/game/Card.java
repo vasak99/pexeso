@@ -2,15 +2,20 @@ package cz.vse.pexeso.game;
 
 public class Card {
 
+    private int id;
     private String image;
     private boolean isRevealed = false;
 
-    public Card(String image) {
+    public Card(int id, String image) {
         this.image = image;
     }
 
     public String getImage() {
         return this.image;
+    }
+
+    public int getId() {
+        return this.id;
     }
 
     public boolean getRevealed() {
