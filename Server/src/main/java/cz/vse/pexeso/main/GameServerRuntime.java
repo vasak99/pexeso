@@ -60,7 +60,7 @@ public class GameServerRuntime implements Observer {
         }
 
         this.glu = new GameLobbyUpdater(this);
-        new Thread(this.glu);
+        new Thread(this.glu).start();
 
         keepAlive = true;
 

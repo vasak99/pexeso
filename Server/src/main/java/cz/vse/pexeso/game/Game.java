@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -21,8 +22,11 @@ import cz.vse.pexeso.utils.Utils;
 import cz.vse.pexeso.main.MessageFactory;
 import cz.vse.pexeso.common.message.MessageType;
 import cz.vse.pexeso.common.message.payload.EditGamePayload;
+import cz.vse.pexeso.common.message.payload.GameUpdatePayload;
 import cz.vse.pexeso.common.message.payload.KickPlayerPayload;
 import cz.vse.pexeso.common.message.payload.LobbyUpdatePayload;
+import cz.vse.pexeso.common.message.payload.ResultPayload;
+import cz.vse.pexeso.common.message.payload.RevealCardPayload;
 import cz.vse.pexeso.common.message.payload.SendablePlayer;
 import cz.vse.pexeso.database.DatabaseController;
 
@@ -43,6 +47,10 @@ public class Game implements Observer {
     private int port;
     private String creatorId;
     private Map<String, Player> players;
+    private List<String> playersOrder;
+    private int activePlayerIndex;
+
+    private Card lastCard;
 
     private Acceptor acceptor;
 
@@ -87,8 +95,22 @@ public class Game implements Observer {
             sendToAll(MessageFactory.getError(e.getMessage()));
         }
 
+        this.playersOrder = new ArrayList<>();
+        for(var playerId : this.players.keySet()) {
+            this.playersOrder.add(playerId);
+        }
+        this.activePlayerIndex = 0;
+
         String data = this.gameBoard.getAsData();
         this.sendToAll(MessageFactory.getGameStartMessage(data));
+    }
+
+    public void moveTurn() {
+        if(this.activePlayerIndex == this.playersOrder.size() - 1) {
+            this.activePlayerIndex = 0;
+        } else {
+            this.activePlayerIndex += 1;
+        }
     }
 
     public void terminate() {
@@ -131,7 +153,7 @@ public class Game implements Observer {
                     this.startGame();
                     break;
                 case MessageType.REVEAL:
-                    this.revealCard(1,1);
+                    this.revealCard(conn, msg);
                     break;
                 case MessageType.EDIT_GAME:
                     this.editGame(conn, msg);
@@ -155,8 +177,43 @@ public class Game implements Observer {
         }
     }
 
-    public void revealCard(int row, int column) {
-        Card card = this.gameBoard.revealCard(row, column);
+    public void revealCard(Connection conn, Message msg) {
+        RevealCardPayload data = new RevealCardPayload(msg.getData());
+        String playerId = msg.getPlayerId();
+        Card revealed = this.gameBoard.revealCard(data.row, data.column);
+
+        if(this.checkGamePlayer(conn, msg)) {
+            return;
+        }
+
+        if(revealed == null) {
+            sendTo(conn, MessageFactory.getInvalidMoveMessage("Selected field is empty"));
+            return;
+        }
+
+        if(this.lastCard == null) {
+            this.lastCard = revealed;
+        } else {
+            if(this.lastCard.getId() == revealed.getId()) {
+                sendToAll(MessageFactory.getGameUpdateMessage(this.getGameUpdateData()));
+                this.players.get(playerId).addPoint();
+                this.gameBoard.removePair(revealed.getId());
+            }
+            this.moveTurn();
+
+            try {
+                this.wait(2000);
+            } catch (InterruptedException e) {}
+            this.lastCard = null;
+            this.gameBoard.hideAll();
+        }
+
+        if(this.gameBoard.allRevealed()) {
+            sendToAll(MessageFactory.getResultMessage(this.getResult()));
+        } else {
+            sendToAll(MessageFactory.getGameUpdateMessage(this.getGameUpdateData()));
+        }
+
 
     }
 
@@ -167,6 +224,10 @@ public class Game implements Observer {
     }
 
     public void editGame(Connection conn, Message msg) {
+        if(this.isStarted) {
+            sendToAll(MessageFactory.getError("Cannot modify game after it has started"));
+            return;
+        }
         EditGamePayload data = null;
         try {
             data = new EditGamePayload(msg.getData());
@@ -238,6 +299,7 @@ public class Game implements Observer {
         }
 
         var kickedPlayer = this.players.remove(data.playerId);
+        this.playersOrder.remove(data.playerId);
         sendTo(kickedPlayer.getConnection(), MessageFactory.getRedirectMessage(Utils.getLocalAddress(), Variables.DEFAULT_PORT));
 
         LobbyUpdatePayload ret = this.getLobbyData();
@@ -282,7 +344,7 @@ public class Game implements Observer {
         var playersList = new ArrayList<SendablePlayer>();
         for(var pl : this.players.entrySet()) {
             Player pp = pl.getValue();
-            playersList.add(new SendablePlayer(pp.getName(), pp.isReady()));
+            playersList.add(new SendablePlayer(pp.getName(), pp.isReady(), pp.getScore()));
         }
 
         ret.gameBoard = this.gameBoard.getAsData();
@@ -291,6 +353,38 @@ public class Game implements Observer {
         ret.playersCapacity = this.playersCapacity;
 
         return ret;
+    }
+
+    public GameUpdatePayload getGameUpdateData() {
+        var players = new ArrayList<SendablePlayer>();
+
+        for(var pl : this.players.entrySet()) {
+            var pp = pl.getValue();
+            players.add(new SendablePlayer(pp.getPlayerId(), pp.isReady(), pp.getScore()));
+        }
+
+        GameUpdatePayload data = new GameUpdatePayload(
+            this.gameBoard.getAsData(),
+            players,
+            this.playersOrder.get(this.activePlayerIndex)
+        );
+
+        return data;
+    }
+
+    public ResultPayload getResult() {
+        var players = new ArrayList<>(this.players.values());
+        players.sort((Player p1, Player p2) -> p1.getScore() - p2.getScore());
+
+        var sendable = new SendablePlayer[players.size()];
+        for(int i = 0; i < players.size(); i++) {
+            sendable[i] = Utils.toSendable(players.get(i));
+        }
+        SendablePlayer winner = sendable[0];
+
+        ResultPayload data = new ResultPayload(sendable, winner);
+
+        return data;
     }
 
 }

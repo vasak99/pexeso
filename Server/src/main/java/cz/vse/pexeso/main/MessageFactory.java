@@ -3,7 +3,10 @@ package cz.vse.pexeso.main;
 import cz.vse.pexeso.common.message.Message;
 import cz.vse.pexeso.common.message.MessageType;
 import cz.vse.pexeso.common.message.payload.GameListPayload;
+import cz.vse.pexeso.common.message.payload.GameUpdatePayload;
+import cz.vse.pexeso.common.message.payload.InvalidMovePayload;
 import cz.vse.pexeso.common.message.payload.LobbyUpdatePayload;
+import cz.vse.pexeso.common.message.payload.ResultPayload;
 
 public class MessageFactory {
 
@@ -64,6 +67,31 @@ public class MessageFactory {
 
     public static Message getGsrUpdateMessage(GameListPayload data) {
         Message ret = createMessage(MessageType.GAME_SERVER_UPDATE);
+        ret.setData(data.toSendable());
+        return ret;
+    }
+
+    public static Message getGameUpdateMessage(GameUpdatePayload data) {
+        Message ret = createMessage(MessageType.GAME_UPDATE);
+        ret.setData(data.toSendable());
+        return ret;
+    }
+
+    public static Message getInvalidMoveMessage(InvalidMovePayload data) {
+        Message ret = createMessage(MessageType.INVALID_MOVE);
+        ret.setData(data.toSendable());
+        return ret;
+    }
+
+    public static Message getInvalidMoveMessage(String message) {
+        Message ret = createMessage(MessageType.INVALID_MOVE);
+        InvalidMovePayload dd = new InvalidMovePayload(message);
+        ret.setData(dd.toSendable());
+        return ret;
+    }
+
+    public static Message getResultMessage(ResultPayload data) {
+        Message ret = createMessage(MessageType.RESULT);
         ret.setData(data.toSendable());
         return ret;
     }

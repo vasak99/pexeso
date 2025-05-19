@@ -11,6 +11,10 @@ public enum MessageType {
 
     GAME_SERVER_UPDATE("GSR_UPDATE"),
 
+    GAME_UPDATE("GAME_UPDATE"),
+
+    INVALID_MOVE("INVALID_GAME"),
+
     STATUS("STATUS"),
 
     MOVE("MOVE"),

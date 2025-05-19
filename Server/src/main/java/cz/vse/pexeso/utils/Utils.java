@@ -6,6 +6,9 @@ import java.net.UnknownHostException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import cz.vse.pexeso.common.message.payload.SendablePlayer;
+import cz.vse.pexeso.game.Player;
+
 public class Utils {
     public static final Logger log = LoggerFactory.getLogger(Utils.class);
 
@@ -17,6 +20,10 @@ public class Utils {
             log.error("Could not get local address");
         }
         return ret;
+    }
+
+    public static SendablePlayer toSendable(Player player) {
+        return new SendablePlayer(player.getName(), player.isReady(), player.getScore());
     }
 
 }

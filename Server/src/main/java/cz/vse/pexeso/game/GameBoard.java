@@ -35,7 +35,7 @@ public class GameBoard {
         for(int i = 0; i < shuff.length; i++) {
             int row = (int) ((float) i / (float) dimensions[1]);
             int col = i % dimensions[1];
-            this.matrix[row][col] = new Card(this.deck.getImage(shuff[i]));
+            this.matrix[row][col] = new Card(shuff[i], this.deck.getImage(shuff[i]));
         }
 
         log.info("Game board created successfully");
@@ -89,6 +89,9 @@ public class GameBoard {
     }
 
     public Card revealCard(int row, int col) {
+        if(this.matrix[row][col] == null) {
+            return null;
+        }
         this.matrix[row][col].reveal();
         return this.matrix[row][col];
     }
@@ -96,7 +99,20 @@ public class GameBoard {
     public void hideAll() {
         for(var row : this.matrix) {
             for(var col : row) {
-                col.hide();
+                if(col != null) {
+                    col.hide();
+                }
+            }
+        }
+    }
+
+    public void removePair(int id) {
+        for(int i = 0; i < this.matrix.length; i++) {
+            for(int j = 0; j < this.matrix[i].length; j++) {
+                Card card = this.matrix[i][j];
+                if(card.getId() == id) {
+                    this.matrix[i][j] = null;
+                }
             }
         }
     }
@@ -110,7 +126,10 @@ public class GameBoard {
         for(int i = 0; i < this.matrix.length; i++) {
             data += "[";
             for(int j = 0; j < this.matrix[i].length; j++) {
-                if(this.matrix[i][j].getRevealed()) {
+                if(this.matrix[i][j] == null) {
+                    data += "null";
+                }
+                else if(this.matrix[i][j].getRevealed()) {
                     data += this.matrix[i][j].getImage();
                 } else {
                     data += "x";
@@ -127,6 +146,17 @@ public class GameBoard {
         }
 
         return data;
+    }
+
+    public boolean allRevealed() {
+        for(int i = 0; i < this.matrix.length; i++) {
+            for(int j = 0; j < this.matrix[i].length; j ++) {
+                if(this.matrix[i][j] != null) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
 }

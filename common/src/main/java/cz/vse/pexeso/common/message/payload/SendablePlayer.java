@@ -5,9 +5,12 @@ public class SendablePlayer {
     public String name;
     public boolean status;
 
-    public SendablePlayer(String name, boolean status) {
+    public int score;
+
+    public SendablePlayer(String name, boolean status, int score) {
         this.name = name;
         this.status = status;
+        this.score = score;
     }
 
 }
