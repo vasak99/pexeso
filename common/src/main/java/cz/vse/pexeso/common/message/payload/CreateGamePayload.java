@@ -1,5 +1,7 @@
 package cz.vse.pexeso.common.message.payload;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import cz.vse.pexeso.common.exceptions.DataFormatException;
 import cz.vse.pexeso.common.utils.MessageComponent;
 
@@ -7,22 +9,42 @@ public class CreateGamePayload implements MessagePayload {
 
     public int capacity;
     public int cardCount;
+    public String gameName;
 
     public CreateGamePayload(int capacity, int cardCount) {
         this.capacity = capacity;
         this.cardCount = cardCount;
     }
 
+    public CreateGamePayload(int capacity, int cardCount, String name) {
+        this.capacity = capacity;
+        this.cardCount = cardCount;
+        this.gameName = name;
+    }
+
+    @Override
     public String toSendable() {
-        return "" + this.capacity + MessageComponent.DATA_SEPARATOR.getValue() + this.cardCount;
+        var mapper = new ObjectMapper();
+
+        String ret = "";
+
+        try {
+            ret = mapper.writeValueAsString(this);
+        } catch (Exception e) {}
+
+        return ret;
     }
 
     public CreateGamePayload(String data) throws DataFormatException {
-        String[] sep = data.split(MessageComponent.DATA_SEPARATOR.getValue());
-        if(sep.length != 2) throw new DataFormatException("Create game data in wrong format");
+        var mapper = new ObjectMapper();
 
-        this.capacity = Integer.parseInt(sep[0]);
-        this.cardCount = Integer.parseInt(sep[1]);
+        try {
+            var parsed = mapper.readValue(data, CreateGamePayload.class);
+
+            this.capacity = parsed.capacity;
+            this.cardCount = parsed.cardCount;
+            this.gameName = parsed.gameName;
+        } catch (Exception e) {}
     }
 
 }

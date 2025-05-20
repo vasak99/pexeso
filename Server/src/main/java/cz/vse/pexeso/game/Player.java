@@ -9,6 +9,7 @@ public class Player {
     private Connection conn;
     private boolean status;
     private DatabaseController dc;
+    private int score;
 
     private User user;
 
@@ -16,6 +17,8 @@ public class Player {
         this.conn = conn;
         this.status = false;
         this.dc = dc;
+
+        this.score = 0;
 
         this.user = this.dc.getUserById(playerId);
     }
@@ -42,6 +45,14 @@ public class Player {
 
     public String getName() {
         return this.user.name;
+    }
+
+    public int getScore() {
+        return this.score;
+    }
+
+    public void addPoint() {
+        this.score += 1;
     }
 
 }
