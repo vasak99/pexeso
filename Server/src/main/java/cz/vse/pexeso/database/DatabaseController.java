@@ -28,10 +28,10 @@ public class DatabaseController {
         return this.db;
     }
 
-    public User getUserById(String playerId) {
+    public User getUserById(long playerId) {
         try {
             var ps = this.db.prepareStatement("select * from Users where id = ?");
-            ps.setLong(1, Long.parseLong(playerId));
+            ps.setLong(1, playerId);
 
             ResultSet res = ps.executeQuery();
             List<User> users = User.fromResultSet(res);

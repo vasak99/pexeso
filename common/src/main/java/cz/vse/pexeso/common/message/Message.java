@@ -40,6 +40,9 @@ public class Message {
 
             if(!isInMsg) { continue; }
 
+            //when there is a colon (“:”) that's not supposed to be a separator,
+            //e.g. message in data containing ":"
+            //-> ent gets split into 3+ parts -> gets skipped
             String[] spl = ent.split(MessageComponent.KEY_VALUE_SEPARATOR.getValue());
 
             if(spl.length != 2) {
@@ -91,8 +94,10 @@ public class Message {
         return this.entries.get(MessageComponent.GAME_ID);
     }
 
-    public String getPlayerId() {
-        return this.entries.get(MessageComponent.PLAYER_ID);
+    public long getPlayerId() {
+        String entry = this.entries.get(MessageComponent.PLAYER_ID);
+
+        return Long.parseLong(entry);
     }
 
     public String getData() {

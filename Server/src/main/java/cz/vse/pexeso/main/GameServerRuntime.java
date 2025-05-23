@@ -133,12 +133,13 @@ public class GameServerRuntime implements Observer {
                 }
                 try {
                     port = Variables.DEFAULT_PORT + i;
-                    game = new Game(cgp.gameName, inmsg.getPlayerId(), cgp.capacity, cgp.cardCount, port, this.dc);
+                    game = new Game(cgp.gameName, inmsg.getPlayerId(), cgp.gameId, cgp.capacity, cgp.cardCount, port, this.dc, this);
                 } catch (IOException e) {}
             }
 
             this.games.put(game.getId(), game);
 
+            game.startSession();
             conn.sendMessage(MessageFactory.getRedirectMessage(Utils.getLocalAddress(), port).toSendable());
 
             this.connections.remove(conn);

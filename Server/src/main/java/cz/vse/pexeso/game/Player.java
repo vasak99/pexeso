@@ -13,7 +13,7 @@ public class Player {
 
     private User user;
 
-    public Player(String playerId, Connection conn, DatabaseController dc) {
+    public Player(long playerId, Connection conn, DatabaseController dc) {
         this.conn = conn;
         this.status = false;
         this.dc = dc;
@@ -39,8 +39,8 @@ public class Player {
         return this.conn;
     }
 
-    public String getPlayerId() {
-        return "" + this.user.id;
+    public long getPlayerId() {
+        return this.user.id;
     }
 
     public String getName() {

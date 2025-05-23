@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import cz.vse.pexeso.common.message.payload.GameListPayload;
 import cz.vse.pexeso.common.message.payload.SendableGame;
+import cz.vse.pexeso.game.Game;
 
 public class GameLobbyUpdater implements Runnable {
 
@@ -22,11 +23,19 @@ public class GameLobbyUpdater implements Runnable {
                 if(this.gsr != null) {
                     var games = new ArrayList<SendableGame>();
                     for(var gm : this.gsr.getAllGames().entrySet()) {
-                        games.add(new SendableGame(gm.getValue().getName(), gm.getValue().getId()));
+                        Game g = gm.getValue();
+                        games.add(new SendableGame(g.getId(), g.getName(), g.getCreatorId(), g.getCreatorName(), g.isStarted(), g.getPlayersCapacity(), g.getCardCount()));
                     }
 
                     var data = new GameListPayload(games);
 
+                    // send users already in games
+                    for (var gr : this.gsr.getAllGames().entrySet()) {
+                        Game g = gr.getValue();
+                        g.sendToAll(MessageFactory.getGsrUpdateMessage(data));
+                    }
+
+                    //send to users connected to default port (not in any game)
                     this.gsr.sendToAll(MessageFactory.getGsrUpdateMessage(data));
 
                     try {
