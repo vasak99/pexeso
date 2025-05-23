@@ -1,22 +1,19 @@
 package cz.vse.pexeso.controller;
 
 import cz.vse.pexeso.di.Injector;
-import cz.vse.pexeso.model.BoardSize;
+import cz.vse.pexeso.model.GameRoom;
 import cz.vse.pexeso.model.LobbyPlayer;
-import cz.vse.pexeso.model.PlayerStatus;
 import cz.vse.pexeso.model.model.GameRoomModel;
 import cz.vse.pexeso.model.result.GameRoomResultHandler;
 import cz.vse.pexeso.model.result.GameRoomResultListener;
 import cz.vse.pexeso.navigation.Navigator;
+import cz.vse.pexeso.util.FormValidator;
 import cz.vse.pexeso.view.GameRoomUIHelper;
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
-import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,11 +26,13 @@ public class GameRoomManagerController implements GameRoomResultListener {
     private final GameRoomResultHandler resultHandler;
 
     @FXML
+    private TextField nameField;
+    @FXML
     private Slider capacitySlider;
     @FXML
-    private ChoiceBox<BoardSize> boardSizeChoiceBox;
+    private ChoiceBox<GameRoom.BoardSize> boardSizeChoiceBox;
     @FXML
-    private Button deleteRoomButton;
+    private TextField customBoardSizeField;
     @FXML
     private Button saveChangesButton;
     @FXML
@@ -49,48 +48,44 @@ public class GameRoomManagerController implements GameRoomResultListener {
     @FXML
     private Label warningLabel;
 
-    private final ObservableList<LobbyPlayer> currentlyDisplayedPlayers = FXCollections.observableArrayList();
+    private final ChangeListener<GameRoom.BoardSize> listener;
+
     private LastAction lastAction = LastAction.NONE;
 
     public GameRoomManagerController(Navigator navigator, GameRoomModel gameRoomModel, Injector injector) {
         this.navigator = navigator;
         this.gameRoomModel = gameRoomModel;
         this.resultHandler = injector.createGameRoomResultHandler(this);
+
+        this.listener = (observableValue, s, t1) -> customBoardSizeField.setVisible(boardSizeChoiceBox.getValue() == GameRoom.BoardSize.CUSTOM);
     }
 
     @FXML
     private void initialize() {
         resultHandler.register();
+        GameRoomUIHelper.setupManagerUI(playerTable, playerNameColumn, playerStatusColumn, actionColumn, this, gameRoomModel, nameField, capacitySlider, boardSizeChoiceBox, customBoardSizeField, warningLabel, resultHandler, saveChangesButton, listener);
 
-        GameRoomUIHelper.setupCapacitySlider(capacitySlider);
-        GameRoomUIHelper.setupBoardSizeChoiceBox(boardSizeChoiceBox);
-
-        GameRoomUIHelper.initializePlayerTable(playerTable, playerNameColumn, playerStatusColumn, actionColumn, this, gameRoomModel);
-        boardSizeChoiceBox.getSelectionModel().select(BoardSize.fromValue(gameRoomModel.getCurrentRoomCardCount()));
-        capacitySlider.setValue(gameRoomModel.getCurrentRoomCapacity());
-
-        setupWindowCloseEvent();
-
+        onGameRoomUIUpdate();
         log.info("GameRoomManagerController initialized");
-    }
-
-    private void setupWindowCloseEvent() {
-        Platform.runLater(() -> {
-            Stage stage = (Stage) warningLabel.getScene().getWindow();
-            stage.setOnCloseRequest(event -> resultHandler.unregister());
-        });
     }
 
     @FXML
     private void handleSaveClick() {
-        if (boardSizeChoiceBox.getValue() == null) {
-            editWarningLabel(Color.RED, "Choose board size");
+        String warning = FormValidator.validateGameRoomForm(nameField.getText(), boardSizeChoiceBox.getValue(), customBoardSizeField.getText());
+        if (warning != null) {
+            editWarningLabel(warning);
             return;
         }
+        editWarningLabel("");
 
+        disableFields(true);
         log.info("Editing game room");
         lastAction = LastAction.EDIT;
-        gameRoomModel.attemptEditGame((int) capacitySlider.getValue(), boardSizeChoiceBox.getValue().value);
+        if (boardSizeChoiceBox.getValue() == GameRoom.BoardSize.CUSTOM) {
+            gameRoomModel.attemptEditGame(nameField.getText().trim(), (int) capacitySlider.getValue(), Integer.parseInt(customBoardSizeField.getText()));
+        } else {
+            gameRoomModel.attemptEditGame(nameField.getText().trim(), (int) capacitySlider.getValue(), boardSizeChoiceBox.getValue().value);
+        }
     }
 
     @FXML
@@ -117,10 +112,8 @@ public class GameRoomManagerController implements GameRoomResultListener {
     @Override
     public void onGameRoomSuccess(Object data) {
         switch (lastAction) {
-            case EDIT -> editGameSuccess();
-            case DELETE -> deleteGameSuccess();
+            case DELETE -> deleteGameSuccess((String) data);
             case START -> startGameSuccess();
-            case KICK -> kickPlayerSuccess();
             default -> log.warn("Invalid success");
         }
         lastAction = LastAction.NONE;
@@ -128,35 +121,39 @@ public class GameRoomManagerController implements GameRoomResultListener {
 
     @Override
     public void onGameRoomError(String errorDescription) {
-        editWarningLabel(Color.RED, errorDescription);
+        editWarningLabel(errorDescription);
+        disableFields(false);
     }
 
-    private void editGameSuccess() {
-        gameRoomModel.finalizeGameEdit((int) capacitySlider.getValue(), boardSizeChoiceBox.getValue().value);
-        editWarningLabel(Color.GREEN, "Changes saved");
+    @Override
+    public void onPlayerUpdate(String data) {
+        gameRoomModel.updateRoom(data);
+        onGameRoomUIUpdate();
+        disableFields(false);
     }
 
-    private void deleteGameSuccess() {
-        gameRoomModel.finalizeGameDeletion();
-        disableEverything();
-        editWarningLabel(Color.GREEN, "Room deleted, you may now close the window");
+    @Override
+    public void onGameRoomUIUpdate() {
+        Platform.runLater(() -> {
+            playerTable.setItems(gameRoomModel.getFilteredPlayers());
+            playerTable.refresh();
+
+            GameRoomUIHelper.updateFields(gameRoomModel, nameField, capacitySlider, boardSizeChoiceBox, saveChangesButton, customBoardSizeField);
+            saveChangesButton.setDisable(true);
+
+            startGameButton.setDisable(!gameRoomModel.areAllPlayersReady(playerTable.getItems()));
+            navigator.closeConfirmationAlert();
+        });
     }
 
-    private void disableEverything() {
-        capacitySlider.setDisable(true);
-        boardSizeChoiceBox.setDisable(true);
-        deleteRoomButton.setDisable(true);
-        saveChangesButton.setDisable(true);
-        playerTable.setDisable(true);
+    private void deleteGameSuccess(String redirectData) {
+        gameRoomModel.finalizeGameDeletion(redirectData);
+        Platform.runLater(navigator::closeWindow);
     }
 
     private void startGameSuccess() {
         closeWindow();
         navigator.goToGame();
-    }
-
-    private void kickPlayerSuccess() {
-        updatePlayerTable();
     }
 
     @FXML
@@ -169,26 +166,11 @@ public class GameRoomManagerController implements GameRoomResultListener {
         Platform.runLater(navigator::closeWindow);
     }
 
-    private void editWarningLabel(Paint paint, String text) {
+    private void editWarningLabel(String text) {
         Platform.runLater(() -> {
-            warningLabel.setTextFill(paint);
+            warningLabel.setTextFill(Color.RED);
             warningLabel.setText(text);
         });
-    }
-
-    private void updatePlayerTable() {
-        currentlyDisplayedPlayers.setAll(LobbyPlayer.lobbyPlayers.stream()
-                .filter(player -> player.getCurrentGameId().equals(gameRoomModel.getCurrentGameId()))
-                .toList());
-        playerTable.setItems(currentlyDisplayedPlayers);
-
-        for (LobbyPlayer lobbyPlayer : currentlyDisplayedPlayers) {
-            if (lobbyPlayer.getStatus() == PlayerStatus.NOT_READY) {
-                startGameButton.setDisable(true);
-                return;
-            }
-        }
-        startGameButton.setDisable(false);
     }
 
     private enum LastAction {
@@ -197,5 +179,12 @@ public class GameRoomManagerController implements GameRoomResultListener {
         DELETE,
         KICK,
         START
+    }
+
+    private void disableFields(boolean disable) {
+        nameField.setDisable(disable);
+        capacitySlider.setDisable(disable);
+        boardSizeChoiceBox.setDisable(disable);
+        customBoardSizeField.setDisable(disable);
     }
 }

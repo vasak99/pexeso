@@ -10,13 +10,8 @@ public class SceneNavigator implements Navigator {
     }
 
     @Override
-    public void goToLogin() {
-        sceneManager.switchScene(UIConstants.LOGIN_FXML);
-    }
-
-    @Override
-    public void goToRegister() {
-        sceneManager.switchScene(UIConstants.REGISTER_FXML);
+    public void goToAuth() {
+        sceneManager.switchScene(UIConstants.AUTH_FXML);
     }
 
     @Override
@@ -52,5 +47,10 @@ public class SceneNavigator implements Navigator {
     @Override
     public void closeWindow() {
         sceneManager.closeWindow();
+    }
+
+    @Override
+    public void closeConfirmationAlert() {
+        sceneManager.closeConfirmationAlert();
     }
 }

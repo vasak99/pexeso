@@ -3,9 +3,7 @@ package cz.vse.pexeso.navigation;
 import javafx.stage.Stage;
 
 public interface Navigator {
-    void goToLogin();
-
-    void goToRegister();
+    void goToAuth();
 
     void goToLobby();
 
@@ -20,4 +18,6 @@ public interface Navigator {
     boolean showConfirmation(String message);
 
     void closeWindow();
+
+    void closeConfirmationAlert();
 }

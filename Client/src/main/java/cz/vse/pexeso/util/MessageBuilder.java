@@ -2,8 +2,7 @@ package cz.vse.pexeso.util;
 
 import cz.vse.pexeso.common.message.Message;
 import cz.vse.pexeso.common.message.MessageType;
-import cz.vse.pexeso.common.message.payload.LoginPayload;
-import cz.vse.pexeso.common.utils.MessageComponent;
+import cz.vse.pexeso.common.message.payload.*;
 import cz.vse.pexeso.model.GameRoom;
 import cz.vse.pexeso.model.LobbyPlayer;
 import cz.vse.pexeso.model.UserCredentials;
@@ -11,9 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class MessageBuilder {
-
     private static final Logger log = LoggerFactory.getLogger(MessageBuilder.class);
-    private static final String DATA_SEPARATOR = MessageComponent.DATA_SEPARATOR.getValue();
 
     private MessageBuilder() {
     }
@@ -46,15 +43,23 @@ public final class MessageBuilder {
     public static String buildRegisterMessage(UserCredentials userCredentials) {
         log.debug("Building register message for userCredentials: {}", userCredentials.username());
 
-        String data = userCredentials.username() + DATA_SEPARATOR + userCredentials.password();
+        String data = new RegisterPayload(userCredentials.username(), userCredentials.password()).toSendable();
 
         return build(MessageType.REGISTER, null, null, data);
+    }
+
+    public static String buildIdentityMessage(long playerId) {
+        log.debug("Building identity message");
+
+        String data = new IdentityPayload(String.valueOf(playerId)).toSendable();
+
+        return build(MessageType.IDENTITY, null, null, data);
     }
 
     public static String buildCreateGameMessage(GameRoom gameRoom, long playerId) {
         log.debug("Building create game message for gameRoom: {}", gameRoom);
 
-        String data = gameRoom.getCapacity() + DATA_SEPARATOR + gameRoom.getCardCount();
+        String data = new CreateGamePayload(gameRoom.getGameId(), gameRoom.getCapacity(), gameRoom.getCardCount(), gameRoom.getName()).toSendable();
 
         return build(MessageType.CREATE_GAME, null, playerId, data);
     }
@@ -62,7 +67,7 @@ public final class MessageBuilder {
     public static String buildEditGameMessage(GameRoom gameRoom, long playerId) {
         log.info("Building edit game message for gameRoom: {}", gameRoom);
 
-        String data = gameRoom.getCapacity() + DATA_SEPARATOR + gameRoom.getCardCount();
+        String data = new EditGamePayload(gameRoom.getName(), gameRoom.getCapacity(), gameRoom.getCardCount()).toSendable();
 
         return build(MessageType.EDIT_GAME, gameRoom.getGameId(), playerId, data);
     }
@@ -76,7 +81,7 @@ public final class MessageBuilder {
     public static String buildJoinGameMessage(GameRoom gameRoom, long playerId) {
         log.info("Building join game message for gameRoom: {}", gameRoom);
 
-        String data = gameRoom.getGameId();
+        String data = new JoinGamePayload(gameRoom.getGameId()).toSendable();
 
         return build(MessageType.JOIN_GAME, null, playerId, data);
     }
@@ -96,7 +101,9 @@ public final class MessageBuilder {
     public static String buildKickPlayerMessage(GameRoom gameRoom, long playerId, LobbyPlayer lobbyPlayer) {
         log.info("Building kick lobbyPlayer message for lobbyPlayer: {}", lobbyPlayer);
 
-        return build(MessageType.KICK_PLAYER, gameRoom.getGameId(), playerId, String.valueOf(lobbyPlayer.getPlayerId()));
+        String data = new KickPlayerPayload(lobbyPlayer.getPlayerId()).toSendable();
+
+        return build(MessageType.KICK_PLAYER, gameRoom.getGameId(), playerId, data);
     }
 
     public static String buildStartGameMessage(GameRoom gameRoom, long playerId) {

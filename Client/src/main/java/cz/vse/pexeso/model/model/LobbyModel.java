@@ -1,20 +1,29 @@
 package cz.vse.pexeso.model.model;
 
+import cz.vse.pexeso.common.message.payload.GameListPayload;
+import cz.vse.pexeso.common.message.payload.LobbyUpdatePayload;
 import cz.vse.pexeso.model.GameRoom;
 import cz.vse.pexeso.model.service.LobbyService;
 import cz.vse.pexeso.model.service.SessionService;
+import cz.vse.pexeso.network.RedirectService;
+import cz.vse.pexeso.util.Updater;
 
 public class LobbyModel {
 
     private final LobbyService lobbyService;
     private final SessionService sessionService;
+    private final RedirectService redirectService;
 
-    public LobbyModel(LobbyService lobbyService, SessionService sessionService) {
+    private String attemptedJoinGameId;
+
+    public LobbyModel(LobbyService lobbyService, SessionService sessionService, RedirectService redirectService) {
         this.lobbyService = lobbyService;
         this.sessionService = sessionService;
+        this.redirectService = redirectService;
     }
 
     public void attemptJoin(GameRoom gameRoom) {
+        attemptedJoinGameId = gameRoom.getGameId();
         lobbyService.sendJoinGameRequest(gameRoom, sessionService.getSession().getPlayerId());
     }
 
@@ -27,9 +36,21 @@ public class LobbyModel {
         sessionService.getSession().setReady(true);
     }
 
-    public void finalizeSuccess(String gameId) {
-        GameRoom gameRoom = GameRoom.findById(gameId);
-        sessionService.getSession().setCurrentGameRoom(gameRoom);
+    public void sendIdentity() {
+        lobbyService.sendIdentity(sessionService.getSession().getPlayerId());
+    }
+
+    public void finalizeJoin(String redirectData) {
+        sessionService.getSession().setCurrentGameRoom(GameRoom.findById(attemptedJoinGameId));
+        attemptedJoinGameId = null;
+
+        redirectService.redirect(redirectData);
+    }
+
+    public void finalizeLeave(String redirectData) {
+        sessionService.getSession().setCurrentGameRoom(null);
+        redirectService.redirect(redirectData);
+        sessionService.getSession().setReady(false);
     }
 
     public boolean isHosting() {
@@ -54,5 +75,21 @@ public class LobbyModel {
             return gameRoom.getGameId();
         }
         return null;
+    }
+
+    public GameRoom getCurrentGameRoom() {
+        return sessionService.getSession().getCurrentGameRoom();
+    }
+
+    public void updatePlayers(String data) {
+        Updater.updateGameRoom(getCurrentGameRoom(), new LobbyUpdatePayload(data));
+    }
+
+    public void updateGameRooms(String data) {
+        Updater.updateLobby(new GameListPayload(data));
+    }
+
+    public String getPlayerName() {
+        return sessionService.getSession().getPlayerName();
     }
 }

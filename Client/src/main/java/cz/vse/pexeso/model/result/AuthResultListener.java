@@ -4,4 +4,6 @@ public interface AuthResultListener {
     void onAuthSuccess(long playerId);
 
     void onAuthError(String errorMessage);
+
+    void onGameRoomUpdate(String data);
 }

@@ -12,8 +12,4 @@ public class SessionService {
     public void setSession(ClientSession session) {
         this.clientSession = session;
     }
-
-    public void clear() {
-        clientSession = null;
-    }
 }

@@ -11,13 +11,13 @@ public class GameRoomService {
         this.connectionService = connectionService;
     }
 
-    public void sendCreateGameRequest(int capacity, int cardCount, long playerId) {
-        String message = MessageBuilder.buildCreateGameMessage(new GameRoom(capacity, cardCount), playerId);
+    public void sendCreateGameRequest(String gameId, String name, int capacity, int cardCount, long playerId) {
+        String message = MessageBuilder.buildCreateGameMessage(new GameRoom(gameId, name, capacity, cardCount), playerId);
         connectionService.send(message);
     }
 
-    public void sendEditGameRequest(int capacity, int cardCount, long playerId) {
-        String message = MessageBuilder.buildEditGameMessage(new GameRoom(capacity, cardCount), playerId);
+    public void sendEditGameRequest(String gameId, String name, int capacity, int cardCount, long playerId) {
+        String message = MessageBuilder.buildEditGameMessage(new GameRoom(gameId, name, capacity, cardCount), playerId);
         connectionService.send(message);
     }
 

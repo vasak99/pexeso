@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="750.0"
+          prefWidth="750.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1"
+          fx:controller="cz.vse.pexeso.controller.AuthController">
+    <columnConstraints>
+        <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints vgrow="ALWAYS"/>
+        <RowConstraints prefHeight="30.0" valignment="TOP" vgrow="NEVER"/>
+        <RowConstraints prefHeight="40.0" valignment="TOP" vgrow="NEVER"/>
+        <RowConstraints prefHeight="30.0" valignment="TOP" vgrow="NEVER"/>
+        <RowConstraints prefHeight="40.0" valignment="TOP" vgrow="NEVER"/>
+        <RowConstraints prefHeight="30.0" valignment="TOP" vgrow="NEVER"/>
+        <RowConstraints prefHeight="40.0" valignment="TOP" vgrow="NEVER"/>
+        <RowConstraints prefHeight="75.0" valignment="CENTER" vgrow="NEVER"/>
+        <RowConstraints prefHeight="50.0" valignment="CENTER" vgrow="NEVER"/>
+        <RowConstraints prefHeight="150.0" valignment="TOP" vgrow="NEVER"/>
+    </rowConstraints>
+    <Label fx:id="titleLabel" text="Register">
+        <font>
+            <Font name="System Bold" size="24.0"/>
+        </font>
+    </Label>
+    <Label text="Username:" GridPane.rowIndex="1">
+        <font>
+            <Font size="18.0"/>
+        </font>
+    </Label>
+    <TextField fx:id="usernameField" maxWidth="300.0" minHeight="30.0" GridPane.rowIndex="2"/>
+    <Label text="Password:" GridPane.rowIndex="3">
+        <font>
+            <Font size="18.0"/>
+        </font>
+    </Label>
+    <PasswordField fx:id="passwordField" maxWidth="300.0" minHeight="30.0" GridPane.rowIndex="4"/>
+    <Label fx:id="confirmPasswordLabel" text="Confirm password:" GridPane.rowIndex="5">
+        <font>
+            <Font size="18.0"/>
+        </font>
+    </Label>
+    <PasswordField fx:id="confirmPasswordField" maxWidth="300.0" minHeight="30.0" GridPane.rowIndex="6"/>
+    <Button onMouseClicked="#handleButtonClick" fx:id="actionButton" mnemonicParsing="false" text="Register"
+            GridPane.rowIndex="7">
+        <font>
+            <Font size="18.0"/>
+        </font>
+    </Button>
+    <Label fx:id="warningLabel" textFill="RED" GridPane.rowIndex="8">
+        <font>
+            <Font size="18.0"/>
+        </font>
+    </Label>
+    <Label onMouseClicked="#handleLinkClick"
+           fx:id="linkLabel" text="Already have an account? Log in here!"
+           textFill="#0000ee" underline="true" GridPane.rowIndex="9">
+        <font>
+            <Font size="14.0"/>
+        </font>
+        <cursor>
+            <Cursor fx:constant="HAND"/>
+        </cursor>
+        <GridPane.margin>
+         <Insets top="18.0"/>
+        </GridPane.margin>
+    </Label>
+</GridPane>

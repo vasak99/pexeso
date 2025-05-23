@@ -16,6 +16,10 @@ public class ClientSession {
         return playerId;
     }
 
+    public String getPlayerName() {
+        return userCredentials.username();
+    }
+
     public GameRoom getCurrentGameRoom() {
         return currentGameRoom;
     }

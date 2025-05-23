@@ -1,22 +1,16 @@
 package cz.vse.pexeso.model;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-
-import java.util.ArrayList;
-
 public class LobbyPlayer {
-    public static final ObservableList<LobbyPlayer> lobbyPlayers = FXCollections.observableArrayList(new ArrayList<>());
-
     private long playerId;
     private String username;
     private PlayerStatus status;
-    private String currentGameId;
+    private int score;
 
-    public LobbyPlayer(long playerId, String username, String currentGameId) {
+    public LobbyPlayer(long playerId, String username, LobbyPlayer.PlayerStatus status, int score) {
         this.playerId = playerId;
         this.username = username;
-        this.currentGameId = currentGameId;
+        this.status = status;
+        this.score = score;
     }
 
     public long getPlayerId() {
@@ -43,11 +37,34 @@ public class LobbyPlayer {
         this.status = status;
     }
 
-    public String getCurrentGameId() {
-        return currentGameId;
+    public int getScore() {
+        return score;
     }
 
-    public void setCurrentGameId(String currentGameId) {
-        this.currentGameId = currentGameId;
+    public void setScore(int score) {
+        this.score = score;
+    }
+
+    public enum PlayerStatus {
+        READY("Ready"),
+        NOT_READY("Not ready");
+
+        private final String value;
+
+        PlayerStatus(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return this.value;
+        }
+
+        public static PlayerStatus fromBoolean(boolean statusBoolean) {
+            if (statusBoolean) {
+                return READY;
+            } else {
+                return NOT_READY;
+            }
+        }
     }
 }
