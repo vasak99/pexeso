@@ -3,48 +3,51 @@ package cz.vse.pexeso.model;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-import java.util.List;
-
 public class GameRoom {
     public static final ObservableList<GameRoom> gameRooms = FXCollections.observableArrayList();
 
     private GameStatus status = GameStatus.WAITING_FOR_PLAYERS;
-    private String gameId = "";
+    private String gameId;
+    private String name;
     private long hostId;
+    private String hostName;
     private int capacity;
     private int cardCount;
-    private List<LobbyPlayer> players;
+    private final ObservableList<LobbyPlayer> players = FXCollections.observableArrayList();
 
-    public GameRoom(int capacity, int cardCount) {
+    // Create/Edit attempt message
+    public GameRoom(String gameId, String name, int capacity, int cardCount) {
         this.capacity = capacity;
         this.cardCount = cardCount;
-    }
-
-    public GameRoom(long hostId, int capacity, int cardCount) {
-        this.hostId = hostId;
-        this.capacity = capacity;
-        this.cardCount = cardCount;
-    }
-
-    public GameRoom(String gameId, long hostId, int capacity, int cardCount) {
         this.gameId = gameId;
+        this.name = name;
+    }
+
+    // finalize Creation
+    public GameRoom(String gameId, String name, long hostId, String hostName, int capacity, int cardCount) {
         this.hostId = hostId;
         this.capacity = capacity;
         this.cardCount = cardCount;
+        this.gameId = gameId;
+        this.name = name;
+        this.hostName = hostName;
     }
 
-    public GameRoom(GameStatus status, String gameId, long hostId, int capacity, int cardCount) {
+    // updater
+    public GameRoom(GameStatus status, String gameId, String name, long hostId, String hostName, int capacity, int cardCount) {
         this.status = status;
         this.gameId = gameId;
+        this.name = name;
         this.hostId = hostId;
+        this.hostName = hostName;
         this.capacity = capacity;
         this.cardCount = cardCount;
-
     }
 
-    public static void editGameRoom(String gameId, int capacity, int cardCount) {
+    public static void editGameRoom(String gameId, String name, int capacity, int cardCount) {
         for (GameRoom gameRoom : gameRooms) {
             if (gameRoom.getGameId().equals(gameId)) {
+                gameRoom.setName(name);
                 gameRoom.setCapacity(capacity);
                 gameRoom.setCardCount(cardCount);
                 break;
@@ -101,15 +104,29 @@ public class GameRoom {
         this.cardCount = cardCount;
     }
 
-    public List<LobbyPlayer> getPlayers() {
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public ObservableList<LobbyPlayer> getPlayers() {
         return players;
+    }
+
+    public String getHostName() {
+        return hostName;
+    }
+
+    public void setHostName(String hostName) {
+        this.hostName = hostName;
     }
 
     public enum GameStatus {
         WAITING_FOR_PLAYERS("Waiting for players"),
-        READY_TO_START("Ready to start"),
-        IN_PROGRESS("In progress"),
-        FINISHED("Finished");
+        IN_PROGRESS("In progress");
 
         private final String value;
 
@@ -120,12 +137,21 @@ public class GameRoom {
         public String getValue() {
             return this.value;
         }
+
+        public static GameStatus fromBoolean(boolean statusBoolean) {
+            if (statusBoolean) {
+                return IN_PROGRESS;
+            } else {
+                return WAITING_FOR_PLAYERS;
+            }
+        }
     }
 
     public enum BoardSize {
         SMALL(16),
         MEDIUM(36),
-        LARGE(64);
+        LARGE(64),
+        CUSTOM(0);
 
         public final int value;
 
@@ -139,7 +165,12 @@ public class GameRoom {
                     return boardSize;
                 }
             }
-            return null;
+            return BoardSize.CUSTOM;
+        }
+
+        public static String returnDisplayText(int value) {
+            BoardSize boardSize = fromValue(value);
+            return boardSize + "(" + value + ")";
         }
     }
 }

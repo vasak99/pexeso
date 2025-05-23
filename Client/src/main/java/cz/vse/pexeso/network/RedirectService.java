@@ -28,13 +28,12 @@ public class RedirectService {
 
             newConnection.setMessageHandler(connectionService.getMessageHandler());
 
+            connectionService.setConnection(newConnection);
             oldConnection.close();
 
-            connectionService.setConnection(newConnection);
-
-            log.info("RedirectService successful");
+            log.info("Redirect successful");
         } catch (Exception e) {
-            log.error("RedirectService failed", e);
+            log.error("Redirect failed", e);
             if (newConnection != null) {
                 newConnection.close();
             }

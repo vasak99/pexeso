@@ -12,6 +12,8 @@ public class GameListPayload implements MessagePayload {
 
     public List<SendableGame> games;
 
+    public GameListPayload() {}
+
 	@Override
 	public String toSendable() {
         var mapper = new ObjectMapper();

@@ -1,11 +1,12 @@
 package cz.vse.pexeso.model.model;
 
+import cz.vse.pexeso.common.message.payload.LobbyUpdatePayload;
 import cz.vse.pexeso.model.GameRoom;
 import cz.vse.pexeso.model.LobbyPlayer;
 import cz.vse.pexeso.model.service.GameRoomService;
 import cz.vse.pexeso.model.service.SessionService;
 import cz.vse.pexeso.network.RedirectService;
-import javafx.collections.FXCollections;
+import cz.vse.pexeso.util.Updater;
 import javafx.collections.ObservableList;
 
 import java.util.List;
@@ -15,18 +16,26 @@ public class GameRoomModel {
     private final SessionService sessionService;
     private final RedirectService redirectService;
 
+    private String pendingGameId;
+
     public GameRoomModel(GameRoomService gameRoomService, SessionService sessionService, RedirectService redirectService) {
         this.gameRoomService = gameRoomService;
         this.sessionService = sessionService;
         this.redirectService = redirectService;
     }
 
-    public void attemptCreateGame(int capacity, int cardCount) {
-        gameRoomService.sendCreateGameRequest(capacity, cardCount, sessionService.getSession().getPlayerId());
+    public void attemptCreateGame(String name, int capacity, int cardCount) {
+        gameRoomService.sendCreateGameRequest(createNewGameId(), name, capacity, cardCount, sessionService.getSession().getPlayerId());
     }
 
-    public void attemptEditGame(int capacity, int cardCount) {
-        gameRoomService.sendEditGameRequest(capacity, cardCount, sessionService.getSession().getPlayerId());
+    //temporary
+    private String createNewGameId() {
+        pendingGameId = String.valueOf(Math.round(Math.random() * 1000000));
+        return pendingGameId;
+    }
+
+    public void attemptEditGame(String name, int capacity, int cardCount) {
+        gameRoomService.sendEditGameRequest(getCurrentGameRoom().getGameId(), name, capacity, cardCount, sessionService.getSession().getPlayerId());
     }
 
     public void attemptDeleteGame() {
@@ -41,26 +50,25 @@ public class GameRoomModel {
         gameRoomService.sendKickPlayerRequest(sessionService.getSession().getCurrentGameRoom(), sessionService.getSession().getPlayerId(), lobbyPlayer);
     }
 
-    public void finalizeGameCreation(Object data, int capacity, int cardCount) {
-        long hostId = sessionService.getSession().getPlayerId();
-        GameRoom gameRoom = new GameRoom(hostId, capacity, cardCount);
+    public void finalizeGameCreation(Object data, String name, int capacity, int cardCount) {
+        GameRoom gameRoom = new GameRoom(pendingGameId, name, sessionService.getSession().getPlayerId(), sessionService.getSession().getPlayerName(), capacity, cardCount);
+        pendingGameId = null;
+
         GameRoom.gameRooms.add(gameRoom);
         sessionService.getSession().setCurrentGameRoom(gameRoom);
         sessionService.getSession().setHostingAGameRoom(true);
+        sessionService.getSession().setReady(true);
 
-        //redirectService.redirect((String) data);
+        redirectService.redirect((String) data);
     }
 
-    public void finalizeGameEdit(int capacity, int cardCount) {
-        String gameId = getCurrentGameId();
-        GameRoom.editGameRoom(gameId, capacity, cardCount);
-    }
-
-    public void finalizeGameDeletion() {
+    public void finalizeGameDeletion(String redirectData) {
         GameRoom gameRoom = sessionService.getSession().getCurrentGameRoom();
         sessionService.getSession().setCurrentGameRoom(null);
         GameRoom.gameRooms.remove(gameRoom);
         sessionService.getSession().setHostingAGameRoom(false);
+
+        redirectService.redirect(redirectData);
     }
 
     public Long getCurrentGameHostId() {
@@ -71,20 +79,44 @@ public class GameRoomModel {
         return null;
     }
 
-    public int getCurrentRoomCardCount() {
-        return sessionService.getSession().getCurrentGameRoom().getCardCount();
+    public Integer getCurrentRoomCardCount() {
+        GameRoom gameRoom = sessionService.getSession().getCurrentGameRoom();
+        if (gameRoom == null) {
+            return null;
+        }
+
+        return gameRoom.getCardCount();
     }
 
-    public int getCurrentRoomCapacity() {
-        return sessionService.getSession().getCurrentGameRoom().getCapacity();
+    public Integer getCurrentRoomCapacity() {
+        GameRoom gameRoom = sessionService.getSession().getCurrentGameRoom();
+        if (gameRoom == null) {
+            return null;
+        }
+
+        return gameRoom.getCapacity();
     }
 
-    public String getCurrentGameId() {
-        return sessionService.getSession().getCurrentGameRoom().getGameId();
+    public ObservableList<LobbyPlayer> getFilteredPlayers() {
+        GameRoom gameRoom = sessionService.getSession().getCurrentGameRoom();
+        if (gameRoom == null) {
+            return null;
+        }
+
+        return gameRoom.getPlayers().filtered(lobbyPlayer -> lobbyPlayer.getPlayerId() != getCurrentGameHostId());
+    }
+
+    public String getCurrentGameName() {
+        GameRoom gameRoom = sessionService.getSession().getCurrentGameRoom();
+        if (gameRoom == null) {
+            return null;
+        }
+
+        return gameRoom.getName();
     }
 
     public boolean areAllPlayersReady(List<LobbyPlayer> players) {
-        if (players.isEmpty()) {
+        if (players == null || players.isEmpty()) {
             return false;
         }
 
@@ -96,13 +128,11 @@ public class GameRoomModel {
         return true;
     }
 
-    public ObservableList<LobbyPlayer> filterPlayers() {
-        ObservableList<LobbyPlayer> currentlyDisplayedPlayers = FXCollections.observableArrayList();
+    public void updateRoom(String data) {
+        Updater.updateGameRoom(getCurrentGameRoom(), new LobbyUpdatePayload(data));
+    }
 
-        currentlyDisplayedPlayers.setAll(LobbyPlayer.lobbyPlayers.stream()
-                .filter(player -> player.getCurrentGameId().equals(getCurrentGameId()))
-                .toList());
-
-        return currentlyDisplayedPlayers;
+    private GameRoom getCurrentGameRoom() {
+        return sessionService.getSession().getCurrentGameRoom();
     }
 }

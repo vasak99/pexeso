@@ -1,9 +1,11 @@
 package cz.vse.pexeso.model.model;
 
+import cz.vse.pexeso.common.message.payload.GameListPayload;
 import cz.vse.pexeso.model.ClientSession;
 import cz.vse.pexeso.model.UserCredentials;
 import cz.vse.pexeso.model.service.AuthService;
 import cz.vse.pexeso.model.service.SessionService;
+import cz.vse.pexeso.util.Updater;
 
 public class AuthModel {
     private UserCredentials credentials;
@@ -29,5 +31,9 @@ public class AuthModel {
 
     public void setCredentials(UserCredentials credentials) {
         this.credentials = credentials;
+    }
+
+    public void updateLobby(String data) {
+        Updater.updateLobby(new GameListPayload(data));
     }
 }

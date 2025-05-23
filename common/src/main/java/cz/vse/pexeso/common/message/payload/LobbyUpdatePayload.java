@@ -11,6 +11,7 @@ public class LobbyUpdatePayload implements MessagePayload {
 
     public List<SendablePlayer> players;
 
+    public String name;
     public int cardCount;
     public int playersCapacity;
 
@@ -39,6 +40,9 @@ public class LobbyUpdatePayload implements MessagePayload {
 
         if(deserialized != null) {
             this.players = deserialized.players;
+            this.name = deserialized.name;
+            this.cardCount = deserialized.cardCount;
+            this.playersCapacity = deserialized.playersCapacity;
         }
     }
 }

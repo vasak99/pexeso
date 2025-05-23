@@ -5,5 +5,13 @@ public interface LobbyResultListener {
 
     void onLobbyError(String errorDescription);
 
-    void onLobbyUpdate();
+    void onGameRoomUpdate(String data);
+
+    void onPlayerUpdate(String data);
+
+    void onLobbyUIUpdate();
+
+    void onIdentityRequested();
+
+    void onStartGame();
 }

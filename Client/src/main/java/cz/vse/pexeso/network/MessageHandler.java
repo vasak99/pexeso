@@ -9,54 +9,74 @@ import cz.vse.pexeso.model.observer.ObserverWithData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
  * Responsible for parsing messages received from the server and notifying the appropriate observers.
  */
 public class MessageHandler implements Observable {
     private static final Logger log = LoggerFactory.getLogger(MessageHandler.class);
-    private final Map<MessageTypeClient, Set<Observer>> simpleObservers = new HashMap<>();
-    private final Map<MessageTypeClient, Set<ObserverWithData>> dataObservers = new HashMap<>();
+    private final Map<MessageTypeClient, Set<Observer>> simpleObservers = new ConcurrentHashMap<>();
+    private final Map<MessageTypeClient, Set<ObserverWithData>> dataObservers = new ConcurrentHashMap<>();
 
     public MessageHandler() {
         for (MessageTypeClient type : MessageTypeClient.values()) {
-            simpleObservers.put(type, new HashSet<>());
-            dataObservers.put(type, new HashSet<>());
+            simpleObservers.put(type, new CopyOnWriteArraySet<>());
+            dataObservers.put(type, new CopyOnWriteArraySet<>());
         }
     }
 
     public void dispatch(String message) {
-        log.debug("Parsing message: {}", message);
         Message msg = new Message(message);
+        String data = msg.getData();
 
         switch (msg.getType()) {
-            case MessageType.IDENTITY -> handleIdentityMessage(msg);
-            case MessageType.REDIRECT, MessageType.EDIT_GAME, MessageType.DELETE_GAME -> handleRoomChangeMessage(msg);
-            case MessageType.ERROR -> handleErrorMessage(msg);
+            case MessageType.IDENTITY -> handleIdentityMessage(Long.parseLong(data));
+            case MessageType.REDIRECT -> handleRedirectMessage(data);
+            case MessageType.REQUEST_IDENTITY -> handleRequestIdentityMessage();
+            case MessageType.LOBBY_UPDATE -> handlePlayerUpdate(data);
+            case MessageType.GAME_SERVER_UPDATE -> handleGameRoomUpdate(data);
+            case MessageType.START_GAME -> handleStartGame(data);
+            case MessageType.ERROR -> handleErrorMessage(data);
+
             default -> log.error("Unknown message type: {}", msg.getType());
         }
     }
 
-    private void handleIdentityMessage(Message msg) {
-        long playerId = Long.parseLong(msg.getData());
+    private void handleIdentityMessage(long playerId) {
         notifyObservers(MessageTypeClient.AUTH_SUCCESS, playerId);
     }
 
-    private void handleRoomChangeMessage(Message msg) {
+    private void handleRedirectMessage(String redirectData) {
         log.info("Handling redirect message.");
-        String redirectData = msg.getData();
 
         notifyObservers(MessageTypeClient.GAME_ROOM_SUCCESS, redirectData);
-        notifyObservers(MessageTypeClient.GAME_TABLE_CHANGE);
+        notifyObservers(MessageTypeClient.LOBBY_UI_UPDATE);
     }
 
-    private void handleErrorMessage(Message msg) {
+    private void handlePlayerUpdate(String data) {
+        notifyObservers(MessageTypeClient.PLAYER_UPDATE, data);
+        notifyObservers(MessageTypeClient.GAME_ROOM_UI_UPDATE);
+    }
+
+    private void handleGameRoomUpdate(String data) {
+        notifyObservers(MessageTypeClient.GAME_ROOM_UPDATE, data);
+    }
+
+    private void handleRequestIdentityMessage() {
+        notifyObservers(MessageTypeClient.IDENTITY_REQUESTED);
+    }
+
+    private void handleStartGame(String data) {
+        notifyObservers(MessageTypeClient.START_GAME);
+        notifyObservers(MessageTypeClient.INITIALIZE_GAME, data);
+    }
+
+    private void handleErrorMessage(String errorDescription) {
         log.info("Handling error message.");
-        String errorDescription = msg.getData();
         notifyObservers(MessageTypeClient.ERROR, errorDescription);
     }
 

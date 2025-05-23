@@ -24,4 +24,9 @@ public class LobbyService {
         String message = MessageBuilder.buildPlayerReadyMessage(gameRoom, playerId);
         connectionService.send(message);
     }
+
+    public void sendIdentity(long playerId) {
+        String message = MessageBuilder.buildIdentityMessage(playerId);
+        connectionService.send(message);
+    }
 }

@@ -7,5 +7,17 @@ public enum MessageTypeClient {
 
     ERROR,
 
-    GAME_TABLE_CHANGE,
+    LOBBY_UI_UPDATE,
+
+    GAME_ROOM_UI_UPDATE,
+
+    GAME_ROOM_UPDATE,
+
+    PLAYER_UPDATE,
+
+    IDENTITY_REQUESTED,
+
+    START_GAME,
+
+    INITIALIZE_GAME
 }

@@ -64,8 +64,7 @@ public class AuthController implements AuthResultListener {
 
     @FXML
     private void handleButtonClick() {
-        disableFields(true);
-        String username = usernameField.getText();
+        String username = usernameField.getText().trim();
         String password = passwordField.getText();
         String confirmPassword = confirmPasswordField.getText();
 
@@ -77,25 +76,25 @@ public class AuthController implements AuthResultListener {
     }
 
     private void login(String username, String password) {
-        if (FormValidator.isEmpty(username, password)) {
-            warningLabel.setText("Please fill in all fields.");
+        String warning = FormValidator.validateLoginForm(username, password);
+        if (warning != null) {
+            warningLabel.setText(warning);
             return;
         }
+
+        disableFields(true);
         authModel.setCredentials(new UserCredentials(username, password));
         authModel.attemptLogin();
     }
 
     private void register(String username, String password, String confirmPassword) {
-        if (FormValidator.isEmpty(username, password, confirmPassword)) {
-            warningLabel.setText("Please fill in all fields.");
-            return;
-        } else if (!FormValidator.passwordMatch(password, confirmPassword)) {
-            warningLabel.setText("Passwords do not match.");
-            return;
-        } else if (!FormValidator.passwordStrong(password)) {
-            warningLabel.setText("Password must be at least 8 characters long.");
+        String warning = FormValidator.validateRegisterForm(username, password, confirmPassword);
+        if (warning != null) {
+            warningLabel.setText(warning);
             return;
         }
+
+        disableFields(true);
         authModel.setCredentials(new UserCredentials(username, password));
         authModel.attemptRegister();
     }
@@ -111,7 +110,7 @@ public class AuthController implements AuthResultListener {
 
     @Override
     public void onAuthSuccess(long playerId) {
-        authModel.finalizeAuth(playerId, usernameField.getText(), passwordField.getText());
+        authModel.finalizeAuth(playerId, usernameField.getText().trim(), passwordField.getText());
         resultHandler.unregister();
         Platform.runLater(navigator::goToLobby);
     }
@@ -124,6 +123,11 @@ public class AuthController implements AuthResultListener {
             confirmPasswordField.clear();
             disableFields(false);
         });
+    }
+
+    @Override
+    public void onGameRoomUpdate(String data) {
+        authModel.updateLobby(data);
     }
 
     private void switchToLogin() {
