@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Handles the connection to the server. Sends and receives messages from the server.
@@ -19,6 +20,7 @@ public class ClientConnection {
     private ObjectInputStream ois;
     private ObjectOutputStream oos;
     private volatile boolean isListening = true;
+    private final AtomicBoolean isClosed = new AtomicBoolean(false);
     private MessageHandler messageHandler;
 
     public ClientConnection(String host, int port) {
@@ -78,12 +80,21 @@ public class ClientConnection {
     }
 
     public void close() {
+        if (!isListening) {
+            return;
+        }
+
         log.info("Closing client connection");
         isListening = false;
         closeResources();
     }
 
     private void closeResources() {
+        //check if already closed
+        if (isClosed.getAndSet(true)) {
+            return;
+        }
+
         log.info("Closing resources");
         try {
             if (ois != null) {

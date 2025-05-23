@@ -20,13 +20,7 @@ public class ConnectionService {
     }
 
     public void send(String message) {
-        log.debug("Sending message: {}", message);
         connection.sendMessage(message);
-    }
-
-    public void close() {
-        log.info("Closing connection");
-        connection.close();
     }
 
     public MessageHandler getMessageHandler() {

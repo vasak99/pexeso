@@ -48,4 +48,9 @@ public class SceneNavigator implements Navigator {
     public void closeWindow() {
         sceneManager.closeWindow();
     }
+
+    @Override
+    public void closeConfirmationAlert() {
+        sceneManager.closeConfirmationAlert();
+    }
 }

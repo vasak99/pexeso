@@ -1,12 +1,8 @@
 package cz.vse.pexeso.navigation;
 
-import cz.vse.pexeso.controller.AuthController;
-import cz.vse.pexeso.controller.GameRoomCreationFormController;
-import cz.vse.pexeso.controller.GameRoomManagerController;
-import cz.vse.pexeso.controller.LobbyController;
+import cz.vse.pexeso.controller.*;
 import cz.vse.pexeso.di.Injector;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -16,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Objects;
+import java.net.URL;
 import java.util.Optional;
 
 public class SceneManager {
@@ -26,6 +22,7 @@ public class SceneManager {
 
     private Stage primaryStage;
     private Stage openedWindow;
+    private Alert openedConfirmationAlert;
 
     public SceneManager(Injector injector) {
         this.injector = injector;
@@ -45,11 +42,7 @@ public class SceneManager {
         try {
             log.debug("Switching scene to: {}", fxmlFile);
 
-            FXMLLoader loader = new FXMLLoader(Objects.requireNonNull(getClass().getResource(fxmlFile)));
-            loader.setControllerFactory(this::createController);
-            Parent root = loader.load();
-
-            primaryStage.setScene(new Scene(root));
+            primaryStage.setScene(load(fxmlFile));
         } catch (IOException e) {
             log.error("Error loading FXML file: {}", fxmlFile, e);
         }
@@ -57,15 +50,10 @@ public class SceneManager {
 
     public Stage openWindow(String fxmlFile, String title) {
         try {
-            FXMLLoader loader = new FXMLLoader(Objects.requireNonNull(getClass().getResource(fxmlFile)));
-            loader.setControllerFactory(this::createController);
-            Parent root = loader.load();
-
-            Scene scene = new Scene(root);
             Stage stage = new Stage();
+            stage.setScene(load(fxmlFile));
 
             stage.setTitle(title);
-            stage.setScene(scene);
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.show();
 
@@ -74,6 +62,19 @@ public class SceneManager {
             log.error("Error loading FXML file: {}", fxmlFile, e);
         }
         return openedWindow;
+    }
+
+    private Scene load(String fxmlFile) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
+        loader.setControllerFactory(this::createController);
+
+        Scene scene = new Scene(loader.load());
+
+        URL source = getClass().getResource("/cz/vse/pexeso/style.css");
+        if (source != null) {
+            scene.getStylesheets().add(source.toExternalForm());
+        }
+        return scene;
     }
 
     private Object createController(Class<?> controllerClass) {
@@ -89,9 +90,12 @@ public class SceneManager {
         if (controllerClass == GameRoomManagerController.class) {
             return new GameRoomManagerController(injector.getNavigator(), injector.getGameRoomModel(), injector);
         }
+        if (controllerClass == GameController.class) {
+            return new GameController(injector.getNavigator(), injector.getGameModel(), injector);
+        }
+
         return null;
     }
-
 
     public void closeWindow() {
         if (openedWindow != null) {
@@ -101,19 +105,28 @@ public class SceneManager {
     }
 
     public void showErrorAlert(String text) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Error");
-        alert.setHeaderText(text);
-        alert.showAndWait();
+        Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+        errorAlert.setTitle("Error");
+        errorAlert.setHeaderText(text);
+        errorAlert.showAndWait();
     }
 
     public boolean showConfirmationAlert(String text) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Confirmation");
-        alert.setHeaderText(text);
+        Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmationAlert.setTitle("Confirmation");
+        confirmationAlert.setHeaderText(text);
 
-        Optional<ButtonType> result = alert.showAndWait();
+        openedConfirmationAlert = confirmationAlert;
+        Optional<ButtonType> result = confirmationAlert.showAndWait();
 
+        openedConfirmationAlert = null;
         return result.isPresent() && result.get() == ButtonType.OK;
+    }
+
+    public void closeConfirmationAlert() {
+        if (openedConfirmationAlert != null) {
+            openedConfirmationAlert.close();
+            openedConfirmationAlert = null;
+        }
     }
 }

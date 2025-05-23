@@ -7,9 +7,11 @@ import cz.vse.pexeso.model.result.LobbyResultHandler;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
+import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
 public final class LobbyUIHelper {
@@ -19,15 +21,15 @@ public final class LobbyUIHelper {
 
     public static void setup(TableView<GameRoom> gameRoomTable,
                              TableColumn<GameRoom, String> roomStatusColumn,
-                             TableColumn<GameRoom, String> gameIdColumn,
-                             TableColumn<GameRoom, Long> hostColumn,
-                             TableColumn<GameRoom, GameRoom.BoardSize> boardSizeColumn,
+                             TableColumn<GameRoom, String> gameNameColumn,
+                             TableColumn<GameRoom, String> hostNameColumn,
+                             TableColumn<GameRoom, String> boardSizeColumn,
                              TableColumn<GameRoom, Integer> roomCapacityColumn,
                              TableColumn<GameRoom, Void> actionsColumn,
                              LobbyController controller,
                              LobbyModel lobbyModel,
                              LobbyResultHandler resultHandler) {
-        initializeGameRoomTable(gameRoomTable, roomStatusColumn, gameIdColumn, hostColumn, boardSizeColumn, roomCapacityColumn, actionsColumn, controller, lobbyModel);
+        initializeGameRoomTable(gameRoomTable, roomStatusColumn, gameNameColumn, hostNameColumn, boardSizeColumn, roomCapacityColumn, actionsColumn, controller, lobbyModel);
         setupWindowCloseEvent(gameRoomTable, resultHandler);
     }
 
@@ -40,9 +42,9 @@ public final class LobbyUIHelper {
 
     private static void initializeGameRoomTable(TableView<GameRoom> gameRoomTable,
                                                 TableColumn<GameRoom, String> roomStatusColumn,
-                                                TableColumn<GameRoom, String> gameIdColumn,
-                                                TableColumn<GameRoom, Long> hostColumn,
-                                                TableColumn<GameRoom, GameRoom.BoardSize> boardSizeColumn,
+                                                TableColumn<GameRoom, String> gameNameColumn,
+                                                TableColumn<GameRoom, String> hostNameColumn,
+                                                TableColumn<GameRoom, String> boardSizeColumn,
                                                 TableColumn<GameRoom, Integer> roomCapacityColumn,
                                                 TableColumn<GameRoom, Void> actionsColumn,
                                                 LobbyController controller,
@@ -58,62 +60,22 @@ public final class LobbyUIHelper {
             return new ReadOnlyStringWrapper(status.getValue());
         });
 
-        gameIdColumn.setCellValueFactory(new PropertyValueFactory<>("gameId"));
+        gameNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
 
-        hostColumn.setCellValueFactory(new PropertyValueFactory<>("hostId"));
+        hostNameColumn.setCellValueFactory(new PropertyValueFactory<>("hostName"));
 
         boardSizeColumn.setCellValueFactory(cellData -> {
             GameRoom room = cellData.getValue();
             if (room == null) {
                 return new ReadOnlyObjectWrapper<>(null);
             }
-            GameRoom.BoardSize boardSize = GameRoom.BoardSize.fromValue(room.getCardCount());
-            return new ReadOnlyObjectWrapper<>(boardSize);
+            String boardSize = GameRoom.BoardSize.returnDisplayText(room.getCardCount());
+            return new ReadOnlyStringWrapper(boardSize);
         });
+
         roomCapacityColumn.setCellValueFactory(new PropertyValueFactory<>("capacity"));
 
-        actionsColumn.setCellFactory(col -> new TableCell<>() {
-            private final Button joinButton = new Button("Join");
-            private final Button leaveButton = new Button("Leave");
-            private final HBox actionBox = new HBox(5, joinButton, leaveButton);
-
-            {
-                joinButton.setStyle("-fx-background-color: #d0ffc0;");
-                leaveButton.setStyle("-fx-background-color: #ffc0c0;");
-
-                joinButton.setOnAction(event -> {
-                    GameRoom gameRoom = getTableView().getItems().get(getIndex());
-                    controller.joinGameRoom(gameRoom);
-                });
-
-                leaveButton.setOnAction(event -> controller.leaveGameRoom());
-            }
-
-            @Override
-            protected void updateItem(Void item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty) {
-                    setGraphic(null);
-                    return;
-                }
-
-                GameRoom gameRoom = getTableView().getItems().get(getIndex());
-                if (gameRoom == null) {
-                    setGraphic(null);
-                    return;
-                }
-
-                boolean isHost = lobbyModel.isHost(gameRoom);
-                boolean isJoinable = gameRoom.getStatus() == GameRoom.GameStatus.WAITING_FOR_PLAYERS;
-                boolean alreadyJoined = lobbyModel.getCurrentGameRoomId() != null &&
-                        lobbyModel.getCurrentGameRoomId().equals(gameRoom.getGameId());
-
-                joinButton.setVisible(isJoinable && !alreadyJoined);
-                leaveButton.setVisible(!isHost && alreadyJoined);
-
-                setGraphic(actionBox);
-            }
-        });
+        actionsColumn.setCellFactory(col -> new GameRoomActionCell(controller, lobbyModel));
 
         gameRoomTable.setRowFactory(tableView -> {
             TableRow<GameRoom> row = new TableRow<>();

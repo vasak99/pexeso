@@ -18,4 +18,6 @@ public interface Navigator {
     boolean showConfirmation(String message);
 
     void closeWindow();
+
+    void closeConfirmationAlert();
 }
