@@ -106,6 +106,8 @@ public class AuthController implements AuthResultListener {
         } else {
             switchToLogin();
         }
+
+        clearPasswordFields();
     }
 
     @Override
@@ -119,8 +121,7 @@ public class AuthController implements AuthResultListener {
     public void onAuthError(String errorDescription) {
         Platform.runLater(() -> {
             warningLabel.setText(errorDescription + ", please try again.");
-            passwordField.clear();
-            confirmPasswordField.clear();
+            clearPasswordFields();
             disableFields(false);
         });
     }
@@ -140,6 +141,11 @@ public class AuthController implements AuthResultListener {
         mode = Mode.REGISTER;
 
         AuthUIHelper.switchToRegister(titleLabel, confirmPasswordLabel, confirmPasswordField, actionButton, linkLabel);
+    }
+
+    private void clearPasswordFields() {
+        passwordField.clear();
+        confirmPasswordField.clear();
     }
 
     private void disableFields(boolean disable) {

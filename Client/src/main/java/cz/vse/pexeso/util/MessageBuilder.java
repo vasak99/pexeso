@@ -3,10 +3,10 @@ package cz.vse.pexeso.util;
 import cz.vse.pexeso.common.message.Message;
 import cz.vse.pexeso.common.message.MessageType;
 import cz.vse.pexeso.common.message.payload.*;
-import cz.vse.pexeso.model.GameCard;
 import cz.vse.pexeso.model.GameRoom;
 import cz.vse.pexeso.model.LobbyPlayer;
 import cz.vse.pexeso.model.UserCredentials;
+import cz.vse.pexeso.view.GameCard;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

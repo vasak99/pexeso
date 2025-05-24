@@ -7,6 +7,9 @@ public class ResultPayload implements MessagePayload {
     public SendablePlayer[] scores;
     public SendablePlayer winner;
 
+    public ResultPayload() {
+    }
+
     public ResultPayload(SendablePlayer[] scores, SendablePlayer winner) {
         this.scores = scores;
         this.winner = winner;

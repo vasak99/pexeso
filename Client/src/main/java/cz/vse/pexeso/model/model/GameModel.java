@@ -2,11 +2,13 @@ package cz.vse.pexeso.model.model;
 
 import cz.vse.pexeso.common.message.payload.GameUpdatePayload;
 import cz.vse.pexeso.common.message.payload.ResultPayload;
-import cz.vse.pexeso.model.GameCard;
+import cz.vse.pexeso.model.Game;
 import cz.vse.pexeso.model.service.GameService;
 import cz.vse.pexeso.model.service.SessionService;
 import cz.vse.pexeso.network.RedirectService;
 import cz.vse.pexeso.util.Updater;
+import cz.vse.pexeso.view.Board;
+import cz.vse.pexeso.view.GameCard;
 
 public class GameModel {
     private final GameService gameService;
@@ -29,5 +31,20 @@ public class GameModel {
 
     public void setResult(String data) {
         Updater.setResult(sessionService.getSession().getCurrentGameRoom(), new ResultPayload(data));
+    }
+
+    private Game getGame() {
+        return sessionService.getSession().getCurrentGameRoom().getGame();
+    }
+
+    public Board getGameBoard() {
+        return getGame().getGameBoard();
+    }
+
+    public boolean isPlayersTurn() {
+        long playerId = sessionService.getSession().getPlayerId();
+        long activePlayer = getGame().getActivePlayer();
+
+        return playerId == activePlayer;
     }
 }

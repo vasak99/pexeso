@@ -4,6 +4,7 @@ import cz.vse.pexeso.controller.LobbyController;
 import cz.vse.pexeso.model.GameRoom;
 import cz.vse.pexeso.model.model.LobbyModel;
 import cz.vse.pexeso.model.result.LobbyResultHandler;
+import cz.vse.pexeso.view.cell.GameRoomActionCell;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;

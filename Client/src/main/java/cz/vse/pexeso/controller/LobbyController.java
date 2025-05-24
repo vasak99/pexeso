@@ -133,7 +133,6 @@ public class LobbyController implements LobbyResultListener {
 
     @Override
     public void onLobbyUIUpdate() {
-        System.out.println("ON LOBBY UI UPDATE");
         gameRoomTable.setItems(GameRoom.gameRooms);
         gameRoomTable.refresh();
 

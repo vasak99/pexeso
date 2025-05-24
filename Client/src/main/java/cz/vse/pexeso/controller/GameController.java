@@ -5,8 +5,10 @@ import cz.vse.pexeso.model.model.GameModel;
 import cz.vse.pexeso.model.result.GameResultHandler;
 import cz.vse.pexeso.model.result.GameResultListener;
 import cz.vse.pexeso.navigation.Navigator;
+import cz.vse.pexeso.view.GameUIHelper;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.layout.GridPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +20,8 @@ public class GameController implements GameResultListener {
     private final GameModel gameModel;
 
     private final GameResultHandler resultHandler;
+    @FXML
+    private GridPane mainGridPane;
 
     public GameController(Navigator navigator, GameModel gameModel, Injector injector) {
         this.navigator = navigator;
@@ -28,6 +32,10 @@ public class GameController implements GameResultListener {
     @FXML
     private void initialize() {
         resultHandler.register();
+
+        GameUIHelper.setupGameBoard(mainGridPane, gameModel.getGameBoard());
+        updateUI();
+
         log.info("GameController initialized");
     }
 
@@ -39,6 +47,12 @@ public class GameController implements GameResultListener {
     @Override
     public void onGameUpdate(String data) {
         gameModel.updateGame(data);
+
+        updateUI();
+    }
+
+    private void updateUI() {
+        GameUIHelper.setTurn(gameModel.isPlayersTurn(), gameModel.getGameBoard());
     }
 
     @Override

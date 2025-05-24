@@ -1,4 +1,4 @@
-package cz.vse.pexeso.view;
+package cz.vse.pexeso.view.cell;
 
 import cz.vse.pexeso.controller.GameRoomManagerController;
 import cz.vse.pexeso.model.LobbyPlayer;

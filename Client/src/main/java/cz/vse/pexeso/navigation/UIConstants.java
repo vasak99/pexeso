@@ -9,6 +9,9 @@ public final class UIConstants {
 
     public static final String GAME_FXML = "/cz/vse/pexeso/fxml/game/game.fxml";
 
+
+    public static final String DEFAULT_CARD_IMAGE = "/cz/vse/pexeso/fxml/game/defaultimage.png";
+
     private UIConstants() {
     }
 }

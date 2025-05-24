@@ -1,11 +1,12 @@
 package cz.vse.pexeso.model;
 
 import cz.vse.pexeso.common.message.payload.SendablePlayer;
+import cz.vse.pexeso.view.Board;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 public class Game {
-    private String GameBoard;
+    private Board gameBoard = null;
     private long activePlayer;
     private final ObservableList<SendablePlayer> resultList = FXCollections.observableArrayList();
     private SendablePlayer winningPlayer;
@@ -13,17 +14,17 @@ public class Game {
     public Game() {
     }
 
-    public Game(String gameBoard, long activePlayer) {
-        GameBoard = gameBoard;
+    public Game(Board gameBoard, long activePlayer) {
+        this.gameBoard = gameBoard;
         this.activePlayer = activePlayer;
     }
 
-    public String getGameBoard() {
-        return GameBoard;
+    public Board getGameBoard() {
+        return gameBoard;
     }
 
-    public void setGameBoard(String gameBoard) {
-        GameBoard = gameBoard;
+    public void setGameBoard(Board gameBoard) {
+        this.gameBoard = gameBoard;
     }
 
     public long getActivePlayer() {

@@ -7,6 +7,9 @@ public class RevealCardPayload implements MessagePayload {
     public int row;
     public int column;
 
+    public RevealCardPayload() {
+    }
+
     public RevealCardPayload(int row, int column) {
         this.row = row;
         this.column = column;

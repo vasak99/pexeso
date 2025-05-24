@@ -3,6 +3,7 @@ package cz.vse.pexeso.util;
 import cz.vse.pexeso.common.message.payload.*;
 import cz.vse.pexeso.model.GameRoom;
 import cz.vse.pexeso.model.LobbyPlayer;
+import cz.vse.pexeso.view.Board;
 
 import java.util.List;
 
@@ -33,7 +34,12 @@ public final class Updater {
     }
 
     public static void updateGame(GameRoom gameRoom, GameUpdatePayload gup) {
-        gameRoom.getGame().setGameBoard(gup.gameBoard);
+        if (gameRoom.getGame().getGameBoard() == null) {
+            gameRoom.getGame().setGameBoard(new Board(gup.gameBoard));
+        } else {
+            gameRoom.getGame().getGameBoard().setGameRoomString(gup.gameBoard);
+        }
+
         gameRoom.getGame().setActivePlayer(gup.activePlayer);
 
         updateGameRoomPlayers(gameRoom, gup.players);

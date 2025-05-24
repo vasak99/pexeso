@@ -23,8 +23,6 @@ public class GameRoom {
         this.cardCount = cardCount;
         this.gameId = gameId;
         this.name = name;
-
-        this.game = new Game();
     }
 
     // finalize Creation

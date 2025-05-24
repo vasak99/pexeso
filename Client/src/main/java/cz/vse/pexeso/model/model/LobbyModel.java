@@ -3,6 +3,7 @@ package cz.vse.pexeso.model.model;
 import cz.vse.pexeso.common.message.payload.GameListPayload;
 import cz.vse.pexeso.common.message.payload.GameUpdatePayload;
 import cz.vse.pexeso.common.message.payload.LobbyUpdatePayload;
+import cz.vse.pexeso.model.Game;
 import cz.vse.pexeso.model.GameRoom;
 import cz.vse.pexeso.model.service.LobbyService;
 import cz.vse.pexeso.model.service.SessionService;
@@ -95,6 +96,7 @@ public class LobbyModel {
     }
 
     public void initializeGame(String data) {
+        getCurrentGameRoom().setGame(new Game());
         Updater.updateGame(getCurrentGameRoom(), new GameUpdatePayload(data));
     }
 }

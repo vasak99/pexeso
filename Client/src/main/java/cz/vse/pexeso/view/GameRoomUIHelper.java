@@ -6,6 +6,7 @@ import cz.vse.pexeso.model.GameRoom;
 import cz.vse.pexeso.model.LobbyPlayer;
 import cz.vse.pexeso.model.model.GameRoomModel;
 import cz.vse.pexeso.model.result.GameRoomResultHandler;
+import cz.vse.pexeso.view.cell.PlayerActionCell;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.value.ChangeListener;
