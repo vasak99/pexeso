@@ -15,12 +15,16 @@ public class GameRoom {
     private int cardCount;
     private final ObservableList<LobbyPlayer> players = FXCollections.observableArrayList();
 
+    private Game game;
+
     // Create/Edit attempt message
     public GameRoom(String gameId, String name, int capacity, int cardCount) {
         this.capacity = capacity;
         this.cardCount = cardCount;
         this.gameId = gameId;
         this.name = name;
+
+        this.game = new Game();
     }
 
     // finalize Creation
@@ -122,6 +126,14 @@ public class GameRoom {
 
     public void setHostName(String hostName) {
         this.hostName = hostName;
+    }
+
+    public Game getGame() {
+        return game;
+    }
+
+    public void setGame(Game game) {
+        this.game = game;
     }
 
     public enum GameStatus {

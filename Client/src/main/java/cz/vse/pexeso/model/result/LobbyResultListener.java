@@ -13,5 +13,5 @@ public interface LobbyResultListener {
 
     void onIdentityRequested();
 
-    void onStartGame();
+    void onStartGame(String data);
 }

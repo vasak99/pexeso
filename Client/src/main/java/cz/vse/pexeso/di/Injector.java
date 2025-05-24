@@ -50,7 +50,7 @@ public class Injector {
         this.authModel = new AuthModel(authService, sessionService);
         this.lobbyModel = new LobbyModel(lobbyService, sessionService, redirectService);
         this.gameRoomModel = new GameRoomModel(gameRoomService, sessionService, redirectService);
-        this.gameModel = new GameModel(gameService);
+        this.gameModel = new GameModel(gameService, sessionService, redirectService);
     }
 
     public SceneManager getSceneManager() {

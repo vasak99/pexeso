@@ -147,10 +147,14 @@ public class LobbyController implements LobbyResultListener {
     }
 
     @Override
-    public void onStartGame() {
+    public void onStartGame(String data) {
+        lobbyModel.initializeGame(data);
         resultHandler.finalUnregister();
-        Platform.runLater(navigator::closeWindow);
-        Platform.runLater(navigator::goToGame);
+        Platform.runLater(() -> {
+            navigator.closeWindow();
+            navigator.closeConfirmationAlert();
+            navigator.goToGame();
+        });
     }
 
     private void updateManageRoomButon() {

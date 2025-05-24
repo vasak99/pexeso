@@ -1,6 +1,7 @@
 package cz.vse.pexeso.model.model;
 
 import cz.vse.pexeso.common.message.payload.GameListPayload;
+import cz.vse.pexeso.common.message.payload.GameUpdatePayload;
 import cz.vse.pexeso.common.message.payload.LobbyUpdatePayload;
 import cz.vse.pexeso.model.GameRoom;
 import cz.vse.pexeso.model.service.LobbyService;
@@ -91,5 +92,9 @@ public class LobbyModel {
 
     public String getPlayerName() {
         return sessionService.getSession().getPlayerName();
+    }
+
+    public void initializeGame(String data) {
+        Updater.updateGame(getCurrentGameRoom(), new GameUpdatePayload(data));
     }
 }

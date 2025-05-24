@@ -1,16 +1,15 @@
 package cz.vse.pexeso.util;
 
-import cz.vse.pexeso.common.message.payload.GameListPayload;
-import cz.vse.pexeso.common.message.payload.LobbyUpdatePayload;
-import cz.vse.pexeso.common.message.payload.SendableGame;
-import cz.vse.pexeso.common.message.payload.SendablePlayer;
+import cz.vse.pexeso.common.message.payload.*;
 import cz.vse.pexeso.model.GameRoom;
 import cz.vse.pexeso.model.LobbyPlayer;
+
+import java.util.List;
 
 public final class Updater {
 
     public static void updateLobby(GameListPayload glp) {
-        GameRoom.gameRooms.removeIf(gameRoom -> hasBeenDeleted(gameRoom, glp));
+        GameRoom.gameRooms.removeIf(gameRoom -> hasGameRoomBeenDeleted(gameRoom, glp));
 
         for (SendableGame r : glp.games) {
             GameRoom gameRoom = GameRoom.findById(r.id);
@@ -27,7 +26,28 @@ public final class Updater {
         }
     }
 
-    private static boolean hasBeenDeleted(GameRoom gameRoom, GameListPayload glp) {
+    public static void updateGameRoom(GameRoom gameRoom, LobbyUpdatePayload lup) {
+        GameRoom.editGameRoom(gameRoom.getGameId(), lup.name, lup.playersCapacity, lup.cardCount);
+
+        updateGameRoomPlayers(gameRoom, lup.players);
+    }
+
+    public static void updateGame(GameRoom gameRoom, GameUpdatePayload gup) {
+        gameRoom.getGame().setGameBoard(gup.gameBoard);
+        gameRoom.getGame().setActivePlayer(gup.activePlayer);
+
+        updateGameRoomPlayers(gameRoom, gup.players);
+    }
+
+    private static void updateGameRoomPlayers(GameRoom gameRoom, List<SendablePlayer> players) {
+        gameRoom.getPlayers().clear();
+
+        for (SendablePlayer sendablePlayer : players) {
+            gameRoom.getPlayers().add(new LobbyPlayer(sendablePlayer.id, sendablePlayer.name, LobbyPlayer.PlayerStatus.fromBoolean(sendablePlayer.status), sendablePlayer.score));
+        }
+    }
+
+    private static boolean hasGameRoomBeenDeleted(GameRoom gameRoom, GameListPayload glp) {
         for (SendableGame sendableGameRoom : glp.games) {
             if (gameRoom.getGameId().equals(sendableGameRoom.id)) {
                 return false;
@@ -36,13 +56,11 @@ public final class Updater {
         return true;
     }
 
-    public static void updateGameRoom(GameRoom gameRoom, LobbyUpdatePayload lup) {
-        GameRoom.editGameRoom(gameRoom.getGameId(), lup.name, lup.playersCapacity, lup.cardCount);
-
-        gameRoom.getPlayers().clear();
-
-        for (SendablePlayer sendablePlayer : lup.players) {
-            gameRoom.getPlayers().add(new LobbyPlayer(sendablePlayer.id, sendablePlayer.name, LobbyPlayer.PlayerStatus.fromBoolean(sendablePlayer.status), sendablePlayer.score));
+    public static void setResult(GameRoom gameRoom, ResultPayload rp) {
+        gameRoom.getGame().getResultList().clear();
+        for (SendablePlayer sendablePlayer : rp.scores) {
+            gameRoom.getGame().getResultList().add(sendablePlayer);
         }
+        gameRoom.getGame().setWinningPlayer(rp.winner);
     }
 }

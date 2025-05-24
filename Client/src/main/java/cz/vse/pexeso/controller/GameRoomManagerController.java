@@ -111,10 +111,10 @@ public class GameRoomManagerController implements GameRoomResultListener {
 
     @Override
     public void onGameRoomSuccess(Object data) {
-        switch (lastAction) {
-            case DELETE -> deleteGameSuccess((String) data);
-            case START -> startGameSuccess();
-            default -> log.warn("Invalid success");
+        if (lastAction != null && lastAction == LastAction.DELETE) {
+            deleteGameSuccess((String) data);
+        } else {
+            log.warn("Invalid success");
         }
         lastAction = LastAction.NONE;
     }
@@ -149,11 +149,6 @@ public class GameRoomManagerController implements GameRoomResultListener {
     private void deleteGameSuccess(String redirectData) {
         gameRoomModel.finalizeGameDeletion(redirectData);
         Platform.runLater(navigator::closeWindow);
-    }
-
-    private void startGameSuccess() {
-        closeWindow();
-        navigator.goToGame();
     }
 
     @FXML

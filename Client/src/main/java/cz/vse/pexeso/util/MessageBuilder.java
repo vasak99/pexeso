@@ -3,6 +3,7 @@ package cz.vse.pexeso.util;
 import cz.vse.pexeso.common.message.Message;
 import cz.vse.pexeso.common.message.MessageType;
 import cz.vse.pexeso.common.message.payload.*;
+import cz.vse.pexeso.model.GameCard;
 import cz.vse.pexeso.model.GameRoom;
 import cz.vse.pexeso.model.LobbyPlayer;
 import cz.vse.pexeso.model.UserCredentials;
@@ -110,5 +111,13 @@ public final class MessageBuilder {
         log.info("Building start game message");
 
         return build(MessageType.START_GAME, gameRoom.getGameId(), playerId, null);
+    }
+
+    public static String buildRevealCardMessage(GameCard gameCard, GameRoom gameRoom, long playerId) {
+        log.info("Building reveal gameCard message for gameCard: {}", gameCard);
+
+        String data = new RevealCardPayload(gameCard.getRow(), gameCard.getColumn()).toSendable();
+
+        return build(MessageType.REVEAL, gameRoom.getGameId(), playerId, data);
     }
 }
