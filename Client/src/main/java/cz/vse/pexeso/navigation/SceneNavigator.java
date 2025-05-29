@@ -35,6 +35,11 @@ public class SceneNavigator implements Navigator {
     }
 
     @Override
+    public void openGameResultWindow() {
+        sceneManager.openWindow(UIConstants.GAME_RESULT_FXML, "Game result");
+    }
+
+    @Override
     public void showError(String message) {
         sceneManager.showErrorAlert(message);
     }

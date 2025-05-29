@@ -5,6 +5,7 @@ import cz.vse.pexeso.model.GameRoom;
 import cz.vse.pexeso.model.LobbyPlayer;
 import cz.vse.pexeso.view.Board;
 
+import java.util.Comparator;
 import java.util.List;
 
 public final class Updater {
@@ -67,8 +68,8 @@ public final class Updater {
     public static void setResult(GameRoom gameRoom, ResultPayload rp) {
         gameRoom.getGame().getResultList().clear();
         for (SendablePlayer sendablePlayer : rp.scores) {
-            gameRoom.getGame().getResultList().add(sendablePlayer);
+            gameRoom.getGame().getResultList().add(new LobbyPlayer(sendablePlayer.name, sendablePlayer.score));
         }
-        gameRoom.getGame().setWinningPlayer(rp.winner);
+        gameRoom.getGame().getResultList().sort(Comparator.comparingInt(LobbyPlayer::getScore).reversed());
     }
 }

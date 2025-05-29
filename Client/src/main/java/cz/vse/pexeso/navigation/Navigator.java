@@ -13,6 +13,8 @@ public interface Navigator {
 
     Stage openGameRoomManager();
 
+    void openGameResultWindow();
+
     void showError(String message);
 
     boolean showConfirmation(String message);

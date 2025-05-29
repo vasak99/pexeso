@@ -46,19 +46,9 @@ public class GameController implements GameResultListener {
     @FXML
     private void initialize() {
         resultHandler.register();
-
-        titleLabel.setText(gameModel.getPlayerName() + " " + gameModel.getPlayerId());
-
         gameModel.getGame().setupPlayerColors(gameModel.getPlayers());
-
-        GameUIHelper.setupGameBoard(mainGridPane, gameModel.getGameBoard());
-
-        GameUIHelper.setupOnClick(gameModel);
-
-        GameUIHelper.setupScoreboard(scoreboardTable, playerColumn, scoreColumn, gameModel);
-
+        GameUIHelper.setup(mainGridPane, gameModel, scoreboardTable, playerColumn, scoreColumn, titleLabel);
         updateUI();
-
         log.info("GameController initialized");
     }
 
@@ -70,7 +60,6 @@ public class GameController implements GameResultListener {
     @Override
     public void onGameUpdate(String data) {
         gameModel.updateGame(data);
-
         updateUI();
     }
 
@@ -98,11 +87,18 @@ public class GameController implements GameResultListener {
     @Override
     public void onGameResult(String data) {
         gameModel.setResult(data);
-        // open result window
+        Platform.runLater(navigator::openGameResultWindow);
     }
 
     @Override
     public void onGameError(String errorDescription) {
         Platform.runLater(() -> navigator.showError(errorDescription));
+    }
+
+    @FXML
+    private void handleGiveUpClick() {
+        if (navigator.showConfirmation("Are you sure you want to give up? You won't be able to rejoin.")) {
+            gameModel.attemptGiveUp();
+        }
     }
 }

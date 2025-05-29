@@ -37,6 +37,10 @@ public final class FormValidator {
             return "Please fill in all fields.";
         }
 
+        if (!validateNameLength(username)) {
+            return "Name can not be longer than 16 characters";
+        }
+
         if (!passwordMatch(password, confirmPassword)) {
             return "Passwords do not match.";
         }
@@ -58,7 +62,10 @@ public final class FormValidator {
 
         if (boardSize == GameRoom.BoardSize.CUSTOM && customBoardSize.isEmpty()) {
             return "Choose custom board size";
+        }
 
+        if (!validateNameLength(name)) {
+            return "Name can not be longer than 16 characters";
         }
 
         if (boardSize == GameRoom.BoardSize.CUSTOM
@@ -68,5 +75,9 @@ public final class FormValidator {
             return "The board size must be an even number between " + Variables.MIN_CARDS + " and " + Variables.MAX_CARDS + ".";
         }
         return null;
+    }
+
+    private static boolean validateNameLength(String name) {
+        return name.length() <= 16;
     }
 }

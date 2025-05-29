@@ -43,6 +43,8 @@ public enum MessageType {
 
     RESULT("RESULT"),
 
+    GIVE_UP("GIVE_UP"),
+
     ERROR("ERROR"),
     REGISTER("REGISTER"),;
 

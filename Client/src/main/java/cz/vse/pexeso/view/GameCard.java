@@ -6,10 +6,13 @@ import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class GameCard extends Button {
+    private static final Map<String, Image> imageCache = new HashMap<>();
     private final int row;
     private final int column;
-    private final String id;
     private String imageName;
     private Status status;
 
@@ -18,7 +21,6 @@ public class GameCard extends Button {
         this.status = status;
         this.row = row;
         this.column = column;
-        this.id = "" + this.row + this.column;
         this.imageName = "";
 
         if (this.status == Status.HIDDEN) {
@@ -31,7 +33,6 @@ public class GameCard extends Button {
         this.status = status;
         this.row = row;
         this.column = column;
-        this.id = "" + this.row + this.column;
         this.imageName = imageName;
 
         reveal(this.imageName);
@@ -59,10 +60,6 @@ public class GameCard extends Button {
         return imageName;
     }
 
-    public String getCardId() {
-        return id;
-    }
-
     public void reveal(String imageName) {
         flip(Status.REVEALED, imageName);
     }
@@ -75,7 +72,7 @@ public class GameCard extends Button {
         this.status = status;
         this.imageName = imageName;
 
-        Image image = new Image(imageName, 100, 100, true, true);
+        Image image = imageCache.computeIfAbsent(imageName, name -> new Image(name, 95, 95, true, true));
         ImageView imageView = new ImageView(image);
 
         Platform.runLater(() -> setGraphic(imageView));

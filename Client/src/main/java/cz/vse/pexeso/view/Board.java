@@ -88,10 +88,6 @@ public class Board extends GridPane {
         return parsed;
     }
 
-    public String getGameBoardString() {
-        return gameBoardString;
-    }
-
     public void setGameBoardString(String gameBoardString, String color) {
         this.gameBoardString = gameBoardString;
         update(color);

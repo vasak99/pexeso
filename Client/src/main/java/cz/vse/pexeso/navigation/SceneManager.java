@@ -93,6 +93,9 @@ public class SceneManager {
         if (controllerClass == GameController.class) {
             return new GameController(injector.getNavigator(), injector.getGameModel(), injector);
         }
+        if (controllerClass == GameResultController.class) {
+            return new GameResultController(injector.getNavigator(), injector.getGameModel());
+        }
 
         return null;
     }

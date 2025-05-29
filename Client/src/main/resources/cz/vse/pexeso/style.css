@@ -11,7 +11,12 @@
 }
 
 .table-view .column-header {
-    -fx-padding: 5 10; /* top-bottom left-right */
+    -fx-padding: 5 10;
     -fx-font-size: 14px;
-    -fx-cell-size: 30px; /* indirectly affects height */
+    -fx-cell-size: 30px;
+}
+
+.table-view .column-header .arrow {
+    -fx-shape: "";
+    -fx-padding: 0;
 }

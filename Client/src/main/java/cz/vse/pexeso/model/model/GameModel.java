@@ -1,7 +1,9 @@
 package cz.vse.pexeso.model.model;
 
+import cz.vse.pexeso.common.environment.Variables;
 import cz.vse.pexeso.common.message.payload.GameUpdatePayload;
 import cz.vse.pexeso.common.message.payload.ResultPayload;
+import cz.vse.pexeso.model.ClientSession;
 import cz.vse.pexeso.model.Game;
 import cz.vse.pexeso.model.GameRoom;
 import cz.vse.pexeso.model.LobbyPlayer;
@@ -43,7 +45,11 @@ public class GameModel {
     }
 
     private void sendReveal(GameCard card) {
-        gameService.sendRevealCardRequest(card, getRoom(), sessionService.getSession().getPlayerId());
+        gameService.sendRevealCardRequest(card, getRoom(), getSession().getPlayerId());
+    }
+
+    public void attemptGiveUp() {
+        gameService.sendGiveUpRequest(getRoom(), getPlayerId());
     }
 
     public void updateGame(String data) {
@@ -52,6 +58,29 @@ public class GameModel {
 
     public void setResult(String data) {
         Updater.setResult(getRoom(), new ResultPayload(data));
+    }
+
+    public void redirectToLobby() {
+        redirectService.redirect(Variables.SERVER_ADDR + ":" + Variables.DEFAULT_PORT);
+    }
+
+    public boolean isPlayersTurn() {
+        long playerId = getSession().getPlayerId();
+        long activePlayer = getGame().getActivePlayer();
+
+        return playerId == activePlayer;
+    }
+
+    public ClientSession getSession() {
+        return sessionService.getSession();
+    }
+
+    private GameRoom getRoom() {
+        return getSession().getCurrentGameRoom();
+    }
+
+    public Game getGame() {
+        return getRoom().getGame();
     }
 
     public Board getGameBoard() {
@@ -70,26 +99,7 @@ public class GameModel {
         return getGame().getCurrentTurn();
     }
 
-    public String getPlayerName() {
-        return sessionService.getSession().getPlayerName();
-    }
-
     public long getPlayerId() {
-        return sessionService.getSession().getPlayerId();
-    }
-
-    public boolean isPlayersTurn() {
-        long playerId = sessionService.getSession().getPlayerId();
-        long activePlayer = getGame().getActivePlayer();
-
-        return playerId == activePlayer;
-    }
-
-    private GameRoom getRoom() {
-        return sessionService.getSession().getCurrentGameRoom();
-    }
-
-    public Game getGame() {
-        return getRoom().getGame();
+        return getSession().getPlayerId();
     }
 }

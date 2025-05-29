@@ -15,4 +15,9 @@ public class GameService {
         String message = MessageBuilder.buildRevealCardMessage(card, gameRoom, playerId);
         connectionService.send(message);
     }
+
+    public void sendGiveUpRequest(GameRoom gameRoom, long playerId) {
+        String message = MessageBuilder.buildGiveUpMessage(gameRoom, playerId);
+        connectionService.send(message);
+    }
 }

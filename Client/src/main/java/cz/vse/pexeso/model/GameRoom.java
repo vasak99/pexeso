@@ -78,10 +78,6 @@ public class GameRoom {
         return gameId;
     }
 
-    public void setGameId(String gameId) {
-        this.gameId = gameId;
-    }
-
     public long getHostId() {
         return hostId;
     }
@@ -159,8 +155,8 @@ public class GameRoom {
 
     public enum BoardSize {
         SMALL(16),
-        MEDIUM(36),
-        LARGE(64),
+        MEDIUM(32),
+        LARGE(48),
         CUSTOM(0);
 
         public final int value;

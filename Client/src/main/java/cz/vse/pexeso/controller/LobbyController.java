@@ -62,7 +62,7 @@ public class LobbyController implements LobbyResultListener {
 
         onLobbyUIUpdate();
 
-        tableTitle.setText("Available rooms for " + lobbyModel.getPlayerName());
+        tableTitle.setText("Available rooms for " + lobbyModel.getSession().getPlayerName());
 
         log.info("LobbyController initialized");
     }

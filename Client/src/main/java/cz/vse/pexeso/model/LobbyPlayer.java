@@ -13,36 +13,25 @@ public class LobbyPlayer {
         this.score = score;
     }
 
-    public long getPlayerId() {
-        return playerId;
+    public LobbyPlayer(String username, int score) {
+        this.username = username;
+        this.score = score;
     }
 
-    public void setPlayerId(long playerId) {
-        this.playerId = playerId;
+    public long getPlayerId() {
+        return playerId;
     }
 
     public String getUsername() {
         return username;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
     public PlayerStatus getStatus() {
         return status;
     }
 
-    public void setStatus(PlayerStatus status) {
-        this.status = status;
-    }
-
     public int getScore() {
         return score;
-    }
-
-    public void setScore(int score) {
-        this.score = score;
     }
 
     public enum PlayerStatus {

@@ -120,4 +120,10 @@ public final class MessageBuilder {
 
         return build(MessageType.REVEAL, gameRoom.getGameId(), playerId, data);
     }
+
+    public static String buildGiveUpMessage(GameRoom gameRoom, long playerId) {
+        log.info("Building give up message");
+
+        return build(MessageType.GIVE_UP, gameRoom.getGameId(), playerId, null);
+    }
 }

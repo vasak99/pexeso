@@ -1,6 +1,7 @@
 package cz.vse.pexeso.model.model;
 
 import cz.vse.pexeso.common.message.payload.LobbyUpdatePayload;
+import cz.vse.pexeso.model.ClientSession;
 import cz.vse.pexeso.model.GameRoom;
 import cz.vse.pexeso.model.LobbyPlayer;
 import cz.vse.pexeso.model.service.GameRoomService;
@@ -24,95 +25,51 @@ public class GameRoomModel {
         this.redirectService = redirectService;
     }
 
-    public void attemptCreateGame(String name, int capacity, int cardCount) {
-        gameRoomService.sendCreateGameRequest(createNewGameId(), name, capacity, cardCount, sessionService.getSession().getPlayerId());
-    }
-
     //temporary
     private String createNewGameId() {
         pendingGameId = String.valueOf(Math.round(Math.random() * 1000000));
         return pendingGameId;
     }
 
+    public void attemptCreateGame(String name, int capacity, int cardCount) {
+        gameRoomService.sendCreateGameRequest(createNewGameId(), name, capacity, cardCount, getPlayerId());
+    }
+
     public void attemptEditGame(String name, int capacity, int cardCount) {
-        gameRoomService.sendEditGameRequest(getCurrentGameRoom().getGameId(), name, capacity, cardCount, sessionService.getSession().getPlayerId());
+        gameRoomService.sendEditGameRequest(getCurrentGameRoom().getGameId(), name, capacity, cardCount, getPlayerId());
     }
 
     public void attemptDeleteGame() {
-        gameRoomService.sendDeleteGameRequest(sessionService.getSession().getCurrentGameRoom(), sessionService.getSession().getPlayerId());
+        gameRoomService.sendDeleteGameRequest(getCurrentGameRoom(), getPlayerId());
     }
 
     public void attemptStartGame() {
-        gameRoomService.sendStartGameRequest(sessionService.getSession().getCurrentGameRoom(), sessionService.getSession().getPlayerId());
+        gameRoomService.sendStartGameRequest(getCurrentGameRoom(), getPlayerId());
     }
 
     public void attemptKickPlayer(LobbyPlayer lobbyPlayer) {
-        gameRoomService.sendKickPlayerRequest(sessionService.getSession().getCurrentGameRoom(), sessionService.getSession().getPlayerId(), lobbyPlayer);
+        gameRoomService.sendKickPlayerRequest(getCurrentGameRoom(), getPlayerId(), lobbyPlayer);
     }
 
     public void finalizeGameCreation(Object data, String name, int capacity, int cardCount) {
-        GameRoom gameRoom = new GameRoom(pendingGameId, name, sessionService.getSession().getPlayerId(), sessionService.getSession().getPlayerName(), capacity, cardCount);
+        GameRoom gameRoom = new GameRoom(pendingGameId, name, getPlayerId(), getSession().getPlayerName(), capacity, cardCount);
         pendingGameId = null;
 
         GameRoom.gameRooms.add(gameRoom);
-        sessionService.getSession().setCurrentGameRoom(gameRoom);
-        sessionService.getSession().setHostingAGameRoom(true);
-        sessionService.getSession().setReady(true);
+        getSession().setCurrentGameRoom(gameRoom);
+        getSession().setHostingAGameRoom(true);
+        getSession().setReady(true);
 
         redirectService.redirect((String) data);
     }
 
     public void finalizeGameDeletion(String redirectData) {
-        GameRoom gameRoom = sessionService.getSession().getCurrentGameRoom();
-        sessionService.getSession().setCurrentGameRoom(null);
+        GameRoom gameRoom = getCurrentGameRoom();
+        getSession().setCurrentGameRoom(null);
         GameRoom.gameRooms.remove(gameRoom);
-        sessionService.getSession().setHostingAGameRoom(false);
+        getSession().setHostingAGameRoom(false);
 
         redirectService.redirect(redirectData);
-    }
-
-    public Long getCurrentGameHostId() {
-        GameRoom gameRoom = sessionService.getSession().getCurrentGameRoom();
-        if (gameRoom != null) {
-            return gameRoom.getHostId();
-        }
-        return null;
-    }
-
-    public Integer getCurrentRoomCardCount() {
-        GameRoom gameRoom = sessionService.getSession().getCurrentGameRoom();
-        if (gameRoom == null) {
-            return null;
-        }
-
-        return gameRoom.getCardCount();
-    }
-
-    public Integer getCurrentRoomCapacity() {
-        GameRoom gameRoom = sessionService.getSession().getCurrentGameRoom();
-        if (gameRoom == null) {
-            return null;
-        }
-
-        return gameRoom.getCapacity();
-    }
-
-    public ObservableList<LobbyPlayer> getFilteredPlayers() {
-        GameRoom gameRoom = sessionService.getSession().getCurrentGameRoom();
-        if (gameRoom == null) {
-            return null;
-        }
-
-        return gameRoom.getPlayers().filtered(lobbyPlayer -> lobbyPlayer.getPlayerId() != getCurrentGameHostId());
-    }
-
-    public String getCurrentGameName() {
-        GameRoom gameRoom = sessionService.getSession().getCurrentGameRoom();
-        if (gameRoom == null) {
-            return null;
-        }
-
-        return gameRoom.getName();
     }
 
     public boolean areAllPlayersReady(List<LobbyPlayer> players) {
@@ -132,7 +89,59 @@ public class GameRoomModel {
         Updater.updateGameRoom(getCurrentGameRoom(), new LobbyUpdatePayload(data));
     }
 
+    private ClientSession getSession() {
+        return sessionService.getSession();
+    }
+
     private GameRoom getCurrentGameRoom() {
-        return sessionService.getSession().getCurrentGameRoom();
+        return getSession().getCurrentGameRoom();
+    }
+
+    private long getPlayerId() {
+        return getSession().getPlayerId();
+    }
+
+    public Long getCurrentGameHostId() {
+        GameRoom gameRoom = getCurrentGameRoom();
+        if (gameRoom != null) {
+            return gameRoom.getHostId();
+        }
+        return null;
+    }
+
+    public Integer getCurrentRoomCardCount() {
+        GameRoom gameRoom = getCurrentGameRoom();
+        if (gameRoom == null) {
+            return null;
+        }
+
+        return gameRoom.getCardCount();
+    }
+
+    public Integer getCurrentRoomCapacity() {
+        GameRoom gameRoom = getCurrentGameRoom();
+        if (gameRoom == null) {
+            return null;
+        }
+
+        return gameRoom.getCapacity();
+    }
+
+    public ObservableList<LobbyPlayer> getFilteredPlayers() {
+        GameRoom gameRoom = getCurrentGameRoom();
+        if (gameRoom == null) {
+            return null;
+        }
+
+        return gameRoom.getPlayers().filtered(lobbyPlayer -> lobbyPlayer.getPlayerId() != getCurrentGameHostId());
+    }
+
+    public String getCurrentGameName() {
+        GameRoom gameRoom = getCurrentGameRoom();
+        if (gameRoom == null) {
+            return null;
+        }
+
+        return gameRoom.getName();
     }
 }

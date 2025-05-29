@@ -1,34 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
 <GridPane fx:id="mainGridPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="750.0" prefWidth="750.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cz.vse.pexeso.controller.GameController">
     <columnConstraints>
-        <ColumnConstraints halignment="LEFT" hgrow="NEVER" />
+        <ColumnConstraints halignment="CENTER" hgrow="NEVER" />
         <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" />
-      <ColumnConstraints halignment="CENTER" hgrow="NEVER" minWidth="100.0" />
     </columnConstraints>
     <rowConstraints>
-        <RowConstraints valignment="TOP" vgrow="NEVER" />
-        <RowConstraints vgrow="SOMETIMES" />
-        <RowConstraints valignment="BOTTOM" vgrow="SOMETIMES" />
+        <RowConstraints valignment="CENTER" vgrow="SOMETIMES" />
     </rowConstraints>
-    <TableView fx:id="scoreboardTable" maxHeight="200.0" maxWidth="200.0">
-      <columns>
-          <TableColumn fx:id="playerColumn" editable="false" prefWidth="130.0" sortable="false" text="Player" />
-          <TableColumn fx:id="scoreColumn" editable="false" prefWidth="69.0" sortType="DESCENDING" text="Score" />
-      </columns>
-    </TableView>
-   <Label fx:id="titleLabel" GridPane.columnIndex="1">
-      <font>
-         <Font size="24.0" />
-      </font>
-   </Label>
-   <Label fx:id="turnLabel" GridPane.columnIndex="1" GridPane.rowIndex="2">
-      <font>
-         <Font size="24.0" />
-      </font>
-   </Label>
+    <VBox alignment="BOTTOM_CENTER" prefHeight="200.0" prefWidth="100.0">
+        <Button mnemonicParsing="false" onMouseClicked="#handleGiveUpClick" text="Give up">
+           <font>
+               <Font size="14.0" />
+           </font>
+           <VBox.margin>
+               <Insets bottom="25.0" />
+           </VBox.margin>
+        </Button>
+    </VBox>
+    <VBox alignment="TOP_CENTER">
+        <Label fx:id="titleLabel" text="title">
+           <font>
+               <Font size="24.0" />
+           </font>
+        </Label>
+        <TableView fx:id="scoreboardTable" maxHeight="150.0" maxWidth="200.0">
+          <columns>
+              <TableColumn fx:id="playerColumn" editable="false" prefWidth="125.0" sortable="false" text="Player" />
+              <TableColumn fx:id="scoreColumn" editable="false" prefWidth="73.0" sortType="DESCENDING" text="Score" />
+          </columns>
+        </TableView>
+        <Label fx:id="turnLabel" text="turn">
+           <font>
+               <Font size="24.0" />
+           </font>
+        </Label>
+    </VBox>
 </GridPane>

@@ -1,6 +1,5 @@
 package cz.vse.pexeso.model;
 
-import cz.vse.pexeso.common.message.payload.SendablePlayer;
 import cz.vse.pexeso.navigation.UIConstants;
 import cz.vse.pexeso.view.Board;
 import cz.vse.pexeso.view.GameCard;
@@ -14,8 +13,7 @@ public class Game {
     private long activePlayer;
     private final Set<GameCard> currentTurn = new HashSet<>();
     private final Map<Long, String> playerColors = new HashMap<>();
-    private final ObservableList<SendablePlayer> resultList = FXCollections.observableArrayList();
-    private SendablePlayer winningPlayer;
+    private final ObservableList<LobbyPlayer> resultList = FXCollections.observableArrayList();
 
     public Game() {
     }
@@ -37,16 +35,8 @@ public class Game {
         this.activePlayer = activePlayer;
     }
 
-    public ObservableList<SendablePlayer> getResultList() {
+    public ObservableList<LobbyPlayer> getResultList() {
         return resultList;
-    }
-
-    public SendablePlayer getWinningPlayer() {
-        return winningPlayer;
-    }
-
-    public void setWinningPlayer(SendablePlayer winningPlayer) {
-        this.winningPlayer = winningPlayer;
     }
 
     public Map<Long, String> getPlayerColors() {

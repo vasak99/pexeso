@@ -11,6 +11,7 @@ public final class UIConstants {
     public static final String GAME_ROOM_MANAGER_FXML = "/cz/vse/pexeso/fxml/lobby/gameRoomManager.fxml";
 
     public static final String GAME_FXML = "/cz/vse/pexeso/fxml/game/game.fxml";
+    public static final String GAME_RESULT_FXML = "/cz/vse/pexeso/fxml/game/result.fxml";
 
 
     public static final String DEFAULT_CARD_IMAGE = "/cz/vse/pexeso/fxml/game/defaultimage.png";
@@ -21,6 +22,10 @@ public final class UIConstants {
     public static final String GREEN_COLOR = "-fx-background-color: #baffc9;";
     public static final String BLUE_COLOR = "-fx-background-color: #bae1ff;";
     public static final String GRAY_COLOR = "-fx-background-color: #e6e6e6;";
+
+    public static final String GOLD_COLOR = "-fx-background-color: #ffd700;";
+    public static final String SILVER_COLOR = "-fx-background-color: #c0c0c0;";
+    public static final String BRONZE_COLOR = "-fx-background-color: #cd7f32;";
 
     public static List<String> getColors() {
         return new ArrayList<>(List.of(BLUE_COLOR, ORANGE_COLOR, RED_COLOR, GREEN_COLOR, YELLOW_COLOR));
