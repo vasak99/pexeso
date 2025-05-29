@@ -37,10 +37,12 @@ public final class Updater {
         if (gameRoom.getGame().getGameBoard() == null) {
             gameRoom.getGame().setGameBoard(new Board(gup.gameBoard));
         } else {
-            gameRoom.getGame().getGameBoard().setGameRoomString(gup.gameBoard);
+            gameRoom.getGame().getGameBoard().setGameBoardString(gup.gameBoard, gameRoom.getGame().getPlayerColors().get(gameRoom.getGame().getActivePlayer()));
         }
 
-        gameRoom.getGame().setActivePlayer(gup.activePlayer);
+        if (gameRoom.getGame().getActivePlayer() != gup.activePlayer) {
+            gameRoom.getGame().setActivePlayer(gup.activePlayer);
+        }
 
         updateGameRoomPlayers(gameRoom, gup.players);
     }

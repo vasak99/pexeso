@@ -72,7 +72,7 @@ public class LobbyModel {
     }
 
     public String getCurrentGameRoomId() {
-        GameRoom gameRoom = sessionService.getSession().getCurrentGameRoom();
+        GameRoom gameRoom = getCurrentGameRoom();
         if (gameRoom != null) {
             return gameRoom.getGameId();
         }

@@ -7,7 +7,7 @@ import cz.vse.pexeso.model.result.GameRoomResultHandler;
 import cz.vse.pexeso.model.result.GameRoomResultListener;
 import cz.vse.pexeso.navigation.Navigator;
 import cz.vse.pexeso.util.FormValidator;
-import cz.vse.pexeso.view.GameRoomUIHelper;
+import cz.vse.pexeso.view.helper.GameRoomUIHelper;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;

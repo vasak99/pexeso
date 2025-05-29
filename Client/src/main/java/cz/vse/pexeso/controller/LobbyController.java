@@ -6,7 +6,8 @@ import cz.vse.pexeso.model.model.LobbyModel;
 import cz.vse.pexeso.model.result.LobbyResultHandler;
 import cz.vse.pexeso.model.result.LobbyResultListener;
 import cz.vse.pexeso.navigation.Navigator;
-import cz.vse.pexeso.view.LobbyUIHelper;
+import cz.vse.pexeso.navigation.UIConstants;
+import cz.vse.pexeso.view.helper.LobbyUIHelper;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -82,7 +83,7 @@ public class LobbyController implements LobbyResultListener {
 
     @FXML
     private void handleReadyClick() {
-        editReadyButton(true, "Ready", "#d0ffc0");
+        editReadyButton(true, "Ready", UIConstants.GREEN_COLOR);
         lobbyModel.attemptReady();
     }
 
@@ -175,11 +176,11 @@ public class LobbyController implements LobbyResultListener {
         boolean isHost = lobbyModel.isHosting();
 
         if (currentRoomId == null) {
-            editReadyButton(true, "Not ready", "#ffc0c0");
+            editReadyButton(true, "Not ready", UIConstants.RED_COLOR);
         } else if (!isReady) {
             editReadyButton(false, null, null);
         } else if (isHost) {
-            editReadyButton(true, "Ready", "#d0ffc0");
+            editReadyButton(true, "Ready", UIConstants.GREEN_COLOR);
         }
     }
 
@@ -188,14 +189,14 @@ public class LobbyController implements LobbyResultListener {
         Platform.runLater(() -> manageRoomButton.setText(text));
     }
 
-    private void editReadyButton(boolean disabled, String text, String style) {
+    private void editReadyButton(boolean disabled, String text, String color) {
         readyButton.setDisable(disabled);
 
         if (text != null) {
             Platform.runLater(() -> readyButton.setText(text));
         }
-        if (style != null) {
-            Platform.runLater(() -> readyButton.setStyle("-fx-background-color:" + style + ";"));
+        if (color != null) {
+            Platform.runLater(() -> readyButton.setStyle(color));
         }
     }
 

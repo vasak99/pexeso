@@ -1,9 +1,10 @@
-package cz.vse.pexeso.view;
+package cz.vse.pexeso.view.helper;
 
 import cz.vse.pexeso.controller.LobbyController;
 import cz.vse.pexeso.model.GameRoom;
 import cz.vse.pexeso.model.model.LobbyModel;
 import cz.vse.pexeso.model.result.LobbyResultHandler;
+import cz.vse.pexeso.navigation.UIConstants;
 import cz.vse.pexeso.view.cell.GameRoomActionCell;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -85,7 +86,7 @@ public final class LobbyUIHelper {
             row.itemProperty().addListener((obs, oldItem, newItem) -> {
                 if (newItem != null && lobbyModel.getCurrentGameRoomId() != null) {
                     if (newItem.getGameId().equals(lobbyModel.getCurrentGameRoomId())) {
-                        row.setStyle("-fx-background-color: #e6e6e6;");
+                        row.setStyle(UIConstants.GRAY_COLOR);
                     } else {
                         row.setStyle("");
                     }

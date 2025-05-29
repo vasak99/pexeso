@@ -1,4 +1,4 @@
-package cz.vse.pexeso.view;
+package cz.vse.pexeso.view.helper;
 
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;

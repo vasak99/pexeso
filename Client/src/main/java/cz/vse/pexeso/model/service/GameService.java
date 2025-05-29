@@ -1,8 +1,8 @@
 package cz.vse.pexeso.model.service;
 
-import cz.vse.pexeso.view.GameCard;
 import cz.vse.pexeso.model.GameRoom;
 import cz.vse.pexeso.util.MessageBuilder;
+import cz.vse.pexeso.view.GameCard;
 
 public class GameService {
     private final ConnectionService connectionService;

@@ -9,3 +9,9 @@
 .table-row-cell:empty .table-cell {
     -fx-border-width: 0px;
 }
+
+.table-view .column-header {
+    -fx-padding: 5 10; /* top-bottom left-right */
+    -fx-font-size: 14px;
+    -fx-cell-size: 30px; /* indirectly affects height */
+}

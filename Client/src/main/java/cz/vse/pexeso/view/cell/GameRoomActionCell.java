@@ -3,6 +3,7 @@ package cz.vse.pexeso.view.cell;
 import cz.vse.pexeso.controller.LobbyController;
 import cz.vse.pexeso.model.GameRoom;
 import cz.vse.pexeso.model.model.LobbyModel;
+import cz.vse.pexeso.navigation.UIConstants;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableCell;
@@ -20,8 +21,8 @@ public class GameRoomActionCell extends TableCell<GameRoom, Void> {
 
         actionBox.setAlignment(Pos.CENTER);
 
-        joinButton.setStyle("-fx-background-color: #d0ffc0;");
-        leaveButton.setStyle("-fx-background-color: #ffc0c0;");
+        joinButton.setStyle(UIConstants.GREEN_COLOR);
+        leaveButton.setStyle(UIConstants.RED_COLOR);
 
         joinButton.setOnAction(event -> {
             GameRoom gameRoom = getTableView().getItems().get(getIndex());

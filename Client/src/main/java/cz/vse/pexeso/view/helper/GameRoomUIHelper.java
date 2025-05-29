@@ -1,4 +1,4 @@
-package cz.vse.pexeso.view;
+package cz.vse.pexeso.view.helper;
 
 import cz.vse.pexeso.common.environment.Variables;
 import cz.vse.pexeso.controller.GameRoomManagerController;
@@ -6,6 +6,7 @@ import cz.vse.pexeso.model.GameRoom;
 import cz.vse.pexeso.model.LobbyPlayer;
 import cz.vse.pexeso.model.model.GameRoomModel;
 import cz.vse.pexeso.model.result.GameRoomResultHandler;
+import cz.vse.pexeso.navigation.UIConstants;
 import cz.vse.pexeso.view.cell.PlayerActionCell;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyStringWrapper;
@@ -85,7 +86,7 @@ public final class GameRoomUIHelper {
             row.itemProperty().addListener((obs, oldItem, newItem) -> {
                 if (newItem != null && gameRoomModel.getCurrentGameHostId() != null) {
                     if (newItem.getPlayerId() == gameRoomModel.getCurrentGameHostId()) {
-                        row.setStyle("-fx-background-color: #e6e6e6;");
+                        row.setStyle(UIConstants.GRAY_COLOR);
                     } else {
                         row.setStyle("");
                     }

@@ -1,22 +1,23 @@
 package cz.vse.pexeso.model;
 
 import cz.vse.pexeso.common.message.payload.SendablePlayer;
+import cz.vse.pexeso.navigation.UIConstants;
 import cz.vse.pexeso.view.Board;
+import cz.vse.pexeso.view.GameCard;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+
+import java.util.*;
 
 public class Game {
     private Board gameBoard = null;
     private long activePlayer;
+    private final Set<GameCard> currentTurn = new HashSet<>();
+    private final Map<Long, String> playerColors = new HashMap<>();
     private final ObservableList<SendablePlayer> resultList = FXCollections.observableArrayList();
     private SendablePlayer winningPlayer;
 
     public Game() {
-    }
-
-    public Game(Board gameBoard, long activePlayer) {
-        this.gameBoard = gameBoard;
-        this.activePlayer = activePlayer;
     }
 
     public Board getGameBoard() {
@@ -32,6 +33,7 @@ public class Game {
     }
 
     public void setActivePlayer(long activePlayer) {
+        currentTurn.clear();
         this.activePlayer = activePlayer;
     }
 
@@ -45,5 +47,19 @@ public class Game {
 
     public void setWinningPlayer(SendablePlayer winningPlayer) {
         this.winningPlayer = winningPlayer;
+    }
+
+    public Map<Long, String> getPlayerColors() {
+        return playerColors;
+    }
+
+    public Set<GameCard> getCurrentTurn() {
+        return currentTurn;
+    }
+
+    public void setupPlayerColors(List<LobbyPlayer> players) {
+        for (int i = 0; i < players.size(); i++) {
+            playerColors.put(players.get(i).getPlayerId(), UIConstants.getColors().get(i));
+        }
     }
 }

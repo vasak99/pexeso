@@ -1,6 +1,7 @@
 package cz.vse.pexeso.view;
 
 import cz.vse.pexeso.navigation.UIConstants;
+import javafx.application.Platform;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -8,22 +9,38 @@ import javafx.scene.image.ImageView;
 public class GameCard extends Button {
     private final int row;
     private final int column;
-    private String imageUrl;
-    private boolean isRevealed;
-    private boolean isCompleted = false;
+    private final String id;
+    private String imageName;
+    private Status status;
 
-    public GameCard(int row, int column, String imageUrl) {
-        //setup dimensions, color, behaviour etc.
-
-
+    public GameCard(Status status, int row, int column) {
+        setup();
+        this.status = status;
         this.row = row;
         this.column = column;
-        this.imageUrl = imageUrl;
-        if (imageUrl == null) {
+        this.id = "" + this.row + this.column;
+        this.imageName = "";
+
+        if (this.status == Status.HIDDEN) {
             hide();
-        } else {
-            reveal(imageUrl);
         }
+    }
+
+    public GameCard(Status status, int row, int column, String imageName) {
+        setup();
+        this.status = status;
+        this.row = row;
+        this.column = column;
+        this.id = "" + this.row + this.column;
+        this.imageName = imageName;
+
+        reveal(this.imageName);
+    }
+
+    private void setup() {
+        //setup dimensions, color, behaviour etc.
+        setMinSize(100, 100);
+        setMaxSize(100, 100);
     }
 
     public int getRow() {
@@ -34,30 +51,45 @@ public class GameCard extends Button {
         return column;
     }
 
-    public boolean isRevealed() {
-        return isRevealed;
+    public Status getStatus() {
+        return status;
     }
 
-    public boolean isCompleted() {
-        return isCompleted;
+    public String getImageName() {
+        return imageName;
     }
 
-    public void reveal(String imageUrl) {
-        isRevealed = true;
-        setGraphic(new ImageView(imageUrl));
+    public String getCardId() {
+        return id;
+    }
+
+    public void reveal(String imageName) {
+        flip(Status.REVEALED, imageName);
     }
 
     public void hide() {
-        isRevealed = false;
-        Image defaultImage = new Image(UIConstants.DEFAULT_CARD_IMAGE);
-        ImageView defaultImageView = new ImageView(defaultImage);
-        defaultImageView.setFitWidth(75);
-        defaultImageView.setPreserveRatio(true);
-        setGraphic(defaultImageView);
+        flip(Status.HIDDEN, UIConstants.DEFAULT_CARD_IMAGE);
     }
 
-    public void markCompleted() {
-        isCompleted = true;
-        //mark player's color
+    private void flip(Status status, String imageName) {
+        this.status = status;
+        this.imageName = imageName;
+
+        Image image = new Image(imageName, 100, 100, true, true);
+        ImageView imageView = new ImageView(image);
+
+        Platform.runLater(() -> setGraphic(imageView));
+    }
+
+    public void markCompleted(String color) {
+        this.status = Status.COMPLETED;
+        setStyle(color);
+    }
+
+    public enum Status {
+        NULL,
+        HIDDEN,
+        REVEALED,
+        COMPLETED
     }
 }
