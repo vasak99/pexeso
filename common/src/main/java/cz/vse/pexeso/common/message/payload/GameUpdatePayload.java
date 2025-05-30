@@ -8,12 +8,16 @@ public class GameUpdatePayload implements MessagePayload {
 
     public String gameBoard;
     public List<SendablePlayer> players;
-    public String activePlayer;
+    public Long activePlayer;
 
-    public GameUpdatePayload(String gameBoard, List<SendablePlayer> players, String activePlayer) {
+    public GameUpdatePayload(String gameBoard, List<SendablePlayer> players, Long activePlayer) {
         this.gameBoard = gameBoard;
         this.players = players;
         this.activePlayer = activePlayer;
+    }
+
+    //empty constructor required by jackson
+    public GameUpdatePayload() {
     }
 
     public GameUpdatePayload(String data) {

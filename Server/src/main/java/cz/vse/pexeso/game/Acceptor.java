@@ -23,25 +23,26 @@ public class Acceptor implements Runnable, Observer {
 
     private String gameId;
     private ServerSocket serverSocket;
-    private Map<String, Player> players;
+    private Map<Long, Player> players;
     private Set<Connection> pendingConnections;
-    private int capacity;
     private boolean keepAlive;
     private Observer obs;
+    private Observer thisObs = this;
     private DatabaseController dc;
 
-    public Acceptor(ServerSocket serverSocket, Map<String, Player> players, int capacity, DatabaseController dc, Observer obs) {
+    private Game game;
+
+    public Acceptor(ServerSocket serverSocket, Map<Long, Player> players, DatabaseController dc, Observer obs, Game game) {
         this.serverSocket = serverSocket;
         this.players = players;
-        this.capacity = capacity;
         this.obs = obs;
         this.pendingConnections = new HashSet<>();
         this.dc = dc;
+        this.game = game;
     }
 
     public void run() {
         this.keepAlive = true;
-        synchronized(players) {
             synchronized(this.serverSocket) {
                 while(keepAlive) {
                     Socket socket;
@@ -55,10 +56,9 @@ public class Acceptor implements Runnable, Observer {
                     Connection conn = new Connection(socket);
 
                     this.pendingConnections.add(conn);
-                    conn.subscribe(this);
-
+                    conn.subscribe(thisObs);
+                    new Thread(conn).start();
                     conn.sendMessage(MessageFactory.getIdentityRequest().toSendable());
-                }
             }
         }
     }
@@ -87,7 +87,7 @@ public class Acceptor implements Runnable, Observer {
             if(keepAlive) {
                 switch (msg.getType()) {
                     case MessageType.IDENTITY:
-                        this.processIdentity(conn, msg.getData());
+                        this.processIdentity(conn, Long.parseLong(msg.getData()));
                         break;
                     default:
                         conn.sendMessage(MessageFactory.getError("Unexpected message type").toSendable());
@@ -99,12 +99,15 @@ public class Acceptor implements Runnable, Observer {
         }
     }
 
-    private void processIdentity(Connection conn, String playerId) {
+    private void processIdentity(Connection conn, long playerId) {
         Player player = new Player(playerId, conn, this.dc);
         synchronized(players) {
-            if(this.players.size() < this.capacity) {
+            if(this.players.size() < game.getPlayersCapacity()) {
                 this.players.put(playerId, player);
+                player.getConnection().subscribe(obs);
+                player.getConnection().unsubscribe(thisObs);
                 this.pendingConnections.remove(conn);
+                game.sendToAll(MessageFactory.getLobbyMessage(game.getLobbyData()));
             }
         }
     }
