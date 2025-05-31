@@ -8,4 +8,8 @@ public interface GameResultListener {
     void onGameResult(String data);
 
     void onGameError(String errorDescription);
+
+    void onRedirect(String redirectData);
+
+    void onGameRoomUpdate(String data);
 }

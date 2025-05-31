@@ -8,6 +8,7 @@ import cz.vse.pexeso.model.service.GameRoomService;
 import cz.vse.pexeso.model.service.SessionService;
 import cz.vse.pexeso.network.RedirectService;
 import cz.vse.pexeso.util.Updater;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.util.List;
@@ -129,11 +130,12 @@ public class GameRoomModel {
 
     public ObservableList<LobbyPlayer> getFilteredPlayers() {
         GameRoom gameRoom = getCurrentGameRoom();
-        if (gameRoom == null) {
-            return null;
+        if (gameRoom == null || gameRoom.getPlayers() == null) {
+            return FXCollections.observableArrayList();
         }
 
-        return gameRoom.getPlayers().filtered(lobbyPlayer -> lobbyPlayer.getPlayerId() != getCurrentGameHostId());
+        return gameRoom.getPlayers()
+                .filtered(lobbyPlayer -> lobbyPlayer.getPlayerId() != getCurrentGameHostId());
     }
 
     public String getCurrentGameName() {

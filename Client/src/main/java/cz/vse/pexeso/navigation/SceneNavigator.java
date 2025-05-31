@@ -1,5 +1,6 @@
 package cz.vse.pexeso.navigation;
 
+import cz.vse.pexeso.util.Strings;
 import javafx.stage.Stage;
 
 public class SceneNavigator implements Navigator {
@@ -26,17 +27,17 @@ public class SceneNavigator implements Navigator {
 
     @Override
     public Stage openGameRoomCreator() {
-        return sceneManager.openWindow(UIConstants.GAME_ROOM_FORM_FXML, "Create game room");
+        return sceneManager.openWindow(UIConstants.GAME_ROOM_FORM_FXML, Strings.CREATE_ROOM);
     }
 
     @Override
     public Stage openGameRoomManager() {
-        return sceneManager.openWindow(UIConstants.GAME_ROOM_MANAGER_FXML, "Manage game room");
+        return sceneManager.openWindow(UIConstants.GAME_ROOM_MANAGER_FXML, Strings.MANAGE_ROOM);
     }
 
     @Override
     public void openGameResultWindow() {
-        sceneManager.openWindow(UIConstants.GAME_RESULT_FXML, "Game result");
+        sceneManager.openWindow(UIConstants.GAME_RESULT_FXML, Strings.RESULT);
     }
 
     @Override

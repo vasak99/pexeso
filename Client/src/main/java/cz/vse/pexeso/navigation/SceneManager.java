@@ -2,6 +2,7 @@ package cz.vse.pexeso.navigation;
 
 import cz.vse.pexeso.controller.*;
 import cz.vse.pexeso.di.Injector;
+import cz.vse.pexeso.util.Strings;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -70,7 +71,7 @@ public class SceneManager {
 
         Scene scene = new Scene(loader.load());
 
-        URL source = getClass().getResource("/cz/vse/pexeso/style.css");
+        URL source = getClass().getResource(UIConstants.STYLE);
         if (source != null) {
             scene.getStylesheets().add(source.toExternalForm());
         }
@@ -109,14 +110,14 @@ public class SceneManager {
 
     public void showErrorAlert(String text) {
         Alert errorAlert = new Alert(Alert.AlertType.ERROR);
-        errorAlert.setTitle("Error");
+        errorAlert.setTitle(Strings.ERR);
         errorAlert.setHeaderText(text);
         errorAlert.showAndWait();
     }
 
     public boolean showConfirmationAlert(String text) {
         Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmationAlert.setTitle("Confirmation");
+        confirmationAlert.setTitle(Strings.CONF);
         confirmationAlert.setHeaderText(text);
 
         openedConfirmationAlert = confirmationAlert;

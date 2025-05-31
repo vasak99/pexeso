@@ -16,6 +16,8 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
+import java.util.List;
+
 public final class GameUIHelper {
     private GameUIHelper() {
     }
@@ -24,16 +26,19 @@ public final class GameUIHelper {
                              GameModel gameModel,
                              TableView<LobbyPlayer> scoreboardTable,
                              TableColumn<LobbyPlayer, String> playerColumn,
-                             TableColumn<LobbyPlayer, Integer> scoreColumn,
-                             Label titleLabel) {
+                             TableColumn<LobbyPlayer, Integer> scoreColumn) {
         setupGameBoard(mainGridPane, gameModel.getGameBoard());
         setupOnClick(gameModel);
         setupScoreboard(scoreboardTable, playerColumn, scoreColumn, gameModel);
-        titleLabel.setText(gameModel.getSession().getPlayerName() + " " + gameModel.getPlayerId());
     }
 
-    private static void setupGameBoard(GridPane gameBoardGridPane, Board gameBoard) {
-        gameBoardGridPane.add(gameBoard, 1, 0);
+    private static void setupGameBoard(GridPane mainGridPane, Board gameBoard) {
+        mainGridPane.add(gameBoard, 1, 0);
+    }
+
+    public static void setMainGridPaneSize(GridPane mainGridPane, Board gameBoard, TableView<LobbyPlayer> scoreboardTable) {
+        mainGridPane.setPrefHeight(gameBoard.getNumberOfRows() * (Board.gap + GameCard.size));
+        mainGridPane.setPrefWidth(scoreboardTable.getMaxWidth() + gameBoard.getNumberOfColumns() * (Board.gap + GameCard.size));
     }
 
     private static void setupScoreboard(TableView<LobbyPlayer> scoreboardTable, TableColumn<LobbyPlayer, String> playerColumn, TableColumn<LobbyPlayer, Integer> scoreColumn, GameModel gameModel) {
@@ -45,7 +50,7 @@ public final class GameUIHelper {
             TableRow<LobbyPlayer> row = new TableRow<>();
 
             row.itemProperty().addListener((obs, oldItem, newItem) -> {
-                if (newItem != null && gameModel.getPlayerColors() != null) {
+                if (newItem != null && gameModel.getRoom() != null && gameModel.getPlayerColors() != null) {
                     if (gameModel.getPlayerColors().get(newItem.getPlayerId()) != null) {
                         row.setStyle(gameModel.getPlayerColors().get(newItem.getPlayerId()));
                     }
@@ -65,23 +70,29 @@ public final class GameUIHelper {
         }
     }
 
-    public static void addPlayerRow(VBox vBox, LobbyPlayer lobbyPlayer) {
-        int index = vBox.getChildren().size();
-        Label rank = new Label((index + 1) + ".");
-        Label name = new Label(lobbyPlayer.getUsername());
-        Label score = new Label(String.valueOf(lobbyPlayer.getScore()));
+    public static void setupResult(VBox vBox, List<LobbyPlayer> resultList) {
+        int rank = 1;
+        for (int i = 0; i < resultList.size(); i++) {
+            if (i != 0 && resultList.get(i).getScore() != resultList.get(i - 1).getScore()) {
+                rank++;
+            }
 
-        HBox row = new HBox(30, rank, name, score);
-        row.setPadding(new Insets(8));
-        row.setStyle("-fx-font-size: 16px; -fx-background-radius: 8;");
-        row.setAlignment(Pos.CENTER_LEFT);
+            Label rankLabel = new Label(rank + ".");
+            Label name = new Label(resultList.get(i).getUsername());
+            Label score = new Label(String.valueOf(resultList.get(i).getScore()));
 
-        switch (index) {
-            case 0 -> row.setStyle(row.getStyle() + UIConstants.GOLD_COLOR + "-fx-font-weight: bold;");
-            case 1 -> row.setStyle(row.getStyle() + UIConstants.SILVER_COLOR + "-fx-font-weight: bold;");
-            case 2 -> row.setStyle(row.getStyle() + UIConstants.BRONZE_COLOR + "-fx-font-weight: bold;");
+            HBox row = new HBox(30, rankLabel, name, score);
+            row.setPadding(new Insets(8));
+            row.setStyle("-fx-font-size: 16px;");
+            row.setAlignment(Pos.CENTER_LEFT);
+
+            switch (rank) {
+                case 1 -> row.setStyle(row.getStyle() + UIConstants.GOLD_COLOR + "-fx-font-weight: bold;");
+                case 2 -> row.setStyle(row.getStyle() + UIConstants.SILVER_COLOR + "-fx-font-weight: bold;");
+                case 3 -> row.setStyle(row.getStyle() + UIConstants.BRONZE_COLOR + "-fx-font-weight: bold;");
+            }
+
+            vBox.getChildren().add(row);
         }
-
-        vBox.getChildren().add(row);
     }
 }

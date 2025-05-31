@@ -8,6 +8,7 @@ import cz.vse.pexeso.model.result.GameRoomResultHandler;
 import cz.vse.pexeso.model.result.GameRoomResultListener;
 import cz.vse.pexeso.navigation.Navigator;
 import cz.vse.pexeso.util.FormValidator;
+import cz.vse.pexeso.util.Strings;
 import cz.vse.pexeso.view.helper.GameRoomUIHelper;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -71,7 +72,7 @@ public class GameRoomManagerController implements GameRoomResultListener {
 
     @FXML
     private void handleSaveClick() {
-        String warning = FormValidator.validateGameRoomForm(nameField.getText(), boardSizeChoiceBox.getValue(), customBoardSizeField.getText());
+        String warning = FormValidator.validateGameRoomForm(nameField.getText().trim(), boardSizeChoiceBox.getValue(), customBoardSizeField.getText().trim());
         if (warning != null) {
             editWarningLabel(warning);
             return;
@@ -82,7 +83,7 @@ public class GameRoomManagerController implements GameRoomResultListener {
         log.info("Editing game room");
         lastAction = LastAction.EDIT;
         if (boardSizeChoiceBox.getValue() == GameRoom.BoardSize.CUSTOM) {
-            gameRoomModel.attemptEditGame(nameField.getText().trim(), (int) capacitySlider.getValue(), Integer.parseInt(customBoardSizeField.getText()));
+            gameRoomModel.attemptEditGame(nameField.getText().trim(), (int) capacitySlider.getValue(), Integer.parseInt(customBoardSizeField.getText().trim()));
         } else {
             gameRoomModel.attemptEditGame(nameField.getText().trim(), (int) capacitySlider.getValue(), boardSizeChoiceBox.getValue().value);
         }
@@ -90,7 +91,7 @@ public class GameRoomManagerController implements GameRoomResultListener {
 
     @FXML
     private void handleDeleteClick() {
-        if (navigator.showConfirmation("Are you sure you want to delete this game room?")) {
+        if (navigator.showConfirmation(Strings.DELETE_ROOM_CONFIRMATION)) {
             lastAction = LastAction.DELETE;
             gameRoomModel.attemptDeleteGame();
         }
@@ -103,7 +104,7 @@ public class GameRoomManagerController implements GameRoomResultListener {
     }
 
     public void kickPlayer(LobbyPlayer lobbyPlayer) {
-        if (navigator.showConfirmation("Are you sure you want to kick " + lobbyPlayer.getUsername() + "?")) {
+        if (navigator.showConfirmation(String.format(Strings.KICK_PLAYER_CONFIRMATION, lobbyPlayer.getUsername()))) {
             lastAction = LastAction.KICK;
             gameRoomModel.attemptKickPlayer(lobbyPlayer);
         }
@@ -148,15 +149,12 @@ public class GameRoomManagerController implements GameRoomResultListener {
 
     private void deleteGameSuccess(String redirectData) {
         gameRoomModel.finalizeGameDeletion(redirectData);
+        resultHandler.unregister();
         Platform.runLater(navigator::closeWindow);
     }
 
     @FXML
     private void handleCloseClick() {
-        closeWindow();
-    }
-
-    private void closeWindow() {
         resultHandler.unregister();
         Platform.runLater(navigator::closeWindow);
     }

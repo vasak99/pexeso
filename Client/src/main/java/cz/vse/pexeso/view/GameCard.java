@@ -15,6 +15,7 @@ public class GameCard extends Button {
     private final int column;
     private String imageName;
     private Status status;
+    public static final int size = 100;
 
     public GameCard(Status status, int row, int column) {
         setup();
@@ -40,8 +41,8 @@ public class GameCard extends Button {
 
     private void setup() {
         //setup dimensions, color, behaviour etc.
-        setMinSize(100, 100);
-        setMaxSize(100, 100);
+        setMinSize(size, size);
+        setMaxSize(size, size);
     }
 
     public int getRow() {
@@ -72,7 +73,7 @@ public class GameCard extends Button {
         this.status = status;
         this.imageName = imageName;
 
-        Image image = imageCache.computeIfAbsent(imageName, name -> new Image(name, 95, 95, true, true));
+        Image image = imageCache.computeIfAbsent(imageName, name -> new Image(name, size * 0.95, size * 0.95, true, true));
         ImageView imageView = new ImageView(image);
 
         Platform.runLater(() -> setGraphic(imageView));

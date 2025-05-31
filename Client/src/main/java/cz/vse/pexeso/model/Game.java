@@ -3,8 +3,6 @@ package cz.vse.pexeso.model;
 import cz.vse.pexeso.navigation.UIConstants;
 import cz.vse.pexeso.view.Board;
 import cz.vse.pexeso.view.GameCard;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 
 import java.util.*;
 
@@ -13,7 +11,7 @@ public class Game {
     private long activePlayer;
     private final Set<GameCard> currentTurn = new HashSet<>();
     private final Map<Long, String> playerColors = new HashMap<>();
-    private final ObservableList<LobbyPlayer> resultList = FXCollections.observableArrayList();
+    private final List<LobbyPlayer> resultList = new ArrayList<>();
 
     public Game() {
     }
@@ -31,11 +29,10 @@ public class Game {
     }
 
     public void setActivePlayer(long activePlayer) {
-        currentTurn.clear();
         this.activePlayer = activePlayer;
     }
 
-    public ObservableList<LobbyPlayer> getResultList() {
+    public List<LobbyPlayer> getResultList() {
         return resultList;
     }
 

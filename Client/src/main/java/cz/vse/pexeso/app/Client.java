@@ -3,6 +3,7 @@ package cz.vse.pexeso.app;
 import cz.vse.pexeso.di.Injector;
 import cz.vse.pexeso.navigation.SceneManager;
 import cz.vse.pexeso.navigation.UIConstants;
+import cz.vse.pexeso.util.Strings;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
@@ -25,7 +26,7 @@ public class Client extends Application {
         sceneManager.setStage(primaryStage);
 
         sceneManager.switchScene(UIConstants.AUTH_FXML);
-        primaryStage.setTitle("Pexeso");
+        primaryStage.setTitle(Strings.GAME_TITLE);
         primaryStage.show();
     }
 

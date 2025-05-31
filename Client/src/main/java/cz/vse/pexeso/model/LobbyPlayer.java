@@ -1,10 +1,12 @@
 package cz.vse.pexeso.model;
 
+import cz.vse.pexeso.util.Strings;
+
 public class LobbyPlayer {
     private long playerId;
-    private String username;
+    private final String username;
     private PlayerStatus status;
-    private int score;
+    private final int score;
 
     public LobbyPlayer(long playerId, String username, LobbyPlayer.PlayerStatus status, int score) {
         this.playerId = playerId;
@@ -35,8 +37,8 @@ public class LobbyPlayer {
     }
 
     public enum PlayerStatus {
-        READY("Ready"),
-        NOT_READY("Not ready");
+        READY(Strings.READY),
+        NOT_READY(Strings.NOT_READY);
 
         private final String value;
 

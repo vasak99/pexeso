@@ -1,5 +1,6 @@
 package cz.vse.pexeso.model;
 
+import cz.vse.pexeso.util.Strings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -7,13 +8,14 @@ public class GameRoom {
     public static final ObservableList<GameRoom> gameRooms = FXCollections.observableArrayList();
 
     private GameStatus status = GameStatus.WAITING_FOR_PLAYERS;
-    private String gameId;
+    private final String gameId;
     private String name;
     private long hostId;
     private String hostName;
     private int capacity;
     private int cardCount;
     private final ObservableList<LobbyPlayer> players = FXCollections.observableArrayList();
+    private boolean inProgress = false;
 
     private Game game;
 
@@ -130,9 +132,17 @@ public class GameRoom {
         this.game = game;
     }
 
+    public void setInProgress(boolean b) {
+        this.inProgress = b;
+    }
+
+    public boolean isInProgress() {
+        return inProgress;
+    }
+
     public enum GameStatus {
-        WAITING_FOR_PLAYERS("Waiting for players"),
-        IN_PROGRESS("In progress");
+        WAITING_FOR_PLAYERS(Strings.WAITING_FOR_PLAYERS),
+        IN_PROGRESS(Strings.IN_PROGRESS);
 
         private final String value;
 
@@ -176,7 +186,7 @@ public class GameRoom {
 
         public static String returnDisplayText(int value) {
             BoardSize boardSize = fromValue(value);
-            return boardSize + "(" + value + ")";
+            return String.format("%s(%d)", boardSize, value);
         }
     }
 }

@@ -58,6 +58,7 @@ public class MessageHandler implements Observable {
 
         notifyObservers(MessageTypeClient.GAME_ROOM_SUCCESS, redirectData);
         notifyObservers(MessageTypeClient.LOBBY_UI_UPDATE);
+        notifyObservers(MessageTypeClient.REDIRECT, redirectData);
     }
 
     private void handlePlayerUpdate(String data) {

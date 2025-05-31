@@ -66,7 +66,7 @@ public class LobbyModel {
 
     public void initializeGame(String data) {
         getCurrentGameRoom().setGame(new Game());
-        Updater.updateGame(getCurrentGameRoom(), new GameUpdatePayload(data));
+        Updater.updateGame(getCurrentGameRoom(), new GameUpdatePayload(data), null);
     }
 
     public ClientSession getSession() {
@@ -99,5 +99,9 @@ public class LobbyModel {
 
     public boolean isHost(GameRoom gameRoom) {
         return getSession().getPlayerId() == gameRoom.getHostId();
+    }
+
+    public void setInProgress(boolean b) {
+        getCurrentGameRoom().setInProgress(b);
     }
 }

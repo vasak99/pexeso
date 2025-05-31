@@ -1,5 +1,6 @@
 package cz.vse.pexeso.view.helper;
 
+import cz.vse.pexeso.util.Strings;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
@@ -13,11 +14,11 @@ public final class AuthUIHelper {
                                      PasswordField confirmPasswordField,
                                      Button actionButton,
                                      Label linkLabel) {
-        titleLabel.setText("Log in");
+        titleLabel.setText(Strings.LOG_IN);
         confirmPasswordLabel.setVisible(false);
         confirmPasswordField.setVisible(false);
-        actionButton.setText("Log in");
-        linkLabel.setText("Don't have an account yet? Register here!");
+        actionButton.setText(Strings.LOG_IN);
+        linkLabel.setText(Strings.REGISTER_LINK);
     }
 
     public static void switchToRegister(Label titleLabel,
@@ -25,10 +26,10 @@ public final class AuthUIHelper {
                                         PasswordField confirmPasswordField,
                                         Button actionButton,
                                         Label linkLabel) {
-        titleLabel.setText("Register");
+        titleLabel.setText(Strings.REGISTER);
         confirmPasswordLabel.setVisible(true);
         confirmPasswordField.setVisible(true);
-        actionButton.setText("Register");
-        linkLabel.setText("Already have an account? Log in here!");
+        actionButton.setText(Strings.REGISTER);
+        linkLabel.setText(Strings.LOGIN_LINK);
     }
 }

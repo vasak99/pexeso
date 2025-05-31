@@ -23,5 +23,5 @@ public enum MessageTypeClient {
 
     GAME_UPDATE,
 
-    GAME_RESULT
+    REDIRECT, GAME_RESULT
 }

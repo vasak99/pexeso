@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class UIConstants {
+    public static final String STYLE = "/cz/vse/pexeso/style.css";
+
     public static final String AUTH_FXML = "/cz/vse/pexeso/fxml/auth/auth.fxml";
 
     public static final String LOBBY_FXML = "/cz/vse/pexeso/fxml/lobby/lobby.fxml";

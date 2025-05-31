@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
@@ -14,7 +15,7 @@
         <RowConstraints valignment="CENTER" vgrow="SOMETIMES" />
         <RowConstraints maxHeight="100.0" valignment="CENTER" vgrow="SOMETIMES" />
     </rowConstraints>
-    <VBox fx:id="vBox" alignment="TOP_CENTER" spacing="10" GridPane.columnSpan="2147483647" GridPane.rowIndex="1" />
+    <VBox fx:id="vBox" alignment="CENTER" maxWidth="200.0" GridPane.columnSpan="2147483647" GridPane.rowIndex="1" />
     <HBox alignment="CENTER" spacing="20" GridPane.rowIndex="2">
         <Button onMouseClicked="#handleExitAppClick" text="Exit app">
          <font>
@@ -27,5 +28,8 @@
         <Font size="14.0" />
         </font>
     </Button>
-    <Label style="-fx-font-size: 28px;" text="Game Results" GridPane.columnSpan="2147483647" />
+    <Label style="-fx-font-size: 28px;" text="Game Results" GridPane.columnSpan="2147483647">
+      <GridPane.margin>
+         <Insets top="5.0" />
+      </GridPane.margin></Label>
 </GridPane>

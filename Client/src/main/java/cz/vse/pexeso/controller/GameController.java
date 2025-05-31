@@ -1,11 +1,13 @@
 package cz.vse.pexeso.controller;
 
 import cz.vse.pexeso.di.Injector;
+import cz.vse.pexeso.model.GameRoom;
 import cz.vse.pexeso.model.LobbyPlayer;
 import cz.vse.pexeso.model.model.GameModel;
 import cz.vse.pexeso.model.result.GameResultHandler;
 import cz.vse.pexeso.model.result.GameResultListener;
 import cz.vse.pexeso.navigation.Navigator;
+import cz.vse.pexeso.util.Strings;
 import cz.vse.pexeso.view.helper.GameUIHelper;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -24,8 +26,6 @@ public class GameController implements GameResultListener {
     private final GameModel gameModel;
 
     private final GameResultHandler resultHandler;
-    @FXML
-    private Label titleLabel;
     @FXML
     private TableView<LobbyPlayer> scoreboardTable;
     @FXML
@@ -47,7 +47,7 @@ public class GameController implements GameResultListener {
     private void initialize() {
         resultHandler.register();
         gameModel.getGame().setupPlayerColors(gameModel.getPlayers());
-        GameUIHelper.setup(mainGridPane, gameModel, scoreboardTable, playerColumn, scoreColumn, titleLabel);
+        GameUIHelper.setup(mainGridPane, gameModel, scoreboardTable, playerColumn, scoreColumn);
         updateUI();
         log.info("GameController initialized");
     }
@@ -64,16 +64,21 @@ public class GameController implements GameResultListener {
     }
 
     private void updateUI() {
+        if (gameModel.getGame() == null) {
+            return;
+        }
+
         Platform.runLater(() -> {
             if (gameModel.isPlayersTurn()) {
-                turnLabel.setText("Your turn");
+                turnLabel.setText(Strings.YOUR_TURN);
             } else {
-                turnLabel.setText("Opponent's turn");
+                turnLabel.setText(Strings.OPP_TURN);
             }
         });
 
         scoreboardTable.setItems(gameModel.getPlayers());
         scoreboardTable.refresh();
+        GameUIHelper.setMainGridPaneSize(mainGridPane, gameModel.getGameBoard(), scoreboardTable);
 
         scoreColumn.setSortType(TableColumn.SortType.DESCENDING);
 
@@ -86,6 +91,8 @@ public class GameController implements GameResultListener {
 
     @Override
     public void onGameResult(String data) {
+        mainGridPane.setDisable(true);
+        gameModel.setInProgress(false);
         gameModel.setResult(data);
         Platform.runLater(navigator::openGameResultWindow);
     }
@@ -95,9 +102,30 @@ public class GameController implements GameResultListener {
         Platform.runLater(() -> navigator.showError(errorDescription));
     }
 
+    @Override
+    public void onRedirect(String redirectData) {
+        resultHandler.unregister();
+        gameModel.redirect(redirectData);
+        gameModel.getSession().setCurrentGameRoom(null);
+        gameModel.getSession().setHostingAGameRoom(false);
+        gameModel.getSession().setReady(false);
+        if (gameModel.isRequestedToGiveUp()) {
+            gameModel.setRequestedToGiveUp(false);
+            Platform.runLater(navigator::goToLobby);
+        } else {
+            GameRoom gameRoom = gameModel.getSession().getCurrentGameRoom();
+            GameRoom.gameRooms.remove(gameRoom);
+        }
+    }
+
+    @Override
+    public void onGameRoomUpdate(String data) {
+        gameModel.updateGameRooms(data);
+    }
+
     @FXML
     private void handleGiveUpClick() {
-        if (navigator.showConfirmation("Are you sure you want to give up? You won't be able to rejoin.")) {
+        if (navigator.showConfirmation(Strings.GIVE_UP_CONFIRMATION)) {
             gameModel.attemptGiveUp();
         }
     }

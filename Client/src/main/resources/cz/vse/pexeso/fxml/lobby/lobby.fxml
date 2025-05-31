@@ -26,7 +26,7 @@
                 <TableColumn fx:id="hostNameColumn" editable="false" prefWidth="130.0" resizable="false" text="Host" />
                 <TableColumn fx:id="boardSizeColumn" editable="false" prefWidth="105.0" resizable="false" text="Board size" />
                 <TableColumn fx:id="roomCapacityColumn" editable="false" minWidth="0.0" prefWidth="110.0" resizable="false" text="Capacity" />
-                <TableColumn fx:id="actionsColumn" editable="false" minWidth="0.0" prefWidth="120.0" resizable="false" text="Action" />
+                <TableColumn fx:id="actionsColumn" editable="false" minWidth="0.0" prefWidth="124.0" resizable="false" text="Action" />
             </columns>
         </TableView>
     </VBox>

@@ -13,26 +13,11 @@
     <rowConstraints>
         <RowConstraints valignment="CENTER" vgrow="SOMETIMES" />
     </rowConstraints>
-    <VBox alignment="BOTTOM_CENTER" prefHeight="200.0" prefWidth="100.0">
-        <Button mnemonicParsing="false" onMouseClicked="#handleGiveUpClick" text="Give up">
-           <font>
-               <Font size="14.0" />
-           </font>
-           <VBox.margin>
-               <Insets bottom="25.0" />
-           </VBox.margin>
-        </Button>
-    </VBox>
     <VBox alignment="TOP_CENTER">
-        <Label fx:id="titleLabel" text="title">
-           <font>
-               <Font size="24.0" />
-           </font>
-        </Label>
         <TableView fx:id="scoreboardTable" maxHeight="150.0" maxWidth="200.0">
           <columns>
               <TableColumn fx:id="playerColumn" editable="false" prefWidth="125.0" sortable="false" text="Player" />
-              <TableColumn fx:id="scoreColumn" editable="false" prefWidth="73.0" sortType="DESCENDING" text="Score" />
+              <TableColumn fx:id="scoreColumn" editable="false" prefWidth="74.0" sortType="DESCENDING" text="Score" />
           </columns>
         </TableView>
         <Label fx:id="turnLabel" text="turn">
@@ -40,5 +25,13 @@
                <Font size="24.0" />
            </font>
         </Label>
+        <Button mnemonicParsing="false" onMouseClicked="#handleGiveUpClick" text="Give up">
+           <font>
+               <Font size="14.0" />
+           </font>
+           <VBox.margin>
+               <Insets top="25.0" />
+           </VBox.margin>
+        </Button>
     </VBox>
 </GridPane>

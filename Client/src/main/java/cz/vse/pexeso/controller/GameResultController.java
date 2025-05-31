@@ -1,12 +1,12 @@
 package cz.vse.pexeso.controller;
 
-import cz.vse.pexeso.model.LobbyPlayer;
 import cz.vse.pexeso.model.model.GameModel;
 import cz.vse.pexeso.navigation.Navigator;
 import cz.vse.pexeso.view.helper.GameUIHelper;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 public class GameResultController {
     private final Navigator navigator;
@@ -22,14 +22,16 @@ public class GameResultController {
 
     @FXML
     private void initialize() {
-        for (LobbyPlayer lobbyPlayer : gameModel.getGame().getResultList()) {
-            GameUIHelper.addPlayerRow(vBox, lobbyPlayer);
-        }
+        GameUIHelper.setupResult(vBox, gameModel.getResultList());
+
+        Platform.runLater(() -> {
+            Stage stage = (Stage) vBox.getScene().getWindow();
+            stage.setOnCloseRequest(event -> navigator.goToLobby());
+        });
     }
 
     @FXML
     private void handleGoToLobbyClick() {
-        gameModel.redirectToLobby();
         navigator.closeWindow();
         navigator.goToLobby();
     }

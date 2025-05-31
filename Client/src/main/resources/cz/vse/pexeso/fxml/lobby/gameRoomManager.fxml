@@ -39,11 +39,11 @@
             <Insets right="10.0" />
         </GridPane.margin>
     </Slider>
-    <TableView fx:id="playerTable" prefHeight="150.0" prefWidth="400.0" GridPane.columnSpan="2147483647" GridPane.rowIndex="5">
+    <TableView fx:id="playerTable" prefHeight="144.0" prefWidth="400.0" GridPane.columnSpan="2147483647" GridPane.rowIndex="5">
         <columns>
             <TableColumn fx:id="playerNameColumn" editable="false" prefWidth="149.0" resizable="false" text="Player" />
             <TableColumn fx:id="playerStatusColumn" editable="false" prefWidth="125.0" resizable="false" text="Status" />
-            <TableColumn fx:id="actionColumn" editable="false" prefWidth="124.0" resizable="false" text="Action" />
+            <TableColumn fx:id="actionColumn" editable="false" prefWidth="125.0" resizable="false" text="Action" />
         </columns>
     </TableView>
     <Button mnemonicParsing="false" onMouseClicked="#handleDeleteClick" text="Delete room" GridPane.halignment="CENTER" GridPane.rowIndex="3">

@@ -56,7 +56,7 @@ public class GameRoomCreationFormController implements GameRoomResultListener {
 
     @FXML
     private void handleSaveClick() {
-        String warning = FormValidator.validateGameRoomForm(nameField.getText(), boardSizeChoiceBox.getValue(), customBoardSizeField.getText());
+        String warning = FormValidator.validateGameRoomForm(nameField.getText().trim(), boardSizeChoiceBox.getValue(), customBoardSizeField.getText().trim());
         if (warning != null) {
             editWarningLabel(warning);
             return;

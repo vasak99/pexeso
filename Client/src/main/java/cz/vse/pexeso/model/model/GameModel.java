@@ -1,6 +1,6 @@
 package cz.vse.pexeso.model.model;
 
-import cz.vse.pexeso.common.environment.Variables;
+import cz.vse.pexeso.common.message.payload.GameListPayload;
 import cz.vse.pexeso.common.message.payload.GameUpdatePayload;
 import cz.vse.pexeso.common.message.payload.ResultPayload;
 import cz.vse.pexeso.model.ClientSession;
@@ -15,6 +15,8 @@ import cz.vse.pexeso.view.Board;
 import cz.vse.pexeso.view.GameCard;
 import javafx.collections.ObservableList;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -22,6 +24,10 @@ public class GameModel {
     private final GameService gameService;
     private final SessionService sessionService;
     private final RedirectService redirectService;
+
+    private List<LobbyPlayer> resultList = new ArrayList<>();
+
+    boolean requestedToGiveUp = false;
 
     public GameModel(GameService gameService, SessionService sessionService, RedirectService redirectService) {
         this.gameService = gameService;
@@ -31,11 +37,10 @@ public class GameModel {
 
     public void attemptRevealCard(GameCard card) {
         if (!isPlayersTurn()
-                || card.getStatus() == GameCard.Status.COMPLETED
+                || card.getStatus() != GameCard.Status.HIDDEN
                 || getCurrentTurn().size() >= 2) {
             return;
         }
-
         if (getCurrentTurn().isEmpty()) {
             getCurrentTurn().add(card);
             sendReveal(card);
@@ -49,19 +54,20 @@ public class GameModel {
     }
 
     public void attemptGiveUp() {
+        requestedToGiveUp = true;
         gameService.sendGiveUpRequest(getRoom(), getPlayerId());
     }
 
     public void updateGame(String data) {
-        Updater.updateGame(getRoom(), new GameUpdatePayload(data));
+        Updater.updateGame(getRoom(), new GameUpdatePayload(data), getCurrentTurn());
     }
 
     public void setResult(String data) {
-        Updater.setResult(getRoom(), new ResultPayload(data));
+        this.resultList = Updater.setResult(getRoom(), new ResultPayload(data));
     }
 
-    public void redirectToLobby() {
-        redirectService.redirect(Variables.SERVER_ADDR + ":" + Variables.DEFAULT_PORT);
+    public void redirect(String data) {
+        redirectService.redirect(data);
     }
 
     public boolean isPlayersTurn() {
@@ -75,7 +81,7 @@ public class GameModel {
         return sessionService.getSession();
     }
 
-    private GameRoom getRoom() {
+    public GameRoom getRoom() {
         return getSession().getCurrentGameRoom();
     }
 
@@ -101,5 +107,25 @@ public class GameModel {
 
     public long getPlayerId() {
         return getSession().getPlayerId();
+    }
+
+    public void setInProgress(boolean b) {
+        getRoom().setInProgress(b);
+    }
+
+    public boolean isRequestedToGiveUp() {
+        return requestedToGiveUp;
+    }
+
+    public void setRequestedToGiveUp(boolean requestedToGiveUp) {
+        this.requestedToGiveUp = requestedToGiveUp;
+    }
+
+    public List<LobbyPlayer> getResultList() {
+        return resultList;
+    }
+
+    public void updateGameRooms(String data) {
+        Updater.updateLobby(new GameListPayload(data));
     }
 }

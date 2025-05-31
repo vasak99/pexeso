@@ -7,6 +7,7 @@ import cz.vse.pexeso.model.result.LobbyResultHandler;
 import cz.vse.pexeso.model.result.LobbyResultListener;
 import cz.vse.pexeso.navigation.Navigator;
 import cz.vse.pexeso.navigation.UIConstants;
+import cz.vse.pexeso.util.Strings;
 import cz.vse.pexeso.view.helper.LobbyUIHelper;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -61,8 +62,7 @@ public class LobbyController implements LobbyResultListener {
         LobbyUIHelper.setup(gameRoomTable, roomStatusColumn, gameNameColumn, hostNameColumn, boardSizeColumn, roomCapacityColumn, actionsColumn, this, lobbyModel, resultHandler);
 
         onLobbyUIUpdate();
-
-        tableTitle.setText("Available rooms for " + lobbyModel.getSession().getPlayerName());
+        tableTitle.setText(String.format(Strings.AVAILABLE_ROOMS, lobbyModel.getSession().getPlayerName()));
 
         log.info("LobbyController initialized");
     }
@@ -77,13 +77,22 @@ public class LobbyController implements LobbyResultListener {
             stage = navigator.openGameRoomCreator();
         }
         if (stage != null) {
-            stage.setOnHidden(windowEvent -> resultHandler.register());
+            stage.setOnHidden(windowEvent -> {
+                if (lobbyModel.getCurrentGameRoom() != null) {
+                    if (!lobbyModel.getCurrentGameRoom().isInProgress()) {
+                        resultHandler.register();
+                    }
+                } else {
+                    resultHandler.register();
+                }
+
+            });
         }
     }
 
     @FXML
     private void handleReadyClick() {
-        editReadyButton(true, "Ready", UIConstants.GREEN_COLOR);
+        editReadyButton(true, Strings.READY, UIConstants.GREEN_COLOR);
         lobbyModel.attemptReady();
     }
 
@@ -93,7 +102,7 @@ public class LobbyController implements LobbyResultListener {
     }
 
     public void leaveGameRoom() {
-        if (navigator.showConfirmation("Are you sure you want to leave this game room?")) {
+        if (navigator.showConfirmation(Strings.LEAVE_ROOM_CONFIRMATION)) {
             lastAction = LastAction.LEAVE;
             lobbyModel.attemptLeave();
         }
@@ -107,7 +116,7 @@ public class LobbyController implements LobbyResultListener {
             case NONE -> {
                 lobbyModel.finalizeLeave(redirectData);
                 Platform.runLater(navigator::closeConfirmationAlert);
-                Platform.runLater(() -> navigator.showError("You got kicked from the game room"));
+                Platform.runLater(() -> navigator.showError(Strings.KICK_ALERT));
             }
         }
         lastAction = LastAction.NONE;
@@ -148,13 +157,14 @@ public class LobbyController implements LobbyResultListener {
 
     @Override
     public void onStartGame(String data) {
+        lobbyModel.setInProgress(true);
         lobbyModel.initializeGame(data);
-        resultHandler.finalUnregister();
         Platform.runLater(() -> {
-            navigator.closeWindow();
             navigator.closeConfirmationAlert();
+            navigator.closeWindow();
             navigator.goToGame();
         });
+        resultHandler.finalUnregister();
     }
 
     private void updateManageRoomButon() {
@@ -162,11 +172,11 @@ public class LobbyController implements LobbyResultListener {
         boolean isHost = lobbyModel.isHosting();
 
         if (currentRoomId == null) {
-            editManageRoomButton(false, "Create new room");
+            editManageRoomButton(false, Strings.CREATE_ROOM);
         } else if (isHost) {
-            editManageRoomButton(false, "Manage my room");
+            editManageRoomButton(false, Strings.MANAGE_ROOM);
         } else {
-            editManageRoomButton(true, "Create new room");
+            editManageRoomButton(true, Strings.CREATE_ROOM);
         }
     }
 
@@ -176,11 +186,11 @@ public class LobbyController implements LobbyResultListener {
         boolean isHost = lobbyModel.isHosting();
 
         if (currentRoomId == null) {
-            editReadyButton(true, "Not ready", UIConstants.RED_COLOR);
+            editReadyButton(true, Strings.NOT_READY, UIConstants.RED_COLOR);
         } else if (!isReady) {
             editReadyButton(false, null, null);
         } else if (isHost) {
-            editReadyButton(true, "Ready", UIConstants.GREEN_COLOR);
+            editReadyButton(true, Strings.READY, UIConstants.GREEN_COLOR);
         }
     }
 
