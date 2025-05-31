@@ -28,7 +28,7 @@ public class Deck {
     }
 
     public String getImage(int id) {
-        return this.cards.get(id);
+        return "http://" + Variables.SERVER_ADDR + Variables.STATIC_PATH + "/" + this.cards.get(id);
     }
 
     public int deckSize() {

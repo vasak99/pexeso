@@ -110,6 +110,9 @@ public class GameBoard {
         for(int i = 0; i < this.matrix.length; i++) {
             for(int j = 0; j < this.matrix[i].length; j++) {
                 Card card = this.matrix[i][j];
+                if (card == null) {
+                    continue;
+                }
                 if(card.getId() == id) {
                     this.matrix[i][j] = null;
                 }

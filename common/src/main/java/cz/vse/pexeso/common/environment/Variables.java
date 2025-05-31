@@ -5,7 +5,7 @@ public class Variables {
     public static final int DEFAULT_PORT = 8080;
 
     public static final int MIN_CARDS = 10;
-    public static final int MAX_CARDS = 80;
+    public static final int MAX_CARDS = 64;
 
     public static final int MIN_PLAYERS = 2;
     public static final int MAX_PLAYERS = 5;

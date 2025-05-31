@@ -112,6 +112,11 @@ public class MessageController {
             return;
         }
 
+        if (game.isStarted()) {
+            conn.sendMessage(MessageFactory.getError("Game is in progress").toSendable());
+            return;
+        }
+
         String host = Utils.getLocalAddress();
 
         if(host.equals("localhost")) {
