@@ -30,8 +30,9 @@ public class Connection implements Runnable, Observable {
         this.socket = socket;
 
         try {
-            this.ois = new ObjectInputStream(this.socket.getInputStream());
             this.oos = new ObjectOutputStream(this.socket.getOutputStream());
+            this.oos.flush();
+            this.ois = new ObjectInputStream(this.socket.getInputStream());
         } catch(IOException e) {
             log.error("Failed to extract input/output streams: " + e);
             log.error("Attempting to close connection");
@@ -63,9 +64,6 @@ public class Connection implements Runnable, Observable {
         } catch(IOException e) {
             log.error("IOException occurred when terminating socket: " + e);
         }
-        Message msg = new Message();
-        this.notifyObservers(this, msg);
-
     }
 
     @Override

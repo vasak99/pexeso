@@ -23,7 +23,7 @@ public class Utils {
     }
 
     public static SendablePlayer toSendable(Player player) {
-        return new SendablePlayer(player.getName(), player.isReady(), player.getScore());
+        return new SendablePlayer(player.getPlayerId(), player.getName(), player.isReady(), player.getScore());
     }
 
 }

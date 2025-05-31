@@ -119,7 +119,7 @@ public class MessageController {
             return;
         }
 
-        conn.sendMessage(MessageFactory.getRegisterMessage(host + ":" + game.getPort()).toSendable());
+        conn.sendMessage(MessageFactory.getRedirectMessage(host, game.getPort()).toSendable());
     }
 
 }
