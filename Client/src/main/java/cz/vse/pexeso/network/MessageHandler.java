@@ -40,6 +40,9 @@ public class MessageHandler implements Observable {
             case MessageType.LOBBY_UPDATE -> handlePlayerUpdate(data);
             case MessageType.GAME_SERVER_UPDATE -> handleGameRoomUpdate(data);
             case MessageType.START_GAME -> handleStartGame(data);
+            case MessageType.INVALID_MOVE -> handeInvalidMoveMessage(data);
+            case MessageType.GAME_UPDATE -> handleGameUpdate(data);
+            case MessageType.RESULT -> handleGameResult(data);
             case MessageType.ERROR -> handleErrorMessage(data);
 
             default -> log.error("Unknown message type: {}", msg.getType());
@@ -55,6 +58,7 @@ public class MessageHandler implements Observable {
 
         notifyObservers(MessageTypeClient.GAME_ROOM_SUCCESS, redirectData);
         notifyObservers(MessageTypeClient.LOBBY_UI_UPDATE);
+        notifyObservers(MessageTypeClient.REDIRECT, redirectData);
     }
 
     private void handlePlayerUpdate(String data) {
@@ -71,8 +75,19 @@ public class MessageHandler implements Observable {
     }
 
     private void handleStartGame(String data) {
-        notifyObservers(MessageTypeClient.START_GAME);
-        notifyObservers(MessageTypeClient.INITIALIZE_GAME, data);
+        notifyObservers(MessageTypeClient.START_GAME, data);
+    }
+
+    private void handeInvalidMoveMessage(String data) {
+        notifyObservers(MessageTypeClient.INVALID_MOVE, data);
+    }
+
+    private void handleGameUpdate(String data) {
+        notifyObservers(MessageTypeClient.GAME_UPDATE, data);
+    }
+
+    private void handleGameResult(String data) {
+        notifyObservers(MessageTypeClient.GAME_RESULT, data);
     }
 
     private void handleErrorMessage(String errorDescription) {

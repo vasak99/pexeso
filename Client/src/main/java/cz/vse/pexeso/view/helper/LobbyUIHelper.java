@@ -1,9 +1,12 @@
-package cz.vse.pexeso.view;
+package cz.vse.pexeso.view.helper;
 
 import cz.vse.pexeso.controller.LobbyController;
 import cz.vse.pexeso.model.GameRoom;
 import cz.vse.pexeso.model.model.LobbyModel;
 import cz.vse.pexeso.model.result.LobbyResultHandler;
+import cz.vse.pexeso.navigation.UIConstants;
+import cz.vse.pexeso.util.Strings;
+import cz.vse.pexeso.view.cell.GameRoomActionCell;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
@@ -49,7 +52,7 @@ public final class LobbyUIHelper {
                                                 TableColumn<GameRoom, Void> actionsColumn,
                                                 LobbyController controller,
                                                 LobbyModel lobbyModel) {
-        gameRoomTable.setPlaceholder(new Label("No game room has been created yet"));
+        gameRoomTable.setPlaceholder(new Label(Strings.NO_ROOMS));
 
         roomStatusColumn.setCellValueFactory(cellData -> {
             GameRoom room = cellData.getValue();
@@ -84,7 +87,7 @@ public final class LobbyUIHelper {
             row.itemProperty().addListener((obs, oldItem, newItem) -> {
                 if (newItem != null && lobbyModel.getCurrentGameRoomId() != null) {
                     if (newItem.getGameId().equals(lobbyModel.getCurrentGameRoomId())) {
-                        row.setStyle("-fx-background-color: #e6e6e6;");
+                        row.setStyle(UIConstants.GRAY_COLOR);
                     } else {
                         row.setStyle("");
                     }

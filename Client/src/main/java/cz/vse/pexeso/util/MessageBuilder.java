@@ -6,6 +6,7 @@ import cz.vse.pexeso.common.message.payload.*;
 import cz.vse.pexeso.model.GameRoom;
 import cz.vse.pexeso.model.LobbyPlayer;
 import cz.vse.pexeso.model.UserCredentials;
+import cz.vse.pexeso.view.GameCard;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,5 +111,19 @@ public final class MessageBuilder {
         log.info("Building start game message");
 
         return build(MessageType.START_GAME, gameRoom.getGameId(), playerId, null);
+    }
+
+    public static String buildRevealCardMessage(GameCard gameCard, GameRoom gameRoom, long playerId) {
+        log.info("Building reveal gameCard message for gameCard: {}", gameCard);
+
+        String data = new RevealCardPayload(gameCard.getRow(), gameCard.getColumn()).toSendable();
+
+        return build(MessageType.REVEAL, gameRoom.getGameId(), playerId, data);
+    }
+
+    public static String buildGiveUpMessage(GameRoom gameRoom, long playerId) {
+        log.info("Building give up message");
+
+        return build(MessageType.GIVE_UP, gameRoom.getGameId(), playerId, null);
     }
 }

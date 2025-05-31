@@ -1,94 +1,77 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-<GridPane prefHeight="400.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/17.0.12"
-          xmlns:fx="http://javafx.com/fxml/1" fx:controller="cz.vse.pexeso.controller.GameRoomManagerController">
+
+<GridPane prefHeight="400.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cz.vse.pexeso.controller.GameRoomManagerController">
     <columnConstraints>
-        <ColumnConstraints hgrow="SOMETIMES" prefWidth="200.0"/>
-        <ColumnConstraints hgrow="SOMETIMES" prefWidth="200.0"/>
+        <ColumnConstraints hgrow="SOMETIMES" prefWidth="200.0" />
+        <ColumnConstraints hgrow="SOMETIMES" prefWidth="200.0" />
     </columnConstraints>
     <rowConstraints>
-        <RowConstraints vgrow="SOMETIMES"/>
-        <RowConstraints vgrow="SOMETIMES"/>
-        <RowConstraints vgrow="SOMETIMES"/>
-        <RowConstraints vgrow="SOMETIMES"/>
-        <RowConstraints vgrow="SOMETIMES"/>
-        <RowConstraints vgrow="SOMETIMES"/>
-        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+        <RowConstraints vgrow="SOMETIMES" />
+        <RowConstraints vgrow="SOMETIMES" />
+        <RowConstraints vgrow="SOMETIMES" />
+        <RowConstraints vgrow="SOMETIMES" />
+        <RowConstraints vgrow="SOMETIMES" />
+        <RowConstraints vgrow="SOMETIMES" />
+        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
     </rowConstraints>
-    <Label text="Board size" GridPane.halignment="CENTER" GridPane.hgrow="NEVER" GridPane.rowIndex="2"
-           GridPane.valignment="CENTER" GridPane.vgrow="NEVER">
+    <Label text="Board size" GridPane.halignment="CENTER" GridPane.hgrow="NEVER" GridPane.rowIndex="2" GridPane.valignment="CENTER" GridPane.vgrow="NEVER">
         <font>
-            <Font size="14.0"/>
+            <Font size="14.0" />
         </font>
     </Label>
-    <Label text="Player Capacity" GridPane.halignment="CENTER" GridPane.hgrow="NEVER" GridPane.rowIndex="1"
-           GridPane.valignment="CENTER" GridPane.vgrow="NEVER">
+    <Label text="Player Capacity" GridPane.halignment="CENTER" GridPane.hgrow="NEVER" GridPane.rowIndex="1" GridPane.valignment="CENTER" GridPane.vgrow="NEVER">
         <font>
-            <Font size="14.0"/>
+            <Font size="14.0" />
         </font>
     </Label>
-    <Label fx:id="warningLabel" textFill="RED" GridPane.columnSpan="2147483647" GridPane.halignment="CENTER"
-           GridPane.rowIndex="4">
+    <Label fx:id="warningLabel" textFill="RED" GridPane.columnSpan="2147483647" GridPane.halignment="CENTER" GridPane.rowIndex="4">
         <font>
-            <Font size="14.0"/>
+            <Font size="14.0" />
         </font>
     </Label>
-    <Slider fx:id="capacitySlider" blockIncrement="1.0" majorTickUnit="1.0" max="5.0" min="2.0" minorTickCount="0"
-            showTickLabels="true" showTickMarks="true" snapToTicks="true" value="2.0" GridPane.columnIndex="1"
-            GridPane.halignment="CENTER" GridPane.hgrow="NEVER" GridPane.rowIndex="1" GridPane.valignment="CENTER"
-            GridPane.vgrow="NEVER">
+    <Slider fx:id="capacitySlider" blockIncrement="1.0" majorTickUnit="1.0" max="5.0" min="2.0" minorTickCount="0" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="2.0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.hgrow="NEVER" GridPane.rowIndex="1" GridPane.valignment="CENTER" GridPane.vgrow="NEVER">
         <GridPane.margin>
-            <Insets right="10.0"/>
+            <Insets right="10.0" />
         </GridPane.margin>
     </Slider>
-    <TableView fx:id="playerTable" prefHeight="150.0" prefWidth="400.0" GridPane.columnSpan="2147483647"
-               GridPane.rowIndex="5">
+    <TableView fx:id="playerTable" prefHeight="144.0" prefWidth="400.0" GridPane.columnSpan="2147483647" GridPane.rowIndex="5">
         <columns>
-            <TableColumn fx:id="playerNameColumn" editable="false" prefWidth="149.0" resizable="false" text="Player"/>
-            <TableColumn fx:id="playerStatusColumn" editable="false" prefWidth="125.0" resizable="false" text="Status"/>
-            <TableColumn fx:id="actionColumn" editable="false" prefWidth="125.0" resizable="false" text="Action"/>
+            <TableColumn fx:id="playerNameColumn" editable="false" prefWidth="149.0" resizable="false" text="Player" />
+            <TableColumn fx:id="playerStatusColumn" editable="false" prefWidth="125.0" resizable="false" text="Status" />
+            <TableColumn fx:id="actionColumn" editable="false" prefWidth="125.0" resizable="false" text="Action" />
         </columns>
     </TableView>
-    <Button mnemonicParsing="false" onMouseClicked="#handleDeleteClick" text="Delete room" GridPane.halignment="CENTER"
-            GridPane.rowIndex="3">
+    <Button mnemonicParsing="false" onMouseClicked="#handleDeleteClick" text="Delete room" GridPane.halignment="CENTER" GridPane.rowIndex="3">
         <font>
-            <Font size="14.0"/>
+            <Font size="14.0" />
         </font>
     </Button>
-    <Button fx:id="saveChangesButton" mnemonicParsing="false" onMouseClicked="#handleSaveClick" text="Save changes"
-            GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="3">
+    <Button fx:id="saveChangesButton" mnemonicParsing="false" onMouseClicked="#handleSaveClick" text="Save changes" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="3">
         <font>
-            <Font size="14.0"/>
+            <Font size="14.0" />
         </font>
     </Button>
-    <Button layoutX="62.0" layoutY="126.0" mnemonicParsing="false" onMouseClicked="#handleCloseClick"
-            text="Close window" GridPane.halignment="CENTER" GridPane.rowIndex="6">
+    <Button layoutX="62.0" layoutY="126.0" mnemonicParsing="false" onMouseClicked="#handleCloseClick" text="Close window" GridPane.halignment="CENTER" GridPane.rowIndex="6">
         <font>
-            <Font size="14.0"/>
+            <Font size="14.0" />
         </font>
     </Button>
-    <Button fx:id="startGameButton" layoutX="59.0" layoutY="373.0" mnemonicParsing="false"
-            onMouseClicked="#handleStartGameClick" text="Start game" GridPane.columnIndex="1"
-            GridPane.halignment="CENTER" GridPane.rowIndex="6">
+    <Button fx:id="startGameButton" layoutX="59.0" layoutY="373.0" mnemonicParsing="false" onMouseClicked="#handleStartGameClick" text="Start game" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="6">
         <font>
-            <Font size="14.0"/>
+            <Font size="14.0" />
         </font>
     </Button>
-    <ChoiceBox fx:id="boardSizeChoiceBox" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.hgrow="NEVER"
-               GridPane.rowIndex="2" GridPane.valignment="CENTER" GridPane.vgrow="NEVER"/>
-    <Label text="Name" GridPane.halignment="CENTER" GridPane.hgrow="NEVER" GridPane.valignment="CENTER"
-           GridPane.vgrow="NEVER">
+    <ChoiceBox fx:id="boardSizeChoiceBox" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.hgrow="NEVER" GridPane.rowIndex="2" GridPane.valignment="CENTER" GridPane.vgrow="NEVER" />
+    <Label text="Name" GridPane.halignment="CENTER" GridPane.hgrow="NEVER" GridPane.valignment="CENTER" GridPane.vgrow="NEVER">
         <font>
-            <Font size="14.0"/>
+            <Font size="14.0" />
         </font>
     </Label>
-    <TextField fx:id="nameField" maxWidth="150.0" GridPane.columnIndex="1" GridPane.halignment="CENTER"
-               GridPane.hgrow="NEVER" GridPane.valignment="CENTER" GridPane.vgrow="NEVER"/>
-    <TextField fx:id="customBoardSizeField" maxWidth="70.0" promptText="Board size" GridPane.columnSpan="2147483647"
-               GridPane.halignment="CENTER" GridPane.hgrow="NEVER" GridPane.rowIndex="2" GridPane.valignment="CENTER"
-               GridPane.vgrow="NEVER"/>
+    <TextField fx:id="nameField" maxWidth="150.0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.hgrow="NEVER" GridPane.valignment="CENTER" GridPane.vgrow="NEVER" />
+    <TextField fx:id="customBoardSizeField" maxWidth="70.0" promptText="Board size" GridPane.columnSpan="2147483647" GridPane.halignment="CENTER" GridPane.hgrow="NEVER" GridPane.rowIndex="2" GridPane.valignment="CENTER" GridPane.vgrow="NEVER" />
 </GridPane>

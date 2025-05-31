@@ -6,7 +6,9 @@ import cz.vse.pexeso.model.model.LobbyModel;
 import cz.vse.pexeso.model.result.LobbyResultHandler;
 import cz.vse.pexeso.model.result.LobbyResultListener;
 import cz.vse.pexeso.navigation.Navigator;
-import cz.vse.pexeso.view.LobbyUIHelper;
+import cz.vse.pexeso.navigation.UIConstants;
+import cz.vse.pexeso.util.Strings;
+import cz.vse.pexeso.view.helper.LobbyUIHelper;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -60,8 +62,7 @@ public class LobbyController implements LobbyResultListener {
         LobbyUIHelper.setup(gameRoomTable, roomStatusColumn, gameNameColumn, hostNameColumn, boardSizeColumn, roomCapacityColumn, actionsColumn, this, lobbyModel, resultHandler);
 
         onLobbyUIUpdate();
-
-        tableTitle.setText("Available rooms for " + lobbyModel.getPlayerName());
+        tableTitle.setText(String.format(Strings.AVAILABLE_ROOMS, lobbyModel.getSession().getPlayerName()));
 
         log.info("LobbyController initialized");
     }
@@ -76,13 +77,22 @@ public class LobbyController implements LobbyResultListener {
             stage = navigator.openGameRoomCreator();
         }
         if (stage != null) {
-            stage.setOnHidden(windowEvent -> resultHandler.register());
+            stage.setOnHidden(windowEvent -> {
+                if (lobbyModel.getCurrentGameRoom() != null) {
+                    if (!lobbyModel.getCurrentGameRoom().isInProgress()) {
+                        resultHandler.register();
+                    }
+                } else {
+                    resultHandler.register();
+                }
+
+            });
         }
     }
 
     @FXML
     private void handleReadyClick() {
-        editReadyButton(true, "Ready", "#d0ffc0");
+        editReadyButton(true, Strings.READY, UIConstants.GREEN_COLOR);
         lobbyModel.attemptReady();
     }
 
@@ -92,7 +102,7 @@ public class LobbyController implements LobbyResultListener {
     }
 
     public void leaveGameRoom() {
-        if (navigator.showConfirmation("Are you sure you want to leave this game room?")) {
+        if (navigator.showConfirmation(Strings.LEAVE_ROOM_CONFIRMATION)) {
             lastAction = LastAction.LEAVE;
             lobbyModel.attemptLeave();
         }
@@ -106,7 +116,7 @@ public class LobbyController implements LobbyResultListener {
             case NONE -> {
                 lobbyModel.finalizeLeave(redirectData);
                 Platform.runLater(navigator::closeConfirmationAlert);
-                Platform.runLater(() -> navigator.showError("You got kicked from the game room"));
+                Platform.runLater(() -> navigator.showError(Strings.KICK_ALERT));
             }
         }
         lastAction = LastAction.NONE;
@@ -133,7 +143,6 @@ public class LobbyController implements LobbyResultListener {
 
     @Override
     public void onLobbyUIUpdate() {
-        System.out.println("ON LOBBY UI UPDATE");
         gameRoomTable.setItems(GameRoom.gameRooms);
         gameRoomTable.refresh();
 
@@ -147,10 +156,15 @@ public class LobbyController implements LobbyResultListener {
     }
 
     @Override
-    public void onStartGame() {
+    public void onStartGame(String data) {
+        lobbyModel.setInProgress(true);
+        lobbyModel.initializeGame(data);
+        Platform.runLater(() -> {
+            navigator.closeConfirmationAlert();
+            navigator.closeWindow();
+            navigator.goToGame();
+        });
         resultHandler.finalUnregister();
-        Platform.runLater(navigator::closeWindow);
-        Platform.runLater(navigator::goToGame);
     }
 
     private void updateManageRoomButon() {
@@ -158,11 +172,11 @@ public class LobbyController implements LobbyResultListener {
         boolean isHost = lobbyModel.isHosting();
 
         if (currentRoomId == null) {
-            editManageRoomButton(false, "Create new room");
+            editManageRoomButton(false, Strings.CREATE_ROOM);
         } else if (isHost) {
-            editManageRoomButton(false, "Manage my room");
+            editManageRoomButton(false, Strings.MANAGE_ROOM);
         } else {
-            editManageRoomButton(true, "Create new room");
+            editManageRoomButton(true, Strings.CREATE_ROOM);
         }
     }
 
@@ -172,11 +186,11 @@ public class LobbyController implements LobbyResultListener {
         boolean isHost = lobbyModel.isHosting();
 
         if (currentRoomId == null) {
-            editReadyButton(true, "Not ready", "#ffc0c0");
+            editReadyButton(true, Strings.NOT_READY, UIConstants.RED_COLOR);
         } else if (!isReady) {
             editReadyButton(false, null, null);
         } else if (isHost) {
-            editReadyButton(true, "Ready", "#d0ffc0");
+            editReadyButton(true, Strings.READY, UIConstants.GREEN_COLOR);
         }
     }
 
@@ -185,14 +199,14 @@ public class LobbyController implements LobbyResultListener {
         Platform.runLater(() -> manageRoomButton.setText(text));
     }
 
-    private void editReadyButton(boolean disabled, String text, String style) {
+    private void editReadyButton(boolean disabled, String text, String color) {
         readyButton.setDisable(disabled);
 
         if (text != null) {
             Platform.runLater(() -> readyButton.setText(text));
         }
-        if (style != null) {
-            Platform.runLater(() -> readyButton.setStyle("-fx-background-color:" + style + ";"));
+        if (color != null) {
+            Platform.runLater(() -> readyButton.setStyle(color));
         }
     }
 

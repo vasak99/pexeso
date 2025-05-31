@@ -27,46 +27,57 @@ public final class FormValidator {
 
     public static String validateLoginForm(String username, String password) {
         if (isEmpty(username, password)) {
-            return "Please fill in all fields.";
+            return Strings.FILL_IN_FIELDS;
         }
         return null;
     }
 
     public static String validateRegisterForm(String username, String password, String confirmPassword) {
         if (isEmpty(username, password, confirmPassword)) {
-            return "Please fill in all fields.";
+            return Strings.FILL_IN_FIELDS;
+        }
+
+        if (isTooLong(username)) {
+            return Strings.NAME_TOO_LONG;
         }
 
         if (!passwordMatch(password, confirmPassword)) {
-            return "Passwords do not match.";
+            return Strings.PASSWORD_NO_MATCH;
         }
 
         if (!passwordStrong(password)) {
-            return "Password must be at least 8 characters long.";
+            return Strings.PASSWORD_SHORT;
         }
         return null;
     }
 
     public static String validateGameRoomForm(String name, GameRoom.BoardSize boardSize, String customBoardSize) {
         if (name.trim().isEmpty()) {
-            return "Choose name";
+            return Strings.CHOOSE_NAME;
         }
 
         if (boardSize == null) {
-            return "Choose board size";
+            return Strings.CHOOSE_BOARD_SIZE;
         }
 
         if (boardSize == GameRoom.BoardSize.CUSTOM && customBoardSize.isEmpty()) {
-            return "Choose custom board size";
+            return Strings.CHOOSE_CUSTOM_BOARD_SIZE;
+        }
 
+        if (isTooLong(name)) {
+            return Strings.NAME_TOO_LONG;
         }
 
         if (boardSize == GameRoom.BoardSize.CUSTOM
                 && (Integer.parseInt(customBoardSize) < Variables.MIN_CARDS
                 || Integer.parseInt(customBoardSize) > Variables.MAX_CARDS
                 || Integer.parseInt(customBoardSize) % 2 != 0)) {
-            return "The board size must be an even number between " + Variables.MIN_CARDS + " and " + Variables.MAX_CARDS + ".";
+            return String.format(Strings.BOARD_SIZE_REQUIREMENTS, Variables.MIN_CARDS, Variables.MAX_CARDS);
         }
         return null;
+    }
+
+    private static boolean isTooLong(String name) {
+        return name.length() > 16;
     }
 }

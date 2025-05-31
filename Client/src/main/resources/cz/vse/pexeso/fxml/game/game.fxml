@@ -4,143 +4,34 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-<VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="750.0" prefWidth="750.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cz.vse.pexeso.controller.GameController">
-    <HBox.margin>
-        <Insets />
-    </HBox.margin>
-    <HBox alignment="CENTER">
-        <Label alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="53.0" prefWidth="163.0" text="You">
-            <HBox.margin>
-                <Insets left="25.0" right="25.0" top="25.0" />
-            </HBox.margin>
-            <font>
-                <Font size="36.0" />
-            </font>
+
+<GridPane fx:id="mainGridPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="750.0" prefWidth="750.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cz.vse.pexeso.controller.GameController">
+    <columnConstraints>
+        <ColumnConstraints halignment="CENTER" hgrow="NEVER" />
+        <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" />
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints valignment="CENTER" vgrow="SOMETIMES" />
+    </rowConstraints>
+    <VBox alignment="TOP_CENTER">
+        <TableView fx:id="scoreboardTable" maxHeight="150.0" maxWidth="200.0">
+          <columns>
+              <TableColumn fx:id="playerColumn" editable="false" prefWidth="125.0" sortable="false" text="Player" />
+              <TableColumn fx:id="scoreColumn" editable="false" prefWidth="74.0" sortType="DESCENDING" text="Score" />
+          </columns>
+        </TableView>
+        <Label fx:id="turnLabel" text="turn">
+           <font>
+               <Font size="24.0" />
+           </font>
         </Label>
-        <Label fx:id="playerScoreLabel" text="0">
-            <HBox.margin>
-                <Insets left="25.0" right="25.0" top="25.0" />
-            </HBox.margin>
-            <font>
-                <Font size="36.0" />
-            </font>
-        </Label>
-        <Label text="-">
-            <HBox.margin>
-                <Insets left="25.0" right="25.0" top="25.0" />
-            </HBox.margin>
-            <font>
-                <Font size="36.0" />
-            </font>
-        </Label>
-        <Label fx:id="opponentScoreLabel" text="0">
-            <HBox.margin>
-                <Insets left="25.0" right="25.0" top="25.0" />
-            </HBox.margin>
-            <font>
-                <Font size="36.0" />
-            </font>
-        </Label>
-        <Label alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="53.0" prefWidth="163.0" text="Opponent">
-            <HBox.margin>
-                <Insets left="25.0" right="25.0" top="25.0" />
-            </HBox.margin>
-            <font>
-                <Font size="36.0" />
-            </font>
-        </Label>
-    </HBox>
-    <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
-        <Button fx:id="card01" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onMouseClicked="#handleCardClicked" prefHeight="125.0" prefWidth="125.0">
-            <HBox.margin>
-                <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
-            </HBox.margin>
+        <Button mnemonicParsing="false" onMouseClicked="#handleGiveUpClick" text="Give up">
+           <font>
+               <Font size="14.0" />
+           </font>
+           <VBox.margin>
+               <Insets top="25.0" />
+           </VBox.margin>
         </Button>
-        <Button fx:id="card02" layoutX="10.0" layoutY="10.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onMouseClicked="#handleCardClicked" prefHeight="125.0" prefWidth="125.0">
-            <HBox.margin>
-                <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
-            </HBox.margin>
-        </Button>
-        <Button fx:id="card03" layoutX="110.0" layoutY="10.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onMouseClicked="#handleCardClicked" prefHeight="125.0" prefWidth="125.0">
-            <HBox.margin>
-                <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
-            </HBox.margin>
-        </Button>
-        <Button fx:id="card04" layoutX="110.0" layoutY="10.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onMouseClicked="#handleCardClicked" prefHeight="125.0" prefWidth="125.0">
-            <HBox.margin>
-                <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
-            </HBox.margin>
-        </Button>
-    </HBox>
-    <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
-        <Button fx:id="card05" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onMouseClicked="#handleCardClicked" prefHeight="125.0" prefWidth="125.0">
-            <HBox.margin>
-                <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
-            </HBox.margin>
-        </Button>
-        <Button fx:id="card06" layoutX="10.0" layoutY="10.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onMouseClicked="#handleCardClicked" prefHeight="125.0" prefWidth="125.0">
-            <HBox.margin>
-                <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
-            </HBox.margin>
-        </Button>
-        <Button fx:id="card07" layoutX="110.0" layoutY="10.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onMouseClicked="#handleCardClicked" prefHeight="125.0" prefWidth="125.0">
-            <HBox.margin>
-                <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
-            </HBox.margin>
-        </Button>
-        <Button fx:id="card08" layoutX="210.0" layoutY="10.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onMouseClicked="#handleCardClicked" prefHeight="125.0" prefWidth="125.0">
-            <HBox.margin>
-                <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
-            </HBox.margin>
-        </Button>
-    </HBox>
-    <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
-        <Button fx:id="card09" layoutX="10.0" layoutY="10.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onMouseClicked="#handleCardClicked" prefHeight="125.0" prefWidth="125.0">
-            <HBox.margin>
-                <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
-            </HBox.margin>
-        </Button>
-        <Button fx:id="card10" layoutX="10.0" layoutY="10.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onMouseClicked="#handleCardClicked" prefHeight="125.0" prefWidth="125.0">
-            <HBox.margin>
-                <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
-            </HBox.margin>
-        </Button>
-        <Button fx:id="card11" layoutX="110.0" layoutY="10.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onMouseClicked="#handleCardClicked" prefHeight="125.0" prefWidth="125.0">
-            <HBox.margin>
-                <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
-            </HBox.margin>
-        </Button>
-        <Button fx:id="card12" layoutX="110.0" layoutY="10.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onMouseClicked="#handleCardClicked" prefHeight="125.0" prefWidth="125.0">
-            <HBox.margin>
-                <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
-            </HBox.margin>
-        </Button>
-    </HBox>
-    <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
-        <Button fx:id="card13" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onMouseClicked="#handleCardClicked" prefHeight="125.0" prefWidth="125.0">
-            <HBox.margin>
-                <Insets bottom="5.0" left="15.0" right="15.0" top="15.0" />
-            </HBox.margin>
-        </Button>
-        <Button fx:id="card14" layoutX="110.0" layoutY="10.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onMouseClicked="#handleCardClicked" prefHeight="125.0" prefWidth="125.0">
-            <HBox.margin>
-                <Insets bottom="5.0" left="15.0" right="15.0" top="15.0" />
-            </HBox.margin>
-        </Button>
-        <Button fx:id="card15" layoutX="110.0" layoutY="10.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onMouseClicked="#handleCardClicked" prefHeight="125.0" prefWidth="125.0">
-            <HBox.margin>
-                <Insets bottom="5.0" left="15.0" right="15.0" top="15.0" />
-            </HBox.margin>
-        </Button>
-        <Button fx:id="card16" layoutX="110.0" layoutY="10.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onMouseClicked="#handleCardClicked" prefHeight="125.0" prefWidth="125.0">
-            <HBox.margin>
-                <Insets bottom="5.0" left="15.0" right="15.0" top="15.0" />
-            </HBox.margin>
-        </Button>
-    </HBox>
-    <Label text="Turn info/Who won">
-        <font>
-          <Font size="36.0" />
-        </font>
-    </Label>
-</VBox>
+    </VBox>
+</GridPane>

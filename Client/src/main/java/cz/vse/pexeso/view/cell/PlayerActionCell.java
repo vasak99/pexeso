@@ -1,8 +1,9 @@
-package cz.vse.pexeso.view;
+package cz.vse.pexeso.view.cell;
 
 import cz.vse.pexeso.controller.GameRoomManagerController;
 import cz.vse.pexeso.model.LobbyPlayer;
 import cz.vse.pexeso.model.model.GameRoomModel;
+import cz.vse.pexeso.util.Strings;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableCell;
@@ -10,7 +11,7 @@ import javafx.scene.layout.HBox;
 
 public class PlayerActionCell extends TableCell<LobbyPlayer, Void> {
     private final GameRoomModel gameRoomModel;
-    private final Button kickButton = new Button("Kick");
+    private final Button kickButton = new Button(Strings.KICK);
     private final HBox actionBox = new HBox(5, kickButton);
 
     public PlayerActionCell(GameRoomManagerController controller, GameRoomModel gameRoomModel) {

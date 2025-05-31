@@ -19,5 +19,9 @@ public enum MessageTypeClient {
 
     START_GAME,
 
-    INITIALIZE_GAME
+    INVALID_MOVE,
+
+    GAME_UPDATE,
+
+    REDIRECT, GAME_RESULT
 }

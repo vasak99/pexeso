@@ -1,6 +1,7 @@
 package cz.vse.pexeso.di;
 
 import cz.vse.pexeso.model.model.AuthModel;
+import cz.vse.pexeso.model.model.GameModel;
 import cz.vse.pexeso.model.model.GameRoomModel;
 import cz.vse.pexeso.model.model.LobbyModel;
 import cz.vse.pexeso.model.result.*;
@@ -25,10 +26,12 @@ public class Injector {
     private final AuthService authService;
     private final LobbyService lobbyService;
     private final GameRoomService gameRoomService;
+    private final GameService gameService;
 
     private final AuthModel authModel;
     private final LobbyModel lobbyModel;
     private final GameRoomModel gameRoomModel;
+    private final GameModel gameModel;
 
     public Injector() {
         this.sceneManager = new SceneManager(this);
@@ -41,11 +44,13 @@ public class Injector {
         this.authService = new AuthService(connectionService);
         this.lobbyService = new LobbyService(connectionService);
         this.gameRoomService = new GameRoomService(connectionService);
+        this.gameService = new GameService(connectionService);
 
 
         this.authModel = new AuthModel(authService, sessionService);
-        this.lobbyModel = new LobbyModel(lobbyService, sessionService);
+        this.lobbyModel = new LobbyModel(lobbyService, sessionService, redirectService);
         this.gameRoomModel = new GameRoomModel(gameRoomService, sessionService, redirectService);
+        this.gameModel = new GameModel(gameService, sessionService, redirectService);
     }
 
     public SceneManager getSceneManager() {
@@ -68,6 +73,10 @@ public class Injector {
         return gameRoomModel;
     }
 
+    public GameModel getGameModel() {
+        return gameModel;
+    }
+
     public AuthResultHandler createAuthResultHandler(AuthResultListener listener) {
         return new AuthResultHandler(listener, connectionService);
     }
@@ -78,6 +87,10 @@ public class Injector {
 
     public GameRoomResultHandler createGameRoomResultHandler(GameRoomResultListener listener) {
         return new GameRoomResultHandler(listener, connectionService);
+    }
+
+    public GameResultHandler createGameResultHandler(GameResultListener listener) {
+        return new GameResultHandler(listener, connectionService);
     }
 
     public void shutdown() {

@@ -1,5 +1,6 @@
 package cz.vse.pexeso.model;
 
+import cz.vse.pexeso.util.Strings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -7,13 +8,16 @@ public class GameRoom {
     public static final ObservableList<GameRoom> gameRooms = FXCollections.observableArrayList();
 
     private GameStatus status = GameStatus.WAITING_FOR_PLAYERS;
-    private String gameId;
+    private final String gameId;
     private String name;
     private long hostId;
     private String hostName;
     private int capacity;
     private int cardCount;
     private final ObservableList<LobbyPlayer> players = FXCollections.observableArrayList();
+    private boolean inProgress = false;
+
+    private Game game;
 
     // Create/Edit attempt message
     public GameRoom(String gameId, String name, int capacity, int cardCount) {
@@ -76,10 +80,6 @@ public class GameRoom {
         return gameId;
     }
 
-    public void setGameId(String gameId) {
-        this.gameId = gameId;
-    }
-
     public long getHostId() {
         return hostId;
     }
@@ -124,9 +124,25 @@ public class GameRoom {
         this.hostName = hostName;
     }
 
+    public Game getGame() {
+        return game;
+    }
+
+    public void setGame(Game game) {
+        this.game = game;
+    }
+
+    public void setInProgress(boolean b) {
+        this.inProgress = b;
+    }
+
+    public boolean isInProgress() {
+        return inProgress;
+    }
+
     public enum GameStatus {
-        WAITING_FOR_PLAYERS("Waiting for players"),
-        IN_PROGRESS("In progress");
+        WAITING_FOR_PLAYERS(Strings.WAITING_FOR_PLAYERS),
+        IN_PROGRESS(Strings.IN_PROGRESS);
 
         private final String value;
 
@@ -149,8 +165,8 @@ public class GameRoom {
 
     public enum BoardSize {
         SMALL(16),
-        MEDIUM(36),
-        LARGE(64),
+        MEDIUM(32),
+        LARGE(48),
         CUSTOM(0);
 
         public final int value;
@@ -170,7 +186,7 @@ public class GameRoom {
 
         public static String returnDisplayText(int value) {
             BoardSize boardSize = fromValue(value);
-            return boardSize + "(" + value + ")";
+            return String.format("%s(%d)", boardSize, value);
         }
     }
 }

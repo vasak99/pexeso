@@ -7,7 +7,7 @@ import cz.vse.pexeso.model.result.GameRoomResultHandler;
 import cz.vse.pexeso.model.result.GameRoomResultListener;
 import cz.vse.pexeso.navigation.Navigator;
 import cz.vse.pexeso.util.FormValidator;
-import cz.vse.pexeso.view.GameRoomUIHelper;
+import cz.vse.pexeso.view.helper.GameRoomUIHelper;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
@@ -56,7 +56,7 @@ public class GameRoomCreationFormController implements GameRoomResultListener {
 
     @FXML
     private void handleSaveClick() {
-        String warning = FormValidator.validateGameRoomForm(nameField.getText(), boardSizeChoiceBox.getValue(), customBoardSizeField.getText());
+        String warning = FormValidator.validateGameRoomForm(nameField.getText().trim(), boardSizeChoiceBox.getValue(), customBoardSizeField.getText().trim());
         if (warning != null) {
             editWarningLabel(warning);
             return;

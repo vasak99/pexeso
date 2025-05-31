@@ -1,4 +1,4 @@
-package cz.vse.pexeso.view;
+package cz.vse.pexeso.view.helper;
 
 import cz.vse.pexeso.common.environment.Variables;
 import cz.vse.pexeso.controller.GameRoomManagerController;
@@ -6,6 +6,9 @@ import cz.vse.pexeso.model.GameRoom;
 import cz.vse.pexeso.model.LobbyPlayer;
 import cz.vse.pexeso.model.model.GameRoomModel;
 import cz.vse.pexeso.model.result.GameRoomResultHandler;
+import cz.vse.pexeso.navigation.UIConstants;
+import cz.vse.pexeso.util.Strings;
+import cz.vse.pexeso.view.cell.PlayerActionCell;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.value.ChangeListener;
@@ -62,7 +65,7 @@ public final class GameRoomUIHelper {
                                               GameRoomManagerController controller,
                                               GameRoomModel gameRoomModel
     ) {
-        playerTable.setPlaceholder(new Label("No other players in this game room"));
+        playerTable.setPlaceholder(new Label(Strings.NO_PLAYERS));
 
         playerNameColumn.setCellValueFactory(new PropertyValueFactory<>("username"));
 
@@ -84,7 +87,7 @@ public final class GameRoomUIHelper {
             row.itemProperty().addListener((obs, oldItem, newItem) -> {
                 if (newItem != null && gameRoomModel.getCurrentGameHostId() != null) {
                     if (newItem.getPlayerId() == gameRoomModel.getCurrentGameHostId()) {
-                        row.setStyle("-fx-background-color: #e6e6e6;");
+                        row.setStyle(UIConstants.GRAY_COLOR);
                     } else {
                         row.setStyle("");
                     }
@@ -132,7 +135,7 @@ public final class GameRoomUIHelper {
             boolean newBoardSize = originalBoardSize != boardSizeChoiceBox.getValue();
             boolean newCardCount = false;
             try {
-                newCardCount = originalCardCount != Integer.parseInt(customBoardSizeField.getText());
+                newCardCount = originalCardCount != Integer.parseInt(customBoardSizeField.getText().trim());
             } catch (NumberFormatException e) {
             }
 

@@ -15,7 +15,7 @@ public class LobbyResultHandler {
     private final ObserverWithData playerUpdateObserver = data -> listener.onPlayerUpdate((String) data);
     private final Observer uiUpdateObserver = () -> listener.onLobbyUIUpdate();
     private final Observer identityObserver = () -> listener.onIdentityRequested();
-    private final Observer startGameObserver = () -> listener.onStartGame();
+    private final ObserverWithData startGameObserver = data -> listener.onStartGame((String) data);
 
     public LobbyResultHandler(LobbyResultListener listener, ConnectionService connectionService) {
         this.listener = listener;
@@ -28,7 +28,7 @@ public class LobbyResultHandler {
         connectionService.getMessageHandler().registerWithData(MessageTypeClient.PLAYER_UPDATE, playerUpdateObserver);
         connectionService.getMessageHandler().register(MessageTypeClient.LOBBY_UI_UPDATE, uiUpdateObserver);
         connectionService.getMessageHandler().register(MessageTypeClient.IDENTITY_REQUESTED, identityObserver);
-        connectionService.getMessageHandler().register(MessageTypeClient.START_GAME, startGameObserver);
+        connectionService.getMessageHandler().registerWithData(MessageTypeClient.START_GAME, startGameObserver);
     }
 
     public void register() {
@@ -47,6 +47,6 @@ public class LobbyResultHandler {
         connectionService.getMessageHandler().unregisterWithData(MessageTypeClient.PLAYER_UPDATE, playerUpdateObserver);
         connectionService.getMessageHandler().unregister(MessageTypeClient.LOBBY_UI_UPDATE, uiUpdateObserver);
         connectionService.getMessageHandler().unregister(MessageTypeClient.IDENTITY_REQUESTED, identityObserver);
-        connectionService.getMessageHandler().unregister(MessageTypeClient.START_GAME, startGameObserver);
+        connectionService.getMessageHandler().unregisterWithData(MessageTypeClient.START_GAME, startGameObserver);
     }
 }

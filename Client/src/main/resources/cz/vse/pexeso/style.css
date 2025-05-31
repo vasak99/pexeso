@@ -9,3 +9,24 @@
 .table-row-cell:empty .table-cell {
     -fx-border-width: 0px;
 }
+
+.table-view .column-header {
+    -fx-padding: 5 10;
+    -fx-font-size: 14px;
+    -fx-cell-size: 30px;
+}
+
+.table-view .column-header .arrow {
+    -fx-shape: "";
+    -fx-padding: 0;
+}
+
+.table-view .scroll-bar * {
+    -fx-min-width: 0;
+    -fx-pref-width: 0;
+    -fx-max-width: 0;
+
+    -fx-min-height: 0;
+    -fx-pref-height: 0;
+    -fx-max-height: 0;
+}
