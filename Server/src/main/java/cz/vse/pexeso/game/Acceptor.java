@@ -18,6 +18,9 @@ import cz.vse.pexeso.main.MessageFactory;
 import cz.vse.pexeso.utils.Observable;
 import cz.vse.pexeso.utils.Observer;
 
+/**
+ * Asynchronous connection acceptor for game objects
+ */
 public class Acceptor implements Runnable, Observer {
     public static final Logger log = LoggerFactory.getLogger(Acceptor.class);
 
@@ -58,11 +61,14 @@ public class Acceptor implements Runnable, Observer {
                     this.pendingConnections.add(conn);
                     conn.subscribe(thisObs);
                     new Thread(conn).start();
-                    conn.sendMessage(MessageFactory.getIdentityRequest().toSendable());
+                    conn.sendMessage(MessageFactory.getIdentityRequest(this.game.getId()).toSendable());
             }
         }
     }
 
+    /**
+     * Terminates the acceptor when game starts
+     */
     public void terminate() {
         this.keepAlive = false;
         for(var conn : this.pendingConnections) {
@@ -91,6 +97,11 @@ public class Acceptor implements Runnable, Observer {
         }
     }
 
+    /**
+     * Recieves player ID and adds player to the game
+     * @param conn Client connection
+     * @param playerId Player ID
+     */
     private void processIdentity(Connection conn, long playerId) {
         Player player = new Player(playerId, conn, this.dc);
         synchronized(players) {
