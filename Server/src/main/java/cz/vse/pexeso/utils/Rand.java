@@ -1,6 +1,8 @@
 package cz.vse.pexeso.utils;
 
-public class Rand {
+public final class Rand {
+
+    private Rand() {}
 
     public static int between(int min, int max) {
         int start = Math.min(min, max);

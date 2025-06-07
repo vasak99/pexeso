@@ -118,7 +118,7 @@ public class MessageController {
 
         String host = Utils.getLocalAddress();
 
-        if(host.equals("localhost")) {
+        if("localhost".equals(host)) {
             conn.sendMessage(MessageFactory.getError("Could not load server address").toSendable());
             return;
         }

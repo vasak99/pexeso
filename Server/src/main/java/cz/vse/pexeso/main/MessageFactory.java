@@ -1,18 +1,17 @@
 package cz.vse.pexeso.main;
 
-import java.util.List;
-
 import cz.vse.pexeso.common.message.Message;
 import cz.vse.pexeso.common.message.MessageType;
 import cz.vse.pexeso.common.message.payload.GameListPayload;
-import cz.vse.pexeso.common.message.payload.GameStat;
 import cz.vse.pexeso.common.message.payload.GameStatsPayload;
 import cz.vse.pexeso.common.message.payload.GameUpdatePayload;
 import cz.vse.pexeso.common.message.payload.InvalidMovePayload;
 import cz.vse.pexeso.common.message.payload.LobbyUpdatePayload;
 import cz.vse.pexeso.common.message.payload.ResultPayload;
 
-public class MessageFactory {
+public final class MessageFactory {
+
+    private MessageFactory() {}
 
     public static Message getError(String message) {
         Message ret = createMessage(MessageType.ERROR);

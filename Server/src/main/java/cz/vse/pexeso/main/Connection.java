@@ -41,6 +41,7 @@ public class Connection implements Runnable, Observable {
         }
     }
 
+    @Override
     public void run() {
         while(keepAlive && !socket.isClosed()) {
             String msg = "";
