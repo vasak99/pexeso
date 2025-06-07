@@ -3,6 +3,7 @@ package cz.vse.pexeso.main;
 import cz.vse.pexeso.common.exceptions.DataFormatException;
 import cz.vse.pexeso.common.message.Message;
 import cz.vse.pexeso.common.message.MessageType;
+import cz.vse.pexeso.common.message.payload.GameStatsPayload;
 import cz.vse.pexeso.common.message.payload.JoinGamePayload;
 import cz.vse.pexeso.common.message.payload.LoginPayload;
 import cz.vse.pexeso.common.message.payload.RegisterPayload;
@@ -38,6 +39,9 @@ public class MessageController {
                 break;
             case MessageType.JOIN_GAME:
                 this.joinGame(conn, msg);
+                break;
+            case MessageType.PLAYER_STATS:
+                this.playerStats(conn, msg);
                 break;
             default:
                 break;
@@ -119,12 +123,19 @@ public class MessageController {
 
         String host = Utils.getLocalAddress();
 
-        if(host.equals("localhost")) {
+        if("localhost".equals(host)) {
             conn.sendMessage(MessageFactory.getError("Could not load server address").toSendable());
             return;
         }
 
         conn.sendMessage(MessageFactory.getRedirectMessage(host, game.getPort()).toSendable());
+    }
+
+    private void playerStats(Connection conn, Message msg) {
+        var stats = this.dc.getAllPlayerGames(msg.getPlayerId());
+
+        GameStatsPayload ret = new GameStatsPayload(stats);
+        conn.sendMessage(MessageFactory.getStatsMessage(ret).toSendable());
     }
 
 }

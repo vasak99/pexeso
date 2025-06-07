@@ -15,6 +15,8 @@ public enum MessageType {
 
     INVALID_MOVE("INVALID_GAME"),
 
+    PLAYER_STATS("PLAYER_STATS"),
+
     STATUS("STATUS"),
 
     MOVE("MOVE"),

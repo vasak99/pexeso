@@ -9,6 +9,7 @@ public class Card {
     public Card(int id, String image) {
         this.id = id;
         this.image = image;
+        this.id = id;
     }
 
     public String getImage() {

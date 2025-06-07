@@ -3,12 +3,15 @@ package cz.vse.pexeso.main;
 import cz.vse.pexeso.common.message.Message;
 import cz.vse.pexeso.common.message.MessageType;
 import cz.vse.pexeso.common.message.payload.GameListPayload;
+import cz.vse.pexeso.common.message.payload.GameStatsPayload;
 import cz.vse.pexeso.common.message.payload.GameUpdatePayload;
 import cz.vse.pexeso.common.message.payload.InvalidMovePayload;
 import cz.vse.pexeso.common.message.payload.LobbyUpdatePayload;
 import cz.vse.pexeso.common.message.payload.ResultPayload;
 
-public class MessageFactory {
+public final class MessageFactory {
+
+    private MessageFactory() {}
 
     public static Message getError(String message) {
         Message ret = createMessage(MessageType.ERROR);
@@ -93,6 +96,12 @@ public class MessageFactory {
     public static Message getResultMessage(ResultPayload data) {
         Message ret = createMessage(MessageType.RESULT);
         ret.setData(data.toSendable());
+        return ret;
+    }
+
+    public static Message getStatsMessage(GameStatsPayload stats) {
+        Message ret = createMessage(MessageType.PLAYER_STATS);
+        ret.setData(stats.toSendable());
         return ret;
     }
 

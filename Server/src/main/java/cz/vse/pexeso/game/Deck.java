@@ -2,6 +2,7 @@ package cz.vse.pexeso.game;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 import cz.vse.pexeso.common.environment.Variables;
 import cz.vse.pexeso.exceptions.DeckException;
@@ -9,7 +10,7 @@ import cz.vse.pexeso.utils.ArrayUtils;
 
 public class Deck {
 
-    private ArrayList<String> cards;
+    private List<String> cards;
 
     private String[] allowedExtensions = new String[] { "jpg", "jpeg", "png" };
 

@@ -59,6 +59,8 @@ public class GameServerRuntime implements Observer {
             return;
         }
 
+        this.dc.getAllPlayerGames(1);
+
         this.glu = new GameLobbyUpdater(this);
         new Thread(this.glu).start();
 
@@ -133,11 +135,16 @@ public class GameServerRuntime implements Observer {
                 }
                 try {
                     port = Variables.DEFAULT_PORT + i;
-                    game = new Game(cgp.gameName, inmsg.getPlayerId(), cgp.gameId, cgp.capacity, cgp.cardCount, port, this.dc, this);
+                    game = new Game(cgp.gameName, inmsg.getPlayerId(), cgp.capacity, cgp.cardCount, port, this.dc, this);
                 } catch (IOException e) {}
             }
 
-            this.games.put(game.getId(), game);
+            String gameId = "";
+            do {
+                gameId = "" + Math.floor(Math.random() * Long.MAX_VALUE);
+            } while(this.games.keySet().contains(gameId));
+            game.setGameId(gameId);
+            this.games.put(gameId, game);
 
             game.startSession();
             conn.sendMessage(MessageFactory.getRedirectMessage(Utils.getLocalAddress(), port).toSendable());
