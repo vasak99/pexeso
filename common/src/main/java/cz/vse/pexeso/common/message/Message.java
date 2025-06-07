@@ -39,18 +39,18 @@ public class Message {
             }
 
             if(!isInMsg) { continue; }
-
-            //when there is a colon (“:”) that's not supposed to be a separator,
-            //e.g. message in data containing ":"
-            //-> ent gets split into 3+ parts -> gets skipped
-            String[] spl = ent.split(MessageComponent.KEY_VALUE_SEPARATOR.getValue());
+            String[] spl = ent.split(MessageComponent.KEY_VALUE_SEPARATOR.getValue(),2);
 
             if(spl.length != 2) {
                 continue;
             }
 
-            MessageComponent mc = MessageComponent.fromString(spl[0]);
-            if(mc == null) { continue; }
+            MessageComponent mc;
+            try {
+                mc = MessageComponent.fromString(spl[0]);
+            } catch (IllegalArgumentException e) {
+                continue;
+            }
 
             this.setEntry(mc, spl[1]);
         }

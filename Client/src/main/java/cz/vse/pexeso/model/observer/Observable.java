@@ -1,15 +1,41 @@
 package cz.vse.pexeso.model.observer;
 
+import cz.vse.pexeso.common.message.MessageType;
+
+/**
+ * Observable interface, allows registration, unregistration and notification
+ *
+ * @author kott10
+ * @version June 2025
+ */
 public interface Observable {
-    void register(MessageTypeClient type, Observer observer);
+    /**
+     * Registers a simple observer for the given MessageType.
+     */
+    void register(MessageType type, Observer observer);
 
-    void registerWithData(MessageTypeClient type, ObserverWithData observerWithData);
+    /**
+     * Registers a data observer for the given MessageType.
+     */
+    void registerWithData(MessageType type, ObserverWithData observerWithData);
 
-    void unregister(MessageTypeClient type, Observer observer);
+    /**
+     * Unregisters a simple observer from the given MessageType.
+     */
+    void unregister(MessageType type, Observer observer);
 
-    void unregisterWithData(MessageTypeClient type, ObserverWithData observerWithData);
+    /**
+     * Unregisters a data observer from the given MessageType.
+     */
+    void unregisterWithData(MessageType type, ObserverWithData observerWithData);
 
-    void notifyObservers(MessageTypeClient type);
+    /**
+     * Notifies all registered simple observers of the given MessageType.
+     */
+    void notifyObservers(MessageType type);
 
-    void notifyObservers(MessageTypeClient type, Object data);
+    /**
+     * Notifies all registered data-carrying observers of the given MessageType with the provided data.
+     */
+    void notifyObservers(MessageType type, Object data);
 }

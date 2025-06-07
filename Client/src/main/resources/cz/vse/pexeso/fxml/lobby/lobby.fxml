@@ -19,7 +19,7 @@
                 <Font size="24.0" />
             </font>
         </Label>
-        <TableView fx:id="gameRoomTable" prefHeight="416.0" prefWidth="750.0">
+        <TableView fx:id="lobbyTable" prefHeight="416.0" prefWidth="750.0">
             <columns>
                 <TableColumn fx:id="roomStatusColumn" editable="false" prefWidth="130.0" resizable="false" text="Status" />
                 <TableColumn fx:id="gameNameColumn" editable="false" prefWidth="150.0" resizable="false" text="Name" />

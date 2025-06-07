@@ -46,7 +46,7 @@ public enum MessageType {
     GIVE_UP("GIVE_UP"),
 
     ERROR("ERROR"),
-    REGISTER("REGISTER"),;
+    REGISTER("REGISTER"), LOGOUT("LOGOUT");
 
     private String value;
 

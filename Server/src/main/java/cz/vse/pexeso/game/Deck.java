@@ -11,7 +11,7 @@ public class Deck {
 
     private ArrayList<String> cards;
 
-    private String[] allowedExtensions = new String[] { "jpg", "jpeg", "png", "webp" };
+    private String[] allowedExtensions = new String[] { "jpg", "jpeg", "png" };
 
     public Deck() throws DeckException {
         File folder = new File(System.getProperty("user.dir") + Variables.STATIC_PATH);

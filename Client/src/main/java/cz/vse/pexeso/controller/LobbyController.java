@@ -1,14 +1,20 @@
 package cz.vse.pexeso.controller;
 
+import cz.vse.pexeso.common.message.payload.GameListPayload;
+import cz.vse.pexeso.common.message.payload.GameUpdatePayload;
+import cz.vse.pexeso.common.message.payload.LobbyUpdatePayload;
 import cz.vse.pexeso.di.Injector;
 import cz.vse.pexeso.model.GameRoom;
+import cz.vse.pexeso.model.RedirectParameters;
 import cz.vse.pexeso.model.model.LobbyModel;
 import cz.vse.pexeso.model.result.LobbyResultHandler;
 import cz.vse.pexeso.model.result.LobbyResultListener;
 import cz.vse.pexeso.navigation.Navigator;
 import cz.vse.pexeso.navigation.UIConstants;
-import cz.vse.pexeso.util.Strings;
-import cz.vse.pexeso.view.helper.LobbyUIHelper;
+import cz.vse.pexeso.util.GameRoomManager;
+import cz.vse.pexeso.view.helper.GameRoomFormHelper;
+import cz.vse.pexeso.view.helper.LobbyTableInitializer;
+import cz.vse.pexeso.view.helper.LobbyUIUpdater;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -19,18 +25,25 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Controller for the lobby screen. Manages the table of available game rooms,
+ * handles join/leave actions, ready button toggles, and starts games. Updates UI
+ * based on server messages via LobbyResultListener.
+ *
+ * @author kott10
+ * @version June 2025
+ */
 public class LobbyController implements LobbyResultListener {
     private static final Logger log = LoggerFactory.getLogger(LobbyController.class);
 
     private final Navigator navigator;
     private final LobbyModel lobbyModel;
-
     private final LobbyResultHandler resultHandler;
 
     @FXML
     private Label tableTitle;
     @FXML
-    private TableView<GameRoom> gameRoomTable;
+    private TableView<GameRoom> lobbyTable;
     @FXML
     private TableColumn<GameRoom, String> roomStatusColumn;
     @FXML
@@ -50,169 +63,200 @@ public class LobbyController implements LobbyResultListener {
 
     private LastAction lastAction = LastAction.NONE;
 
+    private enum LastAction {
+        NONE,
+        JOIN,
+        LEAVE
+    }
+
+    /**
+     * Constructs a LobbyController with necessary dependencies.
+     *
+     * @param navigator  for screen navigation
+     * @param lobbyModel for lobby logic
+     * @param injector   to obtain LobbyResultHandler
+     */
     public LobbyController(Navigator navigator, LobbyModel lobbyModel, Injector injector) {
         this.navigator = navigator;
         this.lobbyModel = lobbyModel;
-        this.resultHandler = injector.createLobbyResultHandler(this);
+        this.resultHandler = injector.getHandlerFactory().createLobbyResultHandler(this);
     }
 
+    /**
+     * Initializes the lobby screen: registers listeners, sets up the table,
+     * clears any existing session room, and updates UI labels/buttons.
+     */
     @FXML
     private void initialize() {
         resultHandler.initialRegister();
-        LobbyUIHelper.setup(gameRoomTable, roomStatusColumn, gameNameColumn, hostNameColumn, boardSizeColumn, roomCapacityColumn, actionsColumn, this, lobbyModel, resultHandler);
 
-        onLobbyUIUpdate();
-        tableTitle.setText(String.format(Strings.AVAILABLE_ROOMS, lobbyModel.getSession().getPlayerName()));
+        LobbyTableInitializer.initialize(lobbyTable, roomStatusColumn, gameNameColumn,
+                hostNameColumn, boardSizeColumn, roomCapacityColumn, actionsColumn, this, lobbyModel);
+        lobbyModel.clearCurrentGameRoom();
+        updateUI();
 
-        log.info("LobbyController initialized");
+        tableTitle.setText(String.format("Available rooms for %s", lobbyModel.getPlayerName()));
+
+        log.info("LobbyController initialized.");
     }
 
+    /**
+     * Handles click on the manage room button. Opens either the room manager or creator depending on session state.
+     * Unregisters the result handler.
+     */
     @FXML
     private void handleManageRoomClick() {
         resultHandler.unregister();
-        Stage stage;
-        if (lobbyModel.isInARoom()) {
-            stage = navigator.openGameRoomManager();
-        } else {
-            stage = navigator.openGameRoomCreator();
-        }
-        if (stage != null) {
-            stage.setOnHidden(windowEvent -> {
-                if (lobbyModel.getCurrentGameRoom() != null) {
-                    if (!lobbyModel.getCurrentGameRoom().isInProgress()) {
-                        resultHandler.register();
-                    }
-                } else {
-                    resultHandler.register();
-                }
 
-            });
+        Stage stage;
+        if (lobbyModel.isInRoom()) {
+            stage = navigator.openGameRoomManager(this);
+        } else {
+            stage = navigator.openGameRoomCreator(this);
+        }
+
+        if (stage != null) {
+            GameRoomFormHelper.setupSetOnHidden(stage, lobbyModel, resultHandler);
+            log.info("Opened game room form (manage or create) successfully");
+        } else {
+            log.warn("Stage returned by navigator is null");
         }
     }
 
+    /**
+     * Handles click on the ready button. Updates UI state to reflect ready status and sends ready request to server.
+     */
     @FXML
     private void handleReadyClick() {
-        editReadyButton(true, Strings.READY, UIConstants.GREEN_COLOR);
+        LobbyUIUpdater.editReadyButton(true, "Ready", UIConstants.GREEN_COLOR, readyButton);
         lobbyModel.attemptReady();
+        log.info("Ready request sent");
     }
 
-    public void joinGameRoom(GameRoom gameRoom) {
+    /**
+     * Initiates joining a game room. Validates gameId and sends join request.
+     *
+     * @param gameId the ID of the room to join
+     */
+    public void joinGameRoom(String gameId) {
         lastAction = LastAction.JOIN;
-        lobbyModel.attemptJoin(gameRoom);
+        lobbyModel.attemptJoin(gameId);
+        log.info("Attempted to join gameId={}", gameId);
     }
 
+    /**
+     * Initiates leaving the current game room. Shows confirmation alert and sends leave request on confirmation.
+     */
     public void leaveGameRoom() {
-        if (navigator.showConfirmation(Strings.LEAVE_ROOM_CONFIRMATION)) {
+        if (navigator.showConfirmation("Are you sure you want to leave this game room?")) {
             lastAction = LastAction.LEAVE;
             lobbyModel.attemptLeave();
+            log.info("Leave request sent");
         }
     }
 
+    /**
+     * Handles redirect message based on last action - either join or leaves room, updates UI
+     *
+     * @param parameters redirect data
+     */
     @Override
-    public void onLobbySuccess(String redirectData) {
+    public void onRedirect(RedirectParameters parameters) {
         switch (lastAction) {
-            case JOIN -> lobbyModel.finalizeJoin(redirectData);
-            case LEAVE -> lobbyModel.finalizeLeave(redirectData);
+            case JOIN -> {
+                lobbyModel.finalizeJoin(parameters);
+                log.info("Join finalized with redirectData={}", parameters);
+            }
+            case LEAVE -> {
+                lobbyModel.finalizeLeave(parameters);
+                log.info("Leave finalized with redirectData={}", parameters);
+            }
             case NONE -> {
-                lobbyModel.finalizeLeave(redirectData);
-                Platform.runLater(navigator::closeConfirmationAlert);
-                Platform.runLater(() -> navigator.showError(Strings.KICK_ALERT));
+                lobbyModel.finalizeLeave(parameters);
+                Platform.runLater(() -> {
+                    navigator.closeConfirmationAlert();
+                    navigator.showError("You got kicked from the game room");
+                });
+                log.warn("Received redirect with NONE action: treated as kick");
             }
         }
         lastAction = LastAction.NONE;
-
-        onLobbyUIUpdate();
+        updateUI();
     }
 
+    /**
+     * Handles error messages from the lobby server. Displays an error alert with the provided description.
+     *
+     * @param errorDescription the error message to display
+     */
     @Override
-    public void onLobbyError(String errorDescription) {
+    public void onError(String errorDescription) {
         Platform.runLater(() -> navigator.showError(errorDescription));
+        log.warn("Lobby error received: {}", errorDescription);
     }
 
+    /**
+     * Handles game server updates by updating the lobby model and refreshing the UI.
+     *
+     * @param glp update payload
+     */
     @Override
-    public void onGameRoomUpdate(String data) {
-        lobbyModel.updateGameRooms(data);
-
-        onLobbyUIUpdate();
+    public void onGameServerUpdate(GameListPayload glp) {
+        lobbyModel.updateLobby(glp);
+        log.info("Processed game server update in lobby");
+        updateUI();
     }
 
+    /**
+     * Handles updates to the lobby room data. Updates the lobby model and logs the update.
+     *
+     * @param lup update payload
+     */
     @Override
-    public void onPlayerUpdate(String data) {
-        lobbyModel.updatePlayers(data);
+    public void onLobbyUpdate(LobbyUpdatePayload lup) {
+        lobbyModel.updateGameRoom(lup);
+        log.debug("Lobby room data updated");
     }
 
-    @Override
-    public void onLobbyUIUpdate() {
-        gameRoomTable.setItems(GameRoom.gameRooms);
-        gameRoomTable.refresh();
+    /**
+     * Refreshes the lobby UI: populates the table, updates button states. Logs any exceptions encountered.
+     */
+    public void updateUI() {
+        lobbyTable.setItems(GameRoomManager.gameRooms);
+        lobbyTable.refresh();
 
-        updateManageRoomButon();
-        updateReadyButton();
-    }
-
-    @Override
-    public void onIdentityRequested() {
-        lobbyModel.sendIdentity();
-    }
-
-    @Override
-    public void onStartGame(String data) {
-        lobbyModel.setInProgress(true);
-        lobbyModel.initializeGame(data);
         Platform.runLater(() -> {
+            LobbyUIUpdater.updateManageRoomButton(lobbyModel, manageRoomButton);
+            LobbyUIUpdater.updateReadyButton(lobbyModel, readyButton);
+        });
+
+        log.debug("Lobby UI updated");
+    }
+
+    /**
+     * Handles identity requests from the server. Sends the player's identity to the server.
+     */
+    @Override
+    public void onRequestIdentity() {
+        lobbyModel.sendIdentity();
+        log.info("Sent identity to server");
+    }
+
+    /**
+     * Handles game start requests. Initializes the game model and navigates to the game screen.
+     *
+     * @param gup game data
+     */
+    @Override
+    public void onStartGame(GameUpdatePayload gup) {
+        lobbyModel.setCurrentRoomInProgress(true);
+        Platform.runLater(() -> {
+            lobbyModel.initializeGame(gup);
             navigator.closeConfirmationAlert();
             navigator.closeWindow();
             navigator.goToGame();
         });
         resultHandler.finalUnregister();
-    }
-
-    private void updateManageRoomButon() {
-        String currentRoomId = lobbyModel.getCurrentGameRoomId();
-        boolean isHost = lobbyModel.isHosting();
-
-        if (currentRoomId == null) {
-            editManageRoomButton(false, Strings.CREATE_ROOM);
-        } else if (isHost) {
-            editManageRoomButton(false, Strings.MANAGE_ROOM);
-        } else {
-            editManageRoomButton(true, Strings.CREATE_ROOM);
-        }
-    }
-
-    private void updateReadyButton() {
-        String currentRoomId = lobbyModel.getCurrentGameRoomId();
-        boolean isReady = lobbyModel.isReady();
-        boolean isHost = lobbyModel.isHosting();
-
-        if (currentRoomId == null) {
-            editReadyButton(true, Strings.NOT_READY, UIConstants.RED_COLOR);
-        } else if (!isReady) {
-            editReadyButton(false, null, null);
-        } else if (isHost) {
-            editReadyButton(true, Strings.READY, UIConstants.GREEN_COLOR);
-        }
-    }
-
-    private void editManageRoomButton(boolean disabled, String text) {
-        manageRoomButton.setDisable(disabled);
-        Platform.runLater(() -> manageRoomButton.setText(text));
-    }
-
-    private void editReadyButton(boolean disabled, String text, String color) {
-        readyButton.setDisable(disabled);
-
-        if (text != null) {
-            Platform.runLater(() -> readyButton.setText(text));
-        }
-        if (color != null) {
-            Platform.runLater(() -> readyButton.setStyle(color));
-        }
-    }
-
-    private enum LastAction {
-        NONE,
-        JOIN,
-        LEAVE,
+        log.info("Game start initiated");
     }
 }

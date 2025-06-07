@@ -47,7 +47,7 @@
         </font>
     </Label>
     <PasswordField fx:id="confirmPasswordField" maxWidth="300.0" minHeight="30.0" GridPane.rowIndex="6"/>
-    <Button onMouseClicked="#handleButtonClick" fx:id="actionButton" mnemonicParsing="false" text="Register"
+    <Button onMouseClicked="#handleAuthButtonClick" fx:id="actionButton" mnemonicParsing="false" text="Register"
             GridPane.rowIndex="7">
         <font>
             <Font size="18.0"/>

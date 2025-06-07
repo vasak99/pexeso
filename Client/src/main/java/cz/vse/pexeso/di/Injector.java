@@ -4,15 +4,22 @@ import cz.vse.pexeso.model.model.AuthModel;
 import cz.vse.pexeso.model.model.GameModel;
 import cz.vse.pexeso.model.model.GameRoomModel;
 import cz.vse.pexeso.model.model.LobbyModel;
-import cz.vse.pexeso.model.result.*;
+import cz.vse.pexeso.model.result.HandlerFactory;
 import cz.vse.pexeso.model.service.*;
 import cz.vse.pexeso.navigation.Navigator;
 import cz.vse.pexeso.navigation.SceneManager;
 import cz.vse.pexeso.navigation.SceneNavigator;
+import cz.vse.pexeso.network.ConnectionService;
 import cz.vse.pexeso.network.RedirectService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Responsible for creating and wiring dependencies
+ *
+ * @author kott10
+ * @version June 2025
+ */
 public class Injector {
     private static final Logger log = LoggerFactory.getLogger(Injector.class);
 
@@ -33,9 +40,13 @@ public class Injector {
     private final GameRoomModel gameRoomModel;
     private final GameModel gameModel;
 
+    private final HandlerFactory handlerFactory;
+
+    /**
+     * Constructs a new Injector, initializes all services, models, handler factories, and navigation.
+     */
     public Injector() {
-        this.sceneManager = new SceneManager(this);
-        this.navigator = new SceneNavigator(sceneManager);
+        log.info("Initializing Injector and all components");
 
         this.connectionService = new ConnectionService();
         this.redirectService = new RedirectService(connectionService);
@@ -46,11 +57,25 @@ public class Injector {
         this.gameRoomService = new GameRoomService(connectionService);
         this.gameService = new GameService(connectionService);
 
+        this.handlerFactory = new HandlerFactory(connectionService);
 
-        this.authModel = new AuthModel(authService, sessionService);
+        this.authModel = new AuthModel(authService, sessionService, redirectService);
         this.lobbyModel = new LobbyModel(lobbyService, sessionService, redirectService);
         this.gameRoomModel = new GameRoomModel(gameRoomService, sessionService, redirectService);
         this.gameModel = new GameModel(gameService, sessionService, redirectService);
+
+        this.sceneManager = new SceneManager(this);
+        this.navigator = new SceneNavigator(sceneManager);
+
+        log.info("Injector initialization complete");
+    }
+
+    public ConnectionService getConnectionService() {
+        return connectionService;
+    }
+
+    public SessionService getSessionService() {
+        return sessionService;
     }
 
     public SceneManager getSceneManager() {
@@ -77,26 +102,24 @@ public class Injector {
         return gameModel;
     }
 
-    public AuthResultHandler createAuthResultHandler(AuthResultListener listener) {
-        return new AuthResultHandler(listener, connectionService);
+    public HandlerFactory getHandlerFactory() {
+        return handlerFactory;
     }
 
-    public LobbyResultHandler createLobbyResultHandler(LobbyResultListener listener) {
-        return new LobbyResultHandler(listener, connectionService);
-    }
-
-    public GameRoomResultHandler createGameRoomResultHandler(GameRoomResultListener listener) {
-        return new GameRoomResultHandler(listener, connectionService);
-    }
-
-    public GameResultHandler createGameResultHandler(GameResultListener listener) {
-        return new GameResultHandler(listener, connectionService);
-    }
-
+    /**
+     * Closes connection
+     */
     public void shutdown() {
         log.info("Shutting down network services");
         if (connectionService.getConnection() != null) {
-            connectionService.getConnection().close();
+            try {
+                connectionService.getConnection().close();
+                log.info("Connection closed successfully");
+            } catch (Exception e) {
+                log.error("Error while closing connection: ", e);
+            }
+        } else {
+            log.warn("No active connection to close");
         }
     }
 }
