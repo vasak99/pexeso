@@ -8,6 +8,7 @@ import cz.vse.pexeso.common.message.payload.CreateGamePayload;
 import cz.vse.pexeso.database.DatabaseController;
 import cz.vse.pexeso.exceptions.PlayersException;
 import cz.vse.pexeso.game.Game;
+import cz.vse.pexeso.game.Player;
 import cz.vse.pexeso.utils.Observable;
 import cz.vse.pexeso.utils.Observer;
 import cz.vse.pexeso.utils.Utils;
@@ -18,8 +19,12 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import cz.vse.pexeso.main.http.ImageServer;
@@ -58,6 +63,8 @@ public class GameServerRuntime implements Observer {
             log.error("An SQLException occurred while trying to connect to database: " + e.getMessage());
             return;
         }
+
+        this.dc.getAllPlayerGames(1);
 
         this.glu = new GameLobbyUpdater(this);
         new Thread(this.glu).start();
@@ -133,11 +140,16 @@ public class GameServerRuntime implements Observer {
                 }
                 try {
                     port = Variables.DEFAULT_PORT + i;
-                    game = new Game(cgp.gameName, inmsg.getPlayerId(), cgp.gameId, cgp.capacity, cgp.cardCount, port, this.dc, this);
+                    game = new Game(cgp.gameName, inmsg.getPlayerId(), cgp.capacity, cgp.cardCount, port, this.dc, this);
                 } catch (IOException e) {}
             }
 
-            this.games.put(game.getId(), game);
+            String gameId = "";
+            do {
+                gameId = "" + Math.floor(Math.random() * Long.MAX_VALUE);
+            } while(this.games.keySet().contains(gameId));
+            game.setGameId(gameId);
+            this.games.put(gameId, game);
 
             game.startSession();
             conn.sendMessage(MessageFactory.getRedirectMessage(Utils.getLocalAddress(), port).toSendable());

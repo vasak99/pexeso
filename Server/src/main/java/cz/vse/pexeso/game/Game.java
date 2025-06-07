@@ -2,6 +2,7 @@ package cz.vse.pexeso.game;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -47,7 +48,7 @@ public class Game implements Observer {
     private int playersCapacity;
     private int cardCount;
     private int port;
-    private long creatorId;
+    private String creatorId;
     private Map<Long, Player> players;
     private List<Long> playersOrder;
     private int activePlayerIndex;
@@ -56,7 +57,10 @@ public class Game implements Observer {
 
     private Acceptor acceptor;
 
-    public Game(String name, long creatorId, String gameId, int playersCapacity, int cardCount, int port, DatabaseController dc, GameServerRuntime gsr) throws PlayersException, IOException {
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
+
+    public Game(String name, long creatorId, int playersCapacity, int cardCount, int port, DatabaseController dc, GameServerRuntime gsr) throws PlayersException, IOException {
         if(playersCapacity < Variables.MIN_PLAYERS) {
             throw new PlayersException("Minimum number of players is " + Variables.MIN_PLAYERS);
         }
@@ -64,8 +68,10 @@ public class Game implements Observer {
             throw new PlayersException("Maximum number of players is " + Variables.MAX_PLAYERS);
         }
 
+        this.startTime = LocalDateTime.now();
+
         this.gameName = name;
-        this.creatorId = creatorId;
+        this.creatorId = "" + creatorId;
         this.players = new HashMap<>();
         this.serverSocket = new ServerSocket(port);
         this.playersCapacity = playersCapacity;
@@ -73,9 +79,12 @@ public class Game implements Observer {
         this.port = port;
         this.dc = dc;
 
-        this.gameId = gameId;
         this.gsr = gsr;
         this.playersOrder = new ArrayList<>();
+    }
+
+    public void setGameId(String id) {
+        this.gameId = id;
     }
 
     public void startSession() {
@@ -160,12 +169,12 @@ public class Game implements Observer {
         return cardCount;
     }
 
-    public long getCreatorId() {
+    public String getCreatorId() {
         return creatorId;
     }
 
     public String getCreatorName() {
-        return dc.getUserById(creatorId).name;
+        return dc.getUserById(Long.parseLong(creatorId)).name;
     }
 
     @Override
@@ -236,11 +245,22 @@ public class Game implements Observer {
 
         if(this.gameBoard.allRevealed()) {
             sendToAll(MessageFactory.getResultMessage(this.getResult()));
+            this.endTime = LocalDateTime.now();
+            this.dc.saveGameResult(this.gameId, this.gameName, this.startTime, this.endTime, this.getPlayersList());
+
         } else {
             sendToAll(MessageFactory.getGameUpdateMessage(this.getGameUpdateData()));
         }
 
 
+    }
+
+    public List<Player> getPlayersList() {
+        List<Player> players = new ArrayList<>();
+        for(var pl : this.players.entrySet()) {
+            players.add(pl.getValue());
+        }
+        return players;
     }
 
     public void sendToAll(Message msg) {
@@ -251,7 +271,7 @@ public class Game implements Observer {
 
     public void editGame(Connection conn, Message msg) {
         if(this.isStarted) {
-            sendToAll(MessageFactory.getError("Cannot modify game after it has started"));
+            sendTo(conn, MessageFactory.getError("Cannot modify game after it has started"));
             return;
         }
         EditGamePayload data = null;
@@ -265,6 +285,8 @@ public class Game implements Observer {
         if(!this.checkGamePlayer(conn, msg) || !this.checkCreator(conn, msg)) {
             return;
         }
+
+        if(!checkPlayersCapacity(conn, data.capacity) || !checkCardCount(conn, data.cardCount)) return;
 
         this.gameName = data.name;
         this.playersCapacity = data.capacity;
@@ -295,6 +317,15 @@ public class Game implements Observer {
         this.players.remove(msg.getPlayerId());
         conn.terminate();
 
+        if(this.creatorId.equals("" + msg.getPlayerId())) {
+            sendToAll(MessageFactory.getRedirectMessage(Utils.getLocalAddress(), Variables.DEFAULT_PORT));
+            for(var con : this.players.entrySet()) {
+                con.getValue().getConnection().terminate();
+            }
+            this.terminate();
+            return;
+        }
+
         if(this.players.size() < 1) {
             this.terminate();
         } else {
@@ -322,7 +353,7 @@ public class Game implements Observer {
         }
 
         KickPlayerPayload data = new KickPlayerPayload(msg);
-        if(this.creatorId == data.playerId) {
+        if(this.creatorId.equals("" + data.playerId)) {
             sendTo(conn, MessageFactory.getError("Cannot kick creator"));
             return;
         }
@@ -356,7 +387,7 @@ public class Game implements Observer {
     }
 
     private boolean checkCreator(Connection conn, Message msg) {
-        if(this.creatorId != msg.getPlayerId()) {
+        if(this.creatorId.equals("" + msg.getPlayerId())) {
             sendTo(conn, MessageFactory.getError("You do not have elevated permissions on this session"));
             return false;
         }
@@ -395,7 +426,8 @@ public class Game implements Observer {
         GameUpdatePayload data = new GameUpdatePayload(
             this.gameBoard.getAsData(),
             players,
-            this.playersOrder.get(this.activePlayerIndex)
+            this.playersOrder.get(this.activePlayerIndex),
+            this.gameId
         );
 
         return data;
@@ -414,6 +446,28 @@ public class Game implements Observer {
         ResultPayload data = new ResultPayload(sendable, winner);
 
         return data;
+    }
+
+    private boolean checkPlayersCapacity(Connection conn, int capacity) {
+        if(capacity != this.playersCapacity && capacity < this.players.size()) {
+            sendTo(conn, MessageFactory.getError("Game size too small"));
+            return false;
+        }
+
+        if(capacity > Variables.MAX_PLAYERS || capacity < Variables.MIN_PLAYERS) {
+            sendTo(conn, MessageFactory.getError("Game size out of bounds"));
+            return false;
+        }
+        return true;
+
+    }
+
+    private boolean checkCardCount(Connection conn, int count) {
+        if(count < Variables.MIN_CARDS || count > Variables.MAX_CARDS) {
+            sendTo(conn, MessageFactory.getError("Cards count out of bounds"));
+            return false;
+        }
+        return true;
     }
 
 }
