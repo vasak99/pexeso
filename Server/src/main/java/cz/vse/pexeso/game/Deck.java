@@ -8,6 +8,9 @@ import cz.vse.pexeso.common.environment.Variables;
 import cz.vse.pexeso.exceptions.DeckException;
 import cz.vse.pexeso.utils.ArrayUtils;
 
+/**
+ * Collection of the available cards
+ */
 public class Deck {
 
     private List<String> cards;
@@ -28,10 +31,19 @@ public class Deck {
         }
     }
 
+    /**
+     * Returns the image path from id
+     * @param id card id
+     * @return String
+     */
     public String getImage(int id) {
         return this.cards.get(id);
     }
 
+    /**
+     * Returns the number of available cards (images)
+     * @return int
+     */
     public int deckSize() {
         return this.cards.size();
     }

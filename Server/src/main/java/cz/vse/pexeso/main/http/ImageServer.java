@@ -6,6 +6,9 @@ import java.net.InetSocketAddress;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpServer;
 
+/**
+ * Http server for easier image transfer
+ */
 public class ImageServer implements Runnable {
 
     private HttpServer server;
@@ -23,6 +26,9 @@ public class ImageServer implements Runnable {
         this.server.start();
     }
 
+    /**
+     * Terminates image server
+     */
     public void terminate() {
         this.server.stop(0);
     }

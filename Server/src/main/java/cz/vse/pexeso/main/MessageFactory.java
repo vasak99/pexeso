@@ -37,9 +37,9 @@ public final class MessageFactory {
         return ret;
     }
 
-    public static Message getIdentityRequest() {
+    public static Message getIdentityRequest(String gameId) {
         Message ret = createMessage(MessageType.REQUEST_IDENTITY);
-        ret.setData("");
+        ret.setData(gameId);
         return ret;
     }
 

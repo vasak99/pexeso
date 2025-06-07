@@ -11,6 +11,9 @@ import org.slf4j.LoggerFactory;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
+/**
+ * Static files handler for image server
+ */
 public class StaticHandler implements HttpHandler {
 
     public static final Logger log = LoggerFactory.getLogger(StaticHandler.class);
