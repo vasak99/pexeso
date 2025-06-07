@@ -24,7 +24,7 @@ public class GameLobbyUpdater implements Runnable {
                     var games = new ArrayList<SendableGame>();
                     for(var gm : this.gsr.getAllGames().entrySet()) {
                         Game g = gm.getValue();
-                        games.add(new SendableGame(g.getId(), g.getName(), g.getCreatorId(), g.getCreatorName(), g.isStarted(), g.getPlayersCapacity(), g.getCardCount()));
+                        games.add(new SendableGame(g.getId(), g.getName(), Long.parseLong(g.getCreatorId()), g.getCreatorName(), g.isStarted(), g.getPlayersCapacity(), g.getCardCount()));
                     }
 
                     var data = new GameListPayload(games);

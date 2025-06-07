@@ -9,8 +9,9 @@ public class GameUpdatePayload implements MessagePayload {
     public String gameBoard;
     public List<SendablePlayer> players;
     public Long activePlayer;
+    public String gameId;
 
-    public GameUpdatePayload(String gameBoard, List<SendablePlayer> players, Long activePlayer) {
+    public GameUpdatePayload(String gameBoard, List<SendablePlayer> players, Long activePlayer, String gameId) {
         this.gameBoard = gameBoard;
         this.players = players;
         this.activePlayer = activePlayer;
