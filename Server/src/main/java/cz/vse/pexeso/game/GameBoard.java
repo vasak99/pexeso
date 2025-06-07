@@ -2,6 +2,7 @@ package cz.vse.pexeso.game;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -69,7 +70,7 @@ public class GameBoard {
             ord.add(id);
         }
 
-        ArrayList<Integer> openPositions = new ArrayList<Integer>();
+        List<Integer> openPositions = new ArrayList<Integer>();
         for(int i = 0; i < cardCount; i++) {
             openPositions.add(i);
         }

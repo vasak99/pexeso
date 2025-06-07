@@ -21,7 +21,6 @@ import cz.vse.pexeso.utils.Observer;
 public class Acceptor implements Runnable, Observer {
     public static final Logger log = LoggerFactory.getLogger(Acceptor.class);
 
-    private String gameId;
     private ServerSocket serverSocket;
     private Map<Long, Player> players;
     private Set<Connection> pendingConnections;
@@ -41,6 +40,7 @@ public class Acceptor implements Runnable, Observer {
         this.game = game;
     }
 
+    @Override
     public void run() {
         this.keepAlive = true;
             synchronized(this.serverSocket) {
@@ -69,14 +69,6 @@ public class Acceptor implements Runnable, Observer {
             conn.sendMessage(MessageFactory.getError("Game capacity full").toSendable());
             conn.unsubscribe(this);
         }
-        // try {
-        //     synchronized(serverSocket) {
-        //         serverSocket.close();
-        //     }
-        // }
-        // catch (IOException e) {
-        //     log.info("Server socket closed");
-        // }
     }
 
     public void onNotify(Observable obs, Object o) {

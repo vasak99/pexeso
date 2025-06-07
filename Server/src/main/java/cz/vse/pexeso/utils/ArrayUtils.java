@@ -1,6 +1,8 @@
 package cz.vse.pexeso.utils;
 
-public class ArrayUtils {
+public final class ArrayUtils {
+
+    private ArrayUtils() {}
 
     public static boolean contains(Iterable<Object> arr, Object o) {
         for(var item : arr) {

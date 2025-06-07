@@ -8,7 +8,6 @@ import java.io.OutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
@@ -22,7 +21,7 @@ public class StaticHandler implements HttpHandler {
         String filename = System.getProperty("user.dir") + path;
         File file = new File(filename);
         if(file.exists()) {
-            Headers headers = exchange.getResponseHeaders();
+            var headers = exchange.getResponseHeaders();
             String extension = filename.substring(filename.lastIndexOf('.') + 1);
             headers.set("Content-Type", "image/" + extension);
             exchange.sendResponseHeaders(200, file.length());

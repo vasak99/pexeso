@@ -9,8 +9,10 @@ import org.slf4j.LoggerFactory;
 import cz.vse.pexeso.common.message.payload.SendablePlayer;
 import cz.vse.pexeso.game.Player;
 
-public class Utils {
+public final class Utils {
     public static final Logger log = LoggerFactory.getLogger(Utils.class);
+
+    private Utils() {}
 
     public static String getLocalAddress() {
         String ret = "localhost";

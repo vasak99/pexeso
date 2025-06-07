@@ -286,7 +286,9 @@ public class Game implements Observer {
             return;
         }
 
-        if(!checkPlayersCapacity(conn, data.capacity) || !checkCardCount(conn, data.cardCount)) return;
+        if(!checkPlayersCapacity(conn, data.capacity) || !checkCardCount(conn, data.cardCount)) {
+            return;
+        }
 
         this.gameName = data.name;
         this.playersCapacity = data.capacity;
@@ -326,7 +328,7 @@ public class Game implements Observer {
             return;
         }
 
-        if(this.players.size() < 1) {
+        if(this.players.isEmpty()) {
             this.terminate();
         } else {
             sendToAll(MessageFactory.getLobbyMessage(getLobbyData()));
@@ -423,14 +425,12 @@ public class Game implements Observer {
             players.add(new SendablePlayer(pp.getPlayerId(), pp.getName(), pp.isReady(), pp.getScore()));
         }
 
-        GameUpdatePayload data = new GameUpdatePayload(
+        return new GameUpdatePayload(
             this.gameBoard.getAsData(),
             players,
             this.playersOrder.get(this.activePlayerIndex),
             this.gameId
         );
-
-        return data;
     }
 
     public ResultPayload getResult() {
@@ -443,9 +443,7 @@ public class Game implements Observer {
         }
         SendablePlayer winner = sendable[0];
 
-        ResultPayload data = new ResultPayload(sendable, winner);
-
-        return data;
+        return new ResultPayload(sendable, winner);
     }
 
     private boolean checkPlayersCapacity(Connection conn, int capacity) {
