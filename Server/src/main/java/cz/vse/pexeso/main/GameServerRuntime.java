@@ -24,6 +24,9 @@ import java.util.Map;
 import java.util.Set;
 import cz.vse.pexeso.main.http.ImageServer;
 
+/**
+ * Main logic object - controls the application functionalities
+ */
 public class GameServerRuntime implements Observer {
 
     public static final Logger log = LoggerFactory.getLogger(GameServerRuntime.class);
@@ -88,10 +91,17 @@ public class GameServerRuntime implements Observer {
 
     }
 
+    /**
+     * Returns all currently active games
+     * @return Map<String, Game>
+     */
     public Map<String, Game> getAllGames() {
         return this.games;
     }
 
+    /**
+     * Terminates server
+     */
     public void terminate() {
         for (var conn : this.connections) {
             conn.terminate();
@@ -113,6 +123,9 @@ public class GameServerRuntime implements Observer {
         }
     }
 
+    /**
+     * Creates new game object & generates a unique ID
+     */
     public void createGame(Connection conn, Message inmsg) {
         String data = inmsg.getData();
         if(this.games.size() >= Variables.MAX_GAMES) {
@@ -158,10 +171,19 @@ public class GameServerRuntime implements Observer {
         }
     }
 
+    /**
+     * Returns game object from ID
+     * @param gameId Game ID
+     * @return Game
+     */
     public Game getGameById(String gameId) {
         return this.games.get(gameId);
     }
 
+    /**
+     * Sends a message to all connected users
+     * @param msg Message to be sent
+     */
     public void sendToAll(Message msg) {
         for(var conn : this.connections) {
             conn.sendMessage(msg.toSendable());

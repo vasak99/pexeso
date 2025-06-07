@@ -6,6 +6,9 @@ import cz.vse.pexeso.common.message.payload.GameListPayload;
 import cz.vse.pexeso.common.message.payload.SendableGame;
 import cz.vse.pexeso.game.Game;
 
+/**
+ * Asynchronous thread that updates client on currently active games
+ */
 public class GameLobbyUpdater implements Runnable {
 
     public boolean keepAlive = true;
@@ -46,6 +49,9 @@ public class GameLobbyUpdater implements Runnable {
         }
     }
 
+    /**
+     * Terminates the thread
+     */
     public void terminate() {
         this.keepAlive = false;
     }

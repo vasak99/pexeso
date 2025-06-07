@@ -15,6 +15,9 @@ import cz.vse.pexeso.common.utils.StreamReader;
 import cz.vse.pexeso.utils.Observable;
 import cz.vse.pexeso.utils.Observer;
 
+/**
+ * Connection object that mediates communication to client
+ */
 public class Connection implements Runnable, Observable {
 
     public static final Logger log = LoggerFactory.getLogger(Connection.class);
@@ -57,6 +60,9 @@ public class Connection implements Runnable, Observable {
         }
     }
 
+    /**
+     * Terminates the connection
+     */
     public void terminate() {
         this.keepAlive = false;
         try {
@@ -82,6 +88,9 @@ public class Connection implements Runnable, Observable {
         }
     }
 
+    /**
+     * Sends message via socket
+     */
     public void sendMessage(String msg) {
         try {
             StreamReader.writePacket(oos, msg);

@@ -18,6 +18,9 @@ import cz.vse.pexeso.common.message.payload.GameStat;
 import cz.vse.pexeso.database.model.User;
 import cz.vse.pexeso.game.Player;
 
+/**
+ * Methods for handling database communication
+ */
 public class DatabaseController {
     public static final Logger log = LoggerFactory.getLogger(DatabaseController.class);
 
@@ -30,10 +33,18 @@ public class DatabaseController {
         this.db = DriverManager.getConnection(DbVariables.getConnectionString(), props);
     }
 
+    /**
+     * Exposes a singular application-wide database connection
+     * @return {@link Connection}
+     */
     public Connection getDbConnection() {
         return this.db;
     }
 
+    /**
+     * Retrieves a {@link User} from database
+     * @param playerId ID of a player
+     */
     public User getUserById(long playerId) {
         try {
             var ps = this.db.prepareStatement("select * from Users where id = ?");
@@ -53,6 +64,14 @@ public class DatabaseController {
         }
     }
 
+    /**
+     * Saves game result to database
+     * @param gameId in game ID of game object
+     * @param gameName user-given name of game
+     * @param start date & time of game start
+     * @param finish date & time of game finish
+     * @param players list of players
+     */
     public void saveGameResult(String gameId, String gameName, LocalDateTime start, LocalDateTime finish, List<Player> players) {
         long dbGameId = 0;
         try {
@@ -97,6 +116,11 @@ public class DatabaseController {
 
     }
 
+    /**
+     * Retrieves a list of previously played games
+     * @param playerId player ID
+     * @return List<GameStat>
+     */
     public List<GameStat> getAllPlayerGames(long playerId) {
         try {
             var ps = this.db.prepareStatement("select * from game_user join game on (game_user.game_id = game.id) where game_user.player_id = ?;");

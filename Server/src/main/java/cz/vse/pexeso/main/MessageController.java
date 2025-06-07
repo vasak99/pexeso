@@ -15,7 +15,9 @@ import cz.vse.pexeso.utils.Utils;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-
+/**
+ * Handles main client - server communication
+ */
 public class MessageController {
 
     private DatabaseController dc;
@@ -26,6 +28,11 @@ public class MessageController {
         this.gsr = gsr;
     }
 
+    /**
+     * Delegates message handling based on message type
+     * @param conn Player connection for sending responses
+     * @param msg Received message with data
+     */
     public void handleMessage(Connection conn, Message msg) {
         switch(msg.getType()) {
             case MessageType.CREATE_GAME:
@@ -48,6 +55,11 @@ public class MessageController {
         }
     }
 
+    /**
+     * Handles login messages
+     * @param conn Player connection for sending responses
+     * @param msg Received message with data
+     */
     private void login(Connection conn, Message msg) {
         try {
             LoginPayload data = new LoginPayload(msg.getData());
@@ -79,6 +91,11 @@ public class MessageController {
         }
     }
 
+    /**
+     * Handles register messages
+     * @param conn Player connection for sending responses
+     * @param msg Received message with data
+     */
     private void register(Connection conn, Message msg) {
         try {
             RegisterPayload data = new RegisterPayload(msg.getData());
@@ -102,6 +119,11 @@ public class MessageController {
         }
     }
 
+    /**
+     * Handles join game messages
+     * @param conn Player connection for sending responses
+     * @param msg Received message with data
+     */
     private void joinGame(Connection conn, Message msg) {
         JoinGamePayload data = new JoinGamePayload(msg);
         Game game = this.gsr.getGameById(data.gameId);
@@ -131,6 +153,11 @@ public class MessageController {
         conn.sendMessage(MessageFactory.getRedirectMessage(host, game.getPort()).toSendable());
     }
 
+    /**
+     * Handles player statistics request
+     * @param conn Player connection for sending responses
+     * @param msg Received message with data
+     */
     private void playerStats(Connection conn, Message msg) {
         var stats = this.dc.getAllPlayerGames(msg.getPlayerId());
 

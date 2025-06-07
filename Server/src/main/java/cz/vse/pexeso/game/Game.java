@@ -33,6 +33,9 @@ import cz.vse.pexeso.common.message.payload.RevealCardPayload;
 import cz.vse.pexeso.common.message.payload.SendablePlayer;
 import cz.vse.pexeso.database.DatabaseController;
 
+/**
+ * Object representation of a game session
+ */
 public class Game implements Observer {
 
     public static final Logger log = LoggerFactory.getLogger(Game.class);
@@ -83,23 +86,41 @@ public class Game implements Observer {
         this.gsr = gsr;
     }
 
+    /**
+     * Sets the game ID recieved from outside
+     * @param id Game ID
+     */
     public void setGameId(String id) {
         this.gameId = id;
     }
 
+    /**
+     * Starts recieving connections from client
+     */
     public void startSession() {
         this.acceptor = new Acceptor(this.serverSocket, this.players, this.dc, this, this);
         new Thread(this.acceptor).start();
     }
 
+    /**
+     * Returns the port on which the game runs
+     * @return int
+     */
     public int getPort() {
         return this.port;
     }
 
+    /**
+     * Is game capacity full
+     * @return boolean
+     */
     public boolean isFull() {
         return this.players.size() >= this.playersCapacity;
     }
 
+    /**
+     * Closes the connection acceptor & starts game
+     */
     public void startGame() {
         this.acceptor.terminate();
         this.isStarted = true;
@@ -119,6 +140,9 @@ public class Game implements Observer {
         this.sendToAll(MessageFactory.getGameStartMessage(this.getGameUpdateData().toSendable()));
     }
 
+    /**
+     * Moves the turn to next player in order
+     */
     public void moveTurn() {
         if(this.activePlayerIndex == this.playersOrder.size() - 1) {
             this.activePlayerIndex = 0;
@@ -127,6 +151,9 @@ public class Game implements Observer {
         }
     }
 
+    /**
+     * Ends game & closes the socket
+     */
     public void terminate() {
         try {
             this.serverSocket.close();
@@ -135,6 +162,11 @@ public class Game implements Observer {
         }
     }
 
+    /**
+     * Sends a message to single player
+     * @param player Player ID
+     * @param message Message to be sent
+     */
     private void sendTo(long player, Message message) {
         var pl = this.players.get(player);
         if(pl != null) {
@@ -142,36 +174,69 @@ public class Game implements Observer {
         }
     }
 
+    /**
+     * Sends a message to single player
+     * @param conn Player connection
+     * @param message Message to be sent
+     */
     private void sendTo(Connection conn, Message message) {
         if(conn != null) {
             conn.sendMessage(message.toSendable());
         }
     }
 
+    /**
+     * Returns the game ID
+     * @return String
+     */
     public String getId() {
         return this.gameId;
     }
 
+    /**
+     * Returns game name
+     * @return String
+     */
     public String getName() {
         return this.gameName;
     }
 
+    /**
+     * Has game already started
+     * @return boolean
+     */
     public boolean isStarted() {
         return isStarted;
     }
 
+    /**
+     * Returns the max amount of players
+     * @return int
+     */
     public int getPlayersCapacity() {
         return playersCapacity;
     }
 
+    /**
+     * Returns nomber of cards
+     * @return int
+     */
     public int getCardCount() {
         return cardCount;
     }
 
+    /**
+     * Returns the ID of game creator
+     * @return String
+     */
     public String getCreatorId() {
         return creatorId;
     }
 
+    /**
+     * Returns the name of game creator
+     * @return String
+     */
     public String getCreatorName() {
         return dc.getUserById(Long.parseLong(creatorId)).name;
     }
@@ -214,6 +279,11 @@ public class Game implements Observer {
         }
     }
 
+    /**
+     * Turns the card on game board
+     * @param conn Player connection for sending response messages
+     * @param msg Recieved message
+     */
     public void revealCard(Connection conn, Message msg) {
         RevealCardPayload data = new RevealCardPayload(msg.getData());
         long playerId = msg.getPlayerId();
@@ -263,6 +333,10 @@ public class Game implements Observer {
 
     }
 
+    /**
+     * Returns the list of players
+     * @return List<Player>
+     */
     public List<Player> getPlayersList() {
         List<Player> players = new ArrayList<>();
         for(var pl : this.players.entrySet()) {
@@ -306,12 +380,21 @@ public class Game implements Observer {
         }
     }
 
+    /**
+     * Sends a message to all connected players
+     * @param msg Message to be sent
+     */
     public void sendToAll(Message msg) {
         for(var pl : this.players.entrySet()) {
             pl.getValue().getConnection().sendMessage(msg.toSendable());
         }
     }
 
+    /**
+     * Changes the game settings - must be made by game creator
+     * @param conn Player connection for sending responses
+     * @param msg Received message with new config
+     */
     public void editGame(Connection conn, Message msg) {
         if(this.isStarted) {
             sendTo(conn, MessageFactory.getError("Cannot modify game after it has started"));
@@ -340,6 +423,11 @@ public class Game implements Observer {
         sendToAll(MessageFactory.getLobbyMessage(getLobbyData()));
     }
 
+    /**
+     * Deletes the game object - requires creator
+     * @param conn Player connection for sending responses
+     * @param msg Received message with data
+     */
     public void deleteGame(Connection conn, Message msg) {
         if(!checkGamePlayer(conn, msg) || !this.checkCreator(conn, msg)) {
             return;
@@ -352,6 +440,11 @@ public class Game implements Observer {
         this.terminate();
     }
 
+    /**
+     * Removes player from game & redirects him to main server port
+     * @param conn Player connection for sending responses
+     * @param msg Received message with data
+     */
     public void leaveGame(Connection conn, Message msg) {
         if(!checkGamePlayer(conn, msg)) {
             return;
@@ -378,6 +471,11 @@ public class Game implements Observer {
         }
     }
 
+    /**
+     * Sets player status to ready
+     * @param conn Player connection for sending responses
+     * @param msg Received message with data
+     */
     public void playerReady(Connection conn, Message msg) {
         String gameId = msg.getGameId();
         if(gameId ==  null || !gameId.equals(this.gameId)) {
@@ -392,6 +490,11 @@ public class Game implements Observer {
         sendToAll(MessageFactory.getLobbyMessage(this.getLobbyData()));
     }
 
+    /**
+     * Forcibly removes a player from game & redirects him to main port - requires creator
+     * @param conn Player connection for sending responses
+     * @param msg Received message with data
+     */
     public void kickPlayer(Connection conn, Message msg) {
         if(!(checkGamePlayer(conn, msg) && checkCreator(conn, msg))) {
             return;
@@ -410,6 +513,12 @@ public class Game implements Observer {
         sendToAll(MessageFactory.getLobbyMessage(ret));
     }
 
+    /**
+     * Checks whether player refers to the correct game
+     * @param conn Player connection to send messages
+     * @param msg Received message with data
+     * @return boolean
+     */
     private boolean checkGameId(Connection conn, Message msg) {
         if(!this.gameId.equals(msg.getGameId())) {
             sendTo(conn, MessageFactory.getError("Wrong game ID"));
@@ -418,6 +527,12 @@ public class Game implements Observer {
         return true;
     }
 
+    /**
+     * Checks whether player is a member of the game
+     * @param conn Player connection for sending messages
+     * @param msg Received message with data
+     * @return boolean
+     */
     private boolean checkPlayer(Connection conn, Message msg) {
         Set<Long> players = this.players.keySet();
         for(var player : players) {
@@ -430,6 +545,12 @@ public class Game implements Observer {
         return false;
     }
 
+    /**
+     * Checks whether the player is creator of game & thus has elevated privileges
+     * @param conn Player connection for sending messages
+     * @param msg Received message with data
+     * @return boolean
+     */
     private boolean checkCreator(Connection conn, Message msg) {
         if(this.creatorId.equals("" + msg.getPlayerId())) {
             sendTo(conn, MessageFactory.getError("You do not have elevated permissions on this session"));
@@ -438,10 +559,20 @@ public class Game implements Observer {
         return true;
     }
 
+    /**
+     * Checks whether player is in game & refers to the correct game
+     * @param conn Player connection for sending responses
+     * @param msg Received message with data
+     * @return boolean
+     */
     private boolean checkGamePlayer(Connection conn, Message msg) {
         return checkGameId(conn, msg) && checkPlayer(conn, msg);
     }
 
+    /**
+     * Returns current game data for update - before game starts
+     * @return LobbyUpdatePayload
+     */
     public LobbyUpdatePayload getLobbyData() {
         var ret = new LobbyUpdatePayload();
 
@@ -459,6 +590,10 @@ public class Game implements Observer {
         return ret;
     }
 
+    /**
+     * Returns current game data for update - after game starts
+     * @return GameUpdatePayload
+     */
     public GameUpdatePayload getGameUpdateData() {
         var players = new ArrayList<SendablePlayer>();
 
@@ -475,6 +610,10 @@ public class Game implements Observer {
         );
     }
 
+    /**
+     * Returns game result as sendable data
+     * @return ResultPayload
+     */
     public ResultPayload getResult() {
         var players = new ArrayList<>(this.players.values());
         players.sort((Player p1, Player p2) -> p1.getScore() - p2.getScore());
@@ -488,6 +627,12 @@ public class Game implements Observer {
         return new ResultPayload(sendable, winner);
     }
 
+    /**
+     * Checks whether new player capacity is within acceptable bounds
+     * @param conn Player connection for sending responses
+     * @param capacity New capacity to be set
+     * @return boolean
+     */
     private boolean checkPlayersCapacity(Connection conn, int capacity) {
         if(capacity != this.playersCapacity && capacity < this.players.size()) {
             sendTo(conn, MessageFactory.getError("Game size too small"));
@@ -502,6 +647,12 @@ public class Game implements Observer {
 
     }
 
+    /**
+     * Checks whether new card count is within acceptable bounds
+     * @param conn Player connection for sending responses
+     * @param count New card count to be set
+     * @return boolean
+     */
     private boolean checkCardCount(Connection conn, int count) {
         if(count < Variables.MIN_CARDS || count > Variables.MAX_CARDS) {
             sendTo(conn, MessageFactory.getError("Cards count out of bounds"));

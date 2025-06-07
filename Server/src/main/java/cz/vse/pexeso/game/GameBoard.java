@@ -12,6 +12,9 @@ import cz.vse.pexeso.utils.Rand;
 import cz.vse.pexeso.exceptions.CardsException;
 import cz.vse.pexeso.exceptions.DeckException;
 
+/**
+ * Object representation of the game board
+ */
 public class GameBoard {
 
     private static final Logger log = LoggerFactory.getLogger(GameBoard.class);
@@ -42,6 +45,11 @@ public class GameBoard {
         log.info("Game board created successfully");
     }
 
+    /**
+     * Generates board dimensions to be roughly square (from card count)
+     * @param cardCount Card coun (board size)
+     * @return int[] two dimensions for rows & columns
+     */
     private int[] generateDimensions(int cardCount) {
         int[] dims = new int[] {cardCount, cardCount};
 
@@ -61,6 +69,12 @@ public class GameBoard {
         return dims;
     }
 
+    /**
+     * Creates a randomized sequence of numbers that serve as card IDs
+     * @param cardCount Number of cards in game
+     * @param deckSize Number of all available card images
+     * @return int[] ordered sequence of card IDs
+     */
     private int[] generateShuffle(int cardCount, int deckSize) {
         int[] ret = new int[cardCount];
         Set<Integer> ord = new HashSet<Integer>();
@@ -89,6 +103,12 @@ public class GameBoard {
         return ret;
     }
 
+    /**
+     * Reveals a card on board
+     * @param row Row, vertical coordinate
+     * @param col Column, horizontal coordinate
+     * @return Card
+     */
     public Card revealCard(int row, int col) {
         if(this.matrix[row][col] == null) {
             return null;
@@ -97,6 +117,9 @@ public class GameBoard {
         return this.matrix[row][col];
     }
 
+    /**
+     * Hides all revealed cards
+     */
     public void hideAll() {
         for(var row : this.matrix) {
             for(var col : row) {
@@ -107,6 +130,10 @@ public class GameBoard {
         }
     }
 
+    /**
+     * Removes two cards from game board when player guesses them correctly
+     * @param id Card ID to be removed
+     */
     public void removePair(int id) {
         for(int i = 0; i < this.matrix.length; i++) {
             for(int j = 0; j < this.matrix[i].length; j++) {
@@ -121,10 +148,19 @@ public class GameBoard {
         }
     }
 
+    /**
+     * Removes a single card from game board
+     * @param row Row, vertical coordinate
+     * @param col Column, horizontal coordinate
+     */
     public void removeCard(int row, int col) {
         this.matrix[row][col] = null;
     }
 
+    /**
+     * Returns the string representation of the game board to be displayed on client
+     * @return String
+     */
     public String getAsData() {
         String data = "";
         for(int i = 0; i < this.matrix.length; i++) {
@@ -152,6 +188,10 @@ public class GameBoard {
         return data;
     }
 
+    /**
+     * Checks whether all cards have been removed from board
+     * @return boolean
+     */
     public boolean allRevealed() {
         for(int i = 0; i < this.matrix.length; i++) {
             for(int j = 0; j < this.matrix[i].length; j ++) {

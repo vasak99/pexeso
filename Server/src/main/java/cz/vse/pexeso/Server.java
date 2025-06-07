@@ -6,6 +6,9 @@ import cz.vse.pexeso.common.environment.Variables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Entry point of the server application
+ */
 public final class Server {
 
     public static final Logger log = LoggerFactory.getLogger(Server.class);
@@ -15,6 +18,10 @@ public final class Server {
 
     private Server() {}
 
+    /**
+     * Main method
+     * @param args
+     */
     public static void main(String[] args) {
         log.info("Starting server on port: " + DEFAULT_PORT);
         game = new GameServerRuntime(DEFAULT_PORT);
@@ -22,6 +29,9 @@ public final class Server {
         attachGracefulShutdown();
     }
 
+    /**
+     * Graceful shutdown - ensures all is terminated properly
+     */
     public static void attachGracefulShutdown() {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
