@@ -1,6 +1,6 @@
 package cz.vse.pexeso.common.message.payload;
 
-import javax.crypto.spec.PSource;
+import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -24,7 +24,7 @@ public class GameStat {
         try {
             while (rs.next()) {
                 GameStat gs = new GameStat();
-                gs.gameId = Long.parseLong(rs.getString("in_game_id"));
+                gs.gameId = new BigDecimal(rs.getString("in_game_id")).longValue();
                 gs.name = rs.getString("name");
                 gs.score = rs.getInt("score");
                 //gs.start = rs.getTimestamp("start").toLocalDateTime();
