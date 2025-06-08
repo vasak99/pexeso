@@ -27,10 +27,11 @@ public class DatabaseController {
     private Connection db;
 
     public DatabaseController() throws SQLException {
+        var dbs = new DbVariables();
         Properties props = new Properties();
-        props.setProperty("user", DbVariables.USER);
-        props.setProperty("password", DbVariables.PASSWORD);
-        this.db = DriverManager.getConnection(DbVariables.getConnectionString(), props);
+        props.setProperty("user", dbs.getUser());
+        props.setProperty("password", dbs.getPassword());
+        this.db = DriverManager.getConnection(dbs.getConnectionString(), props);
     }
 
     /**
