@@ -22,6 +22,7 @@ public class GameRoomResultHandler {
     private final ConnectionService connectionService;
     private GameRoomResultListener listener;
 
+    private final ObserverWithData requestIdentityObserver = data -> listener.onRequestIdentity((String) data);
     private final ObserverWithData redirectObserver = data -> listener.onRedirect((RedirectParameters) data);
     private final ObserverWithData lobbyUpdateObserver = data -> listener.onLobbyUpdate((LobbyUpdatePayload) data);
     private final ObserverWithData errorObserver = data -> listener.onError((String) data);
@@ -41,6 +42,7 @@ public class GameRoomResultHandler {
      */
     public void register() {
         log.info("Registering GameRoomResultHandler observers");
+        connectionService.getMessageHandler().registerWithData(MessageType.REQUEST_IDENTITY, requestIdentityObserver);
         connectionService.getMessageHandler().registerWithData(MessageType.REDIRECT, redirectObserver);
         connectionService.getMessageHandler().registerWithData(MessageType.LOBBY_UPDATE, lobbyUpdateObserver);
         connectionService.getMessageHandler().registerWithData(MessageType.ERROR, errorObserver);
@@ -51,6 +53,7 @@ public class GameRoomResultHandler {
      */
     public void unregister() {
         log.info("Unregistering GameRoomResultHandler observers");
+        connectionService.getMessageHandler().registerWithData(MessageType.REQUEST_IDENTITY, requestIdentityObserver);
         connectionService.getMessageHandler().unregisterWithData(MessageType.REDIRECT, redirectObserver);
         connectionService.getMessageHandler().unregisterWithData(MessageType.LOBBY_UPDATE, lobbyUpdateObserver);
         connectionService.getMessageHandler().unregisterWithData(MessageType.ERROR, errorObserver);

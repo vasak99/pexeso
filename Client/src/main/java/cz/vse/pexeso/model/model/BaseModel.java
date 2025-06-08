@@ -41,7 +41,7 @@ public abstract class BaseModel {
      *
      * @param parameters the parameters for the redirect
      */
-    protected void redirect(RedirectParameters parameters) {
+    public void redirect(RedirectParameters parameters) {
         redirectService.redirect(parameters);
     }
 

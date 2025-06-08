@@ -191,4 +191,8 @@ public class LobbyModel extends BaseModel {
     public boolean isRoomInProgress() {
         return getSession().isRoomInProgress();
     }
+
+    public void askForStats() {
+        lobbyService.sendStatsRequest(getPlayerId());
+    }
 }

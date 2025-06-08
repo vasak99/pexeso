@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
@@ -33,9 +34,24 @@
     <VBox alignment="TOP_CENTER" GridPane.rowIndex="2">
         <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="Stats">
             <font>
-                <Font size="24.0" />
+                <Font name="System Bold" size="24.0" />
             </font>
         </Label>
+      <Label fx:id="gamesPlayedLabel">
+         <VBox.margin>
+            <Insets top="30.0" />
+         </VBox.margin>
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Label>
+      <Label fx:id="totalPairsLabel">
+         <font>
+            <Font size="18.0" />
+         </font>
+         <VBox.margin>
+            <Insets top="30.0" />
+         </VBox.margin></Label>
     </VBox>
     <HBox GridPane.rowIndex="1">
         <Button fx:id="manageRoomButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onMouseClicked="#handleManageRoomClick" prefWidth="375.0" text="Create new room">

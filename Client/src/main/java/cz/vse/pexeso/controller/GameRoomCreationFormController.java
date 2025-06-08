@@ -96,24 +96,40 @@ public class GameRoomCreationFormController implements GameRoomResultListener {
     /**
      * Finalizes game creation, updates UI, unregisters and closes the window
      *
-     * @param parameters redirect data
+     * @param gameId id to assign
      */
     @Override
-    public void onRedirect(RedirectParameters parameters) {
+    public void onRequestIdentity(String gameId) {
+        if (gameRoomModel.getCurrentGameRoomId() != null) {
+            return;
+        }
         try {
-            gameRoomModel.finalizeGameCreation(parameters);
-            log.info("Game room creation finalized, redirectData={}", parameters);
+
+            gameRoomModel.finalizeGameCreation(gameId);
+
+            gameRoomModel.sendIdentity();
+
+            log.info("Game room creation finalized");
 
             // Update lobby UI
             LobbyController lobbyController = (LobbyController) navigator.getPrimaryController();
+
             lobbyController.updateUI();
+
 
         } catch (Exception e) {
             log.error("Error in onRedirect for GameRoomCreationFormController", e);
         } finally {
             resultHandler.unregister();
+
             Platform.runLater(navigator::closeWindow);
+
         }
+    }
+
+    @Override
+    public void onRedirect(RedirectParameters parameters) {
+        gameRoomModel.redirect(parameters);
     }
 
     /**

@@ -1,6 +1,7 @@
 package cz.vse.pexeso.model.result;
 
 import cz.vse.pexeso.common.message.payload.GameListPayload;
+import cz.vse.pexeso.common.message.payload.GameStatsPayload;
 import cz.vse.pexeso.common.message.payload.GameUpdatePayload;
 import cz.vse.pexeso.common.message.payload.LobbyUpdatePayload;
 import cz.vse.pexeso.model.RedirectParameters;
@@ -17,7 +18,7 @@ public interface LobbyResultListener {
     /**
      * Called when the server requests the client’s identity.
      */
-    void onRequestIdentity();
+    void onRequestIdentity(String gameId);
 
     /**
      * Called when the server indicates that the game is starting. Provides game data.
@@ -46,6 +47,8 @@ public interface LobbyResultListener {
      * @param glp game room data
      */
     void onGameServerUpdate(GameListPayload glp);
+
+    void onPlayerStats(GameStatsPayload gsp);
 
     /**
      * Called when the server sends an error.

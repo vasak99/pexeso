@@ -2,10 +2,10 @@ package cz.vse.pexeso.model.result;
 
 import cz.vse.pexeso.common.message.MessageType;
 import cz.vse.pexeso.common.message.payload.GameListPayload;
+import cz.vse.pexeso.common.message.payload.GameStatsPayload;
 import cz.vse.pexeso.common.message.payload.GameUpdatePayload;
 import cz.vse.pexeso.common.message.payload.LobbyUpdatePayload;
 import cz.vse.pexeso.model.RedirectParameters;
-import cz.vse.pexeso.model.observer.Observer;
 import cz.vse.pexeso.model.observer.ObserverWithData;
 import cz.vse.pexeso.network.ConnectionService;
 import org.slf4j.Logger;
@@ -25,11 +25,12 @@ public class LobbyResultHandler {
     private final ConnectionService connectionService;
     private LobbyResultListener listener;
 
-    private final Observer requestIdentityObserver = () -> listener.onRequestIdentity();
+    private final ObserverWithData requestIdentityObserver = data -> listener.onRequestIdentity((String) data);
     private final ObserverWithData startGameObserver = data -> listener.onStartGame((GameUpdatePayload) data);
     private final ObserverWithData redirectObserver = data -> listener.onRedirect((RedirectParameters) data);
     private final ObserverWithData lobbyUpdateObserver = data -> listener.onLobbyUpdate((LobbyUpdatePayload) data);
     private final ObserverWithData gameServerUpdateObserver = data -> listener.onGameServerUpdate((GameListPayload) data);
+    private final ObserverWithData statsObserver = data -> listener.onPlayerStats((GameStatsPayload) data);
     private final ObserverWithData errorObserver = data -> listener.onError((String) data);
 
     /**
@@ -47,10 +48,10 @@ public class LobbyResultHandler {
      */
     public void initialRegister() {
         log.info("Performing initial registration of LobbyResultHandler observers");
-        connectionService.getMessageHandler().register(MessageType.REQUEST_IDENTITY, requestIdentityObserver);
         connectionService.getMessageHandler().registerWithData(MessageType.START_GAME, startGameObserver);
         connectionService.getMessageHandler().registerWithData(MessageType.LOBBY_UPDATE, lobbyUpdateObserver);
         connectionService.getMessageHandler().registerWithData(MessageType.GAME_SERVER_UPDATE, gameServerUpdateObserver);
+        connectionService.getMessageHandler().registerWithData(MessageType.PLAYER_STATS, statsObserver);
         register();
     }
 
@@ -60,6 +61,7 @@ public class LobbyResultHandler {
      */
     public void register() {
         log.info("Registering redirect and error observers for LobbyResultHandler");
+        connectionService.getMessageHandler().registerWithData(MessageType.REQUEST_IDENTITY, requestIdentityObserver);
         connectionService.getMessageHandler().registerWithData(MessageType.REDIRECT, redirectObserver);
         connectionService.getMessageHandler().registerWithData(MessageType.ERROR, errorObserver);
     }
@@ -69,6 +71,7 @@ public class LobbyResultHandler {
      */
     public void unregister() {
         log.info("Unregistering redirect and error observers for LobbyResultHandler");
+        connectionService.getMessageHandler().unregisterWithData(MessageType.REQUEST_IDENTITY, requestIdentityObserver);
         connectionService.getMessageHandler().unregisterWithData(MessageType.REDIRECT, redirectObserver);
         connectionService.getMessageHandler().unregisterWithData(MessageType.ERROR, errorObserver);
     }
@@ -79,9 +82,9 @@ public class LobbyResultHandler {
     public void finalUnregister() {
         log.info("Performing final unregistration of all LobbyResultHandler observers");
         unregister();
-        connectionService.getMessageHandler().unregister(MessageType.REQUEST_IDENTITY, requestIdentityObserver);
         connectionService.getMessageHandler().unregisterWithData(MessageType.START_GAME, startGameObserver);
         connectionService.getMessageHandler().unregisterWithData(MessageType.LOBBY_UPDATE, lobbyUpdateObserver);
         connectionService.getMessageHandler().unregisterWithData(MessageType.GAME_SERVER_UPDATE, gameServerUpdateObserver);
+        connectionService.getMessageHandler().unregisterWithData(MessageType.PLAYER_STATS, statsObserver);
     }
 }

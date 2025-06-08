@@ -66,4 +66,8 @@ public class LobbyService {
         connectionService.send(MessageBuilder.buildIdentityMessage(playerId));
         log.debug("Sent IDENTITY message for playerId={}", playerId);
     }
+
+    public void sendStatsRequest(Long playerId) {
+        connectionService.send(MessageBuilder.buildStatsRequestMessage(playerId));
+    }
 }

@@ -28,13 +28,12 @@ public class GameRoomService {
     /**
      * Sends a create-game request with specified parameters.
      *
-     * @param gameId     ID to assign to the new game
      * @param parameters GameRoomParameters containing room name, capacity, card count
      * @param playerId   ID of the creating player
      */
-    public void sendCreateGameRequest(String gameId, GameRoomParameters parameters, long playerId) {
-        connectionService.send(MessageBuilder.buildCreateGameMessage(gameId, parameters, playerId));
-        log.debug("Sent CREATE_GAME request for gameId='{}', playerId={}", gameId, playerId);
+    public void sendCreateGameRequest(GameRoomParameters parameters, long playerId) {
+        connectionService.send(MessageBuilder.buildCreateGameMessage(parameters, playerId));
+        log.debug("Sent CREATE_GAME request for playerId={}", playerId);
     }
 
     /**
@@ -81,5 +80,15 @@ public class GameRoomService {
     public void sendKickPlayerRequest(String gameId, long playerId, long kickPlayerId) {
         connectionService.send(MessageBuilder.buildKickPlayerMessage(gameId, playerId, kickPlayerId));
         log.debug("Sent KICK_PLAYER request for targetId={}, gameId='{}'", kickPlayerId, gameId);
+    }
+
+    /**
+     * Sends an identity response (playerId) to the server.
+     *
+     * @param playerId ID of this client
+     */
+    public void sendIdentity(long playerId) {
+        connectionService.send(MessageBuilder.buildIdentityMessage(playerId));
+        log.debug("Sent IDENTITY message for playerId={}", playerId);
     }
 }

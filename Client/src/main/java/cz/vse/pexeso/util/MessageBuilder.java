@@ -91,15 +91,14 @@ public final class MessageBuilder {
     /**
      * Builds a create-game request message with specified parameters.
      *
-     * @param gameId     ID to assign to the new game
      * @param parameters GameRoomParameters containing room name, capacity, and card count
      * @param playerId   ID of the creating player
      * @return sendable create game message string
      */
-    public static String buildCreateGameMessage(String gameId, GameRoomParameters parameters, long playerId) {
-        log.debug("Building CREATE_GAME message for gameId='{}', roomName='{}'", gameId, parameters.name());
+    public static String buildCreateGameMessage(GameRoomParameters parameters, long playerId) {
+        log.debug("Building CREATE_GAME message for roomName='{}'", parameters.name());
 
-        String data = new CreateGamePayload(gameId, parameters.capacity(), parameters.cardCount(), parameters.name()).toSendable();
+        String data = new CreateGamePayload(parameters.capacity(), parameters.cardCount(), parameters.name()).toSendable();
         return build(MessageType.CREATE_GAME, null, playerId, data);
     }
 
@@ -239,5 +238,9 @@ public final class MessageBuilder {
         log.debug("Building LOGOUT message");
 
         return build(MessageType.LOGOUT, gameId, playerId, null);
+    }
+
+    public static String buildStatsRequestMessage(Long playerId) {
+        return build(MessageType.PLAYER_STATS, null, playerId, null);
     }
 }

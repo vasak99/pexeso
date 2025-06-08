@@ -4,6 +4,7 @@ import cz.vse.pexeso.common.exceptions.DataFormatException;
 import cz.vse.pexeso.common.message.Message;
 import cz.vse.pexeso.common.message.MessageType;
 import cz.vse.pexeso.common.message.payload.GameListPayload;
+import cz.vse.pexeso.common.message.payload.GameStatsPayload;
 import cz.vse.pexeso.common.message.payload.GameUpdatePayload;
 import cz.vse.pexeso.common.message.payload.LobbyUpdatePayload;
 import cz.vse.pexeso.model.RedirectParameters;
@@ -33,8 +34,8 @@ public class MessageHandler implements Observable {
 
     private static final Set<MessageType> MESSAGE_TYPES_REQUIRING_DATA = EnumSet.of(
             MessageType.IDENTITY, MessageType.GAME_SERVER_UPDATE, MessageType.REDIRECT,
-            MessageType.LOBBY_UPDATE, MessageType.START_GAME, MessageType.INVALID_MOVE,
-            MessageType.GAME_UPDATE, MessageType.ERROR
+            MessageType.REQUEST_IDENTITY, MessageType.LOBBY_UPDATE, MessageType.START_GAME,
+            MessageType.INVALID_MOVE, MessageType.GAME_UPDATE, MessageType.PLAYER_STATS, MessageType.ERROR
     );
 
     /**
@@ -75,12 +76,13 @@ public class MessageHandler implements Observable {
                 case IDENTITY -> handleIdentityMessage(data);
                 case GAME_SERVER_UPDATE -> handleGameServerUpdateMessage(data);
                 case REDIRECT -> handleRedirectMessage(data);
-                case REQUEST_IDENTITY -> notifyObservers(MessageType.REQUEST_IDENTITY);
+                case REQUEST_IDENTITY -> notifyObservers(MessageType.REQUEST_IDENTITY, data);
                 case LOBBY_UPDATE -> handleLobbyUpdateMessage(data);
                 case START_GAME -> handleStartGameMessage(data);
                 case INVALID_MOVE -> notifyObservers(MessageType.INVALID_MOVE, data);
                 case GAME_UPDATE -> handleGameUpdateMessage(data);
                 case RESULT -> notifyObservers(MessageType.RESULT);
+                case PLAYER_STATS -> handlePlayerStatsMessage(data);
                 case ERROR -> notifyObservers(MessageType.ERROR, data);
                 default -> log.error("Unknown message type: {}", msg.getType());
             }
@@ -186,6 +188,14 @@ public class MessageHandler implements Observable {
         }
 
         notifyObservers(MessageType.GAME_UPDATE, gup);
+    }
+
+    private void handlePlayerStatsMessage(String data) throws DataFormatException {
+        GameStatsPayload gsp = new GameStatsPayload(data);
+        if (gsp.games == null) {
+            throw new DataFormatException("Invalid GameUpdatePayload data");
+        }
+        notifyObservers(MessageType.PLAYER_STATS, gsp);
     }
 
     /**

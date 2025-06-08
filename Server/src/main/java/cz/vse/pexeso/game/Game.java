@@ -460,6 +460,7 @@ public class Game implements Observer {
             for(var con : this.players.entrySet()) {
                 con.getValue().getConnection().terminate();
             }
+            gsr.getAllGames().remove(this.gameId);
             this.terminate();
             return;
         }
@@ -552,7 +553,7 @@ public class Game implements Observer {
      * @return boolean
      */
     private boolean checkCreator(Connection conn, Message msg) {
-        if(this.creatorId.equals("" + msg.getPlayerId())) {
+        if(!this.creatorId.equals("" + msg.getPlayerId())) {
             sendTo(conn, MessageFactory.getError("You do not have elevated permissions on this session"));
             return false;
         }

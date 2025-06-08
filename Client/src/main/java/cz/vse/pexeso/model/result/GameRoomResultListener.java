@@ -11,6 +11,9 @@ import cz.vse.pexeso.model.RedirectParameters;
  * @version June 2025
  */
 public interface GameRoomResultListener {
+
+    void onRequestIdentity(String gameId);
+
     /**
      * Called when the server instructs the client to redirect to a different host/port.
      *

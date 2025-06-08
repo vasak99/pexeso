@@ -1,6 +1,7 @@
 package cz.vse.pexeso.controller;
 
 import cz.vse.pexeso.common.message.payload.GameListPayload;
+import cz.vse.pexeso.common.message.payload.GameStatsPayload;
 import cz.vse.pexeso.common.message.payload.GameUpdatePayload;
 import cz.vse.pexeso.common.message.payload.LobbyUpdatePayload;
 import cz.vse.pexeso.di.Injector;
@@ -39,6 +40,11 @@ public class LobbyController implements LobbyResultListener {
     private final Navigator navigator;
     private final LobbyModel lobbyModel;
     private final LobbyResultHandler resultHandler;
+
+    @FXML
+    private Label gamesPlayedLabel;
+    @FXML
+    private Label totalPairsLabel;
 
     @FXML
     private Label tableTitle;
@@ -88,6 +94,9 @@ public class LobbyController implements LobbyResultListener {
      */
     @FXML
     private void initialize() {
+        lobbyModel.askForStats();
+
+
         resultHandler.initialRegister();
 
         LobbyTableInitializer.initialize(lobbyTable, roomStatusColumn, gameNameColumn,
@@ -207,8 +216,24 @@ public class LobbyController implements LobbyResultListener {
         updateUI();
     }
 
+    @Override
+    public void onPlayerStats(GameStatsPayload gsp) {
+        int totalGames = gsp.games.size();
+        int totalScore = gsp.games.stream().mapToInt(gameStat -> gameStat.score).sum();
+
+        Platform.runLater(() -> {
+            gamesPlayedLabel.setText("Total games played: " + totalGames);
+            totalPairsLabel.setText("Total pairs found: " + totalScore);
+
+            if (totalGames == 0) {
+                gamesPlayedLabel.setVisible(false);
+                totalPairsLabel.setVisible(false);
+            }
+        });
+    }
+
     /**
-     * Handles updates to the lobby room data. Updates the lobby model and logs the update.
+     * Handles updates to the lobby room data.
      *
      * @param lup update payload
      */
@@ -219,7 +244,7 @@ public class LobbyController implements LobbyResultListener {
     }
 
     /**
-     * Refreshes the lobby UI: populates the table, updates button states. Logs any exceptions encountered.
+     * Refreshes the lobby UI: populates the table, updates button states.
      */
     public void updateUI() {
         lobbyTable.setItems(GameRoomManager.gameRooms);
@@ -237,7 +262,7 @@ public class LobbyController implements LobbyResultListener {
      * Handles identity requests from the server. Sends the player's identity to the server.
      */
     @Override
-    public void onRequestIdentity() {
+    public void onRequestIdentity(String gameId) {
         lobbyModel.sendIdentity();
         log.info("Sent identity to server");
     }

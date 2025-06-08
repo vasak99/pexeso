@@ -24,7 +24,6 @@ public class GameRoomModel extends BaseModel {
 
     private final GameRoomService gameRoomService;
     private GameRoomParameters parameters;
-    private String pendingGameId;
 
     /**
      * Constructs a GameRoomModel with the given services.
@@ -38,17 +37,6 @@ public class GameRoomModel extends BaseModel {
                          RedirectService redirectService) {
         super(sessionService, redirectService);
         this.gameRoomService = gameRoomService;
-    }
-
-    /**
-     * Generates a random ID for a new game room. Stores it in pendingGameId.
-     *
-     * @return the newly generated game ID
-     */
-    private String createNewGameId() {
-        pendingGameId = String.valueOf(Math.round(Math.random() * 1_000_000));
-        log.debug("Generated pending gameId={}", pendingGameId);
-        return pendingGameId;
     }
 
     /**
@@ -69,9 +57,8 @@ public class GameRoomModel extends BaseModel {
      * Attempts to create a new game room with the previously set parameters.
      */
     public void attemptCreateGame() {
-        String newGameId = createNewGameId();
-        log.info("Sending create game request for gameId={}", newGameId);
-        gameRoomService.sendCreateGameRequest(newGameId, parameters, getPlayerId());
+        log.info("Sending create game request");
+        gameRoomService.sendCreateGameRequest(parameters, getPlayerId());
     }
 
     /**
@@ -128,11 +115,11 @@ public class GameRoomModel extends BaseModel {
      * Finalizes game creation by adding a new GameRoom to the manager, updating session state,
      * and redirecting.
      *
-     * @param redirectData redirect payload from server
+     * @param gameId gameId to assign
      */
-    public void finalizeGameCreation(RedirectParameters redirectData) {
-        if (pendingGameId == null || parameters == null) {
-            log.error("Cannot finalize game creation: pendingGameId or parameters missing");
+    public void finalizeGameCreation(String gameId) {
+        if (parameters == null) {
+            log.error("Cannot finalize game creation: parameters missing");
             return;
         }
         String name = parameters.name();
@@ -143,7 +130,7 @@ public class GameRoomModel extends BaseModel {
 
         GameRoom gameRoom = new GameRoom(
                 GameRoom.GameStatus.WAITING_FOR_PLAYERS,
-                pendingGameId,
+                gameId,
                 name,
                 playerId,
                 playerName,
@@ -153,10 +140,7 @@ public class GameRoomModel extends BaseModel {
         GameRoomManager.gameRooms.add(gameRoom);
         getSession().setCurrentGameRoom(gameRoom);
         getSession().setReady(true);
-        log.info("Created and entered new GameRoom[id={}, name={}]", pendingGameId, name);
-        pendingGameId = null;
-
-        redirectService.redirect(redirectData);
+        log.info("Created and entered new GameRoom[id={}, name={}]", gameId, name);
     }
 
     /**
@@ -249,5 +233,13 @@ public class GameRoomModel extends BaseModel {
             return getCurrentGameRoom().areAllPlayersReady();
         }
         return false;
+    }
+
+    /**
+     * Sends the player’s identity to the server.
+     */
+    public void sendIdentity() {
+        log.info("Sending identity for playerId={}", getPlayerId());
+        gameRoomService.sendIdentity(getPlayerId());
     }
 }

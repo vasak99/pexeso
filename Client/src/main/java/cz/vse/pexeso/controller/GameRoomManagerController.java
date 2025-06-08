@@ -155,6 +155,11 @@ public class GameRoomManagerController implements GameRoomResultListener {
         }
     }
 
+    @Override
+    public void onRequestIdentity(String gameId) {
+        // No operation needed for creation form on request identity
+    }
+
     /**
      * Handles the redirect after a successful action, such as deletion.
      *
