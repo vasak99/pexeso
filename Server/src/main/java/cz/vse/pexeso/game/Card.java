@@ -10,6 +10,7 @@ public class Card {
     private boolean isRevealed = false;
 
     public Card(int id, String image) {
+        this.id = id;
         this.image = image;
         this.id = id;
     }

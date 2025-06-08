@@ -3,11 +3,12 @@ plugins {
     id 'application'
     id 'org.openjfx.javafxplugin' version '0.1.0'
     id 'com.gradleup.shadow' version '8.3.6'
+    id 'com.github.spotbugs' version '5.2.5'
 }
 
 group = 'cz.vse.pexeso'
 version = '1.0-SNAPSHOT'
-mainClassName = 'cz.vse.pexeso.app.Client'
+mainClassName = 'cz.vse.pexeso.app.Launcher'
 
 repositories {
     mavenCentral()
@@ -46,5 +47,27 @@ application {
 jar {
     manifest {
         attributes 'Main-Class': mainClassName
+    }
+}
+
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+tasks.named('shadowJar', ShadowJar) {
+    archiveClassifier.set('all')
+    manifest.attributes(
+            'Main-Class': mainClassName
+    )
+}
+
+spotbugs {
+    toolVersion = '4.9.3'
+    effort = 'max'
+    reportLevel = 'low'
+}
+
+import com.github.spotbugs.snom.SpotBugsTask
+tasks.withType(SpotBugsTask).configureEach {
+    reports {
+        html.required.set(true)
+        xml.required.set(false)
     }
 }

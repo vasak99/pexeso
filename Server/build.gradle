@@ -41,3 +41,12 @@ jar {
         attributes 'Main-Class': mainClassName
     }
 }
+
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
+tasks.named('shadowJar', ShadowJar) {
+    archiveClassifier.set('all')
+    manifest.attributes(
+            'Main-Class': mainClassName
+    )
+}

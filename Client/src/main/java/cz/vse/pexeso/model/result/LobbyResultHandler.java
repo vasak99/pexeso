@@ -1,52 +1,90 @@
 package cz.vse.pexeso.model.result;
 
-import cz.vse.pexeso.model.observer.MessageTypeClient;
-import cz.vse.pexeso.model.observer.Observer;
+import cz.vse.pexeso.common.message.MessageType;
+import cz.vse.pexeso.common.message.payload.GameListPayload;
+import cz.vse.pexeso.common.message.payload.GameStatsPayload;
+import cz.vse.pexeso.common.message.payload.GameUpdatePayload;
+import cz.vse.pexeso.common.message.payload.LobbyUpdatePayload;
+import cz.vse.pexeso.model.RedirectParameters;
 import cz.vse.pexeso.model.observer.ObserverWithData;
-import cz.vse.pexeso.model.service.ConnectionService;
+import cz.vse.pexeso.network.ConnectionService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+/**
+ * Handles server responses relevant to lobby. Registers observers for identity request,
+ * redirect, update, and error messages on the ConnectionService's MessageHandler.
+ * Delegates events to the provided LobbyResultListener.
+ *
+ * @author kott10
+ * @version June 2025
+ */
 public class LobbyResultHandler {
+    private static final Logger log = LoggerFactory.getLogger(LobbyResultHandler.class);
+
     private final ConnectionService connectionService;
     private LobbyResultListener listener;
 
-    private final ObserverWithData successObserver = data -> listener.onLobbySuccess((String) data);
-    private final ObserverWithData errorObserver = data -> listener.onLobbyError((String) data);
-    private final ObserverWithData lobbyUpdateObserver = data -> listener.onGameRoomUpdate((String) data);
-    private final ObserverWithData playerUpdateObserver = data -> listener.onPlayerUpdate((String) data);
-    private final Observer uiUpdateObserver = () -> listener.onLobbyUIUpdate();
-    private final Observer identityObserver = () -> listener.onIdentityRequested();
-    private final ObserverWithData startGameObserver = data -> listener.onStartGame((String) data);
+    private final ObserverWithData requestIdentityObserver = data -> listener.onRequestIdentity((String) data);
+    private final ObserverWithData startGameObserver = data -> listener.onStartGame((GameUpdatePayload) data);
+    private final ObserverWithData redirectObserver = data -> listener.onRedirect((RedirectParameters) data);
+    private final ObserverWithData lobbyUpdateObserver = data -> listener.onLobbyUpdate((LobbyUpdatePayload) data);
+    private final ObserverWithData gameServerUpdateObserver = data -> listener.onGameServerUpdate((GameListPayload) data);
+    private final ObserverWithData statsObserver = data -> listener.onPlayerStats((GameStatsPayload) data);
+    private final ObserverWithData errorObserver = data -> listener.onError((String) data);
 
+    /**
+     * Constructs a LobbyResultHandler with the given listener and ConnectionService.
+     */
     public LobbyResultHandler(LobbyResultListener listener, ConnectionService connectionService) {
         this.listener = listener;
         this.connectionService = connectionService;
+        log.debug("LobbyResultHandler created with listener={} and connectionService={}", listener, connectionService);
     }
 
+    /**
+     * Registers the observers that should be active even if there is a window opened over the lobby screen.
+     * Subsequent server messages of these types will be forwarded to the listener.
+     */
     public void initialRegister() {
+        log.info("Performing initial registration of LobbyResultHandler observers");
+        connectionService.getMessageHandler().registerWithData(MessageType.START_GAME, startGameObserver);
+        connectionService.getMessageHandler().registerWithData(MessageType.LOBBY_UPDATE, lobbyUpdateObserver);
+        connectionService.getMessageHandler().registerWithData(MessageType.GAME_SERVER_UPDATE, gameServerUpdateObserver);
+        connectionService.getMessageHandler().registerWithData(MessageType.PLAYER_STATS, statsObserver);
         register();
-        connectionService.getMessageHandler().registerWithData(MessageTypeClient.GAME_ROOM_UPDATE, lobbyUpdateObserver);
-        connectionService.getMessageHandler().registerWithData(MessageTypeClient.PLAYER_UPDATE, playerUpdateObserver);
-        connectionService.getMessageHandler().register(MessageTypeClient.LOBBY_UI_UPDATE, uiUpdateObserver);
-        connectionService.getMessageHandler().register(MessageTypeClient.IDENTITY_REQUESTED, identityObserver);
-        connectionService.getMessageHandler().registerWithData(MessageTypeClient.START_GAME, startGameObserver);
     }
 
+    /**
+     * Registers the observers that should not be active if there is a window opened over the lobby screen.
+     * Subsequent server messages of these types will be forwarded to the listener.
+     */
     public void register() {
-        connectionService.getMessageHandler().registerWithData(MessageTypeClient.GAME_ROOM_SUCCESS, successObserver);
-        connectionService.getMessageHandler().registerWithData(MessageTypeClient.ERROR, errorObserver);
+        log.info("Registering redirect and error observers for LobbyResultHandler");
+        connectionService.getMessageHandler().registerWithData(MessageType.REQUEST_IDENTITY, requestIdentityObserver);
+        connectionService.getMessageHandler().registerWithData(MessageType.REDIRECT, redirectObserver);
+        connectionService.getMessageHandler().registerWithData(MessageType.ERROR, errorObserver);
     }
 
+    /**
+     * Unregisters the previously registered observers that should not be active if there is a window opened over the lobby screen.
+     */
     public void unregister() {
-        connectionService.getMessageHandler().unregisterWithData(MessageTypeClient.GAME_ROOM_SUCCESS, successObserver);
-        connectionService.getMessageHandler().unregisterWithData(MessageTypeClient.ERROR, errorObserver);
+        log.info("Unregistering redirect and error observers for LobbyResultHandler");
+        connectionService.getMessageHandler().unregisterWithData(MessageType.REQUEST_IDENTITY, requestIdentityObserver);
+        connectionService.getMessageHandler().unregisterWithData(MessageType.REDIRECT, redirectObserver);
+        connectionService.getMessageHandler().unregisterWithData(MessageType.ERROR, errorObserver);
     }
 
+    /**
+     * Unregisters the previously registered observers that should be active even if there is a window opened over the lobby screen.
+     */
     public void finalUnregister() {
+        log.info("Performing final unregistration of all LobbyResultHandler observers");
         unregister();
-        connectionService.getMessageHandler().unregisterWithData(MessageTypeClient.GAME_ROOM_UPDATE, lobbyUpdateObserver);
-        connectionService.getMessageHandler().unregisterWithData(MessageTypeClient.PLAYER_UPDATE, playerUpdateObserver);
-        connectionService.getMessageHandler().unregister(MessageTypeClient.LOBBY_UI_UPDATE, uiUpdateObserver);
-        connectionService.getMessageHandler().unregister(MessageTypeClient.IDENTITY_REQUESTED, identityObserver);
-        connectionService.getMessageHandler().unregisterWithData(MessageTypeClient.START_GAME, startGameObserver);
+        connectionService.getMessageHandler().unregisterWithData(MessageType.START_GAME, startGameObserver);
+        connectionService.getMessageHandler().unregisterWithData(MessageType.LOBBY_UPDATE, lobbyUpdateObserver);
+        connectionService.getMessageHandler().unregisterWithData(MessageType.GAME_SERVER_UPDATE, gameServerUpdateObserver);
+        connectionService.getMessageHandler().unregisterWithData(MessageType.PLAYER_STATS, statsObserver);
     }
 }

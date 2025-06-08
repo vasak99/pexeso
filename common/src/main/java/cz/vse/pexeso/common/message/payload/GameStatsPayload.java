@@ -9,17 +9,20 @@ public class GameStatsPayload implements MessagePayload {
 
     public List<GameStat> games;
 
+    public GameStatsPayload() {
+        this.games = new ArrayList<>();
+    }
+
     public GameStatsPayload(List<GameStat> games) {
         this.games = games;
     }
 
     public GameStatsPayload(String data) {
-        var mapper = new ObjectMapper();
+        ObjectMapper mapper = new ObjectMapper();
 
         try {
-            GameStatsPayload rr = mapper.readValue(data, GameStatsPayload.class);
-
-            this.games = rr.games;
+            GameStatsPayload parsed = mapper.readValue(data, GameStatsPayload.class);
+            this.games = parsed.games;
         } catch (Exception e) {
             this.games = new ArrayList<>();
         }
@@ -27,14 +30,12 @@ public class GameStatsPayload implements MessagePayload {
 
     @Override
     public String toSendable() {
-        var mapper = new ObjectMapper();
+        ObjectMapper mapper = new ObjectMapper();
 
-        String ret = "";
         try {
-            mapper.writeValueAsString(this);
-        } catch (Exception e) {}
-
-        return ret;
+            return mapper.writeValueAsString(this);
+        } catch (Exception e) {
+            return "";
+        }
     }
-
 }

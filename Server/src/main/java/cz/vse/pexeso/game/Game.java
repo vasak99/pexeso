@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Collections;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,7 +84,6 @@ public class Game implements Observer {
         this.dc = dc;
 
         this.gsr = gsr;
-        this.playersOrder = new ArrayList<>();
     }
 
     /**
@@ -131,14 +131,13 @@ public class Game implements Observer {
             sendToAll(MessageFactory.getError(e.getMessage()));
         }
 
-        //this.playersOrder = new ArrayList<>();
-        for(var playerId : this.players.keySet()) {
-            this.playersOrder.add(playerId);
-        }
+        this.playersOrder = new ArrayList<>();
+        this.playersOrder.addAll(this.players.keySet());
+        Collections.shuffle(this.playersOrder);
+
         this.activePlayerIndex = 0;
 
-        String data = this.gameBoard.getAsData();
-        this.sendToAll(MessageFactory.getGameStartMessage(data));
+        this.sendToAll(MessageFactory.getGameStartMessage(this.getGameUpdateData().toSendable()));
     }
 
     /**
@@ -270,6 +269,9 @@ public class Game implements Observer {
                 case MessageType.KICK_PLAYER:
                     this.kickPlayer(conn, msg);
                     break;
+                case MessageType.GIVE_UP:
+                    this.giveUp(conn, msg);
+                    break;
                 default:
                     break;
 
@@ -287,7 +289,7 @@ public class Game implements Observer {
         long playerId = msg.getPlayerId();
         Card revealed = this.gameBoard.revealCard(data.row, data.column);
 
-        if(this.checkGamePlayer(conn, msg)) {
+        if(!this.checkGamePlayer(conn, msg)) {
             return;
         }
 
@@ -299,25 +301,31 @@ public class Game implements Observer {
         if(this.lastCard == null) {
             this.lastCard = revealed;
         } else {
+            sendToAll(MessageFactory.getGameUpdateMessage(this.getGameUpdateData()));
             if(this.lastCard.getId() == revealed.getId()) {
-                sendToAll(MessageFactory.getGameUpdateMessage(this.getGameUpdateData()));
                 this.players.get(playerId).addPoint();
                 this.gameBoard.removePair(revealed.getId());
+            } else {
+                this.moveTurn();
             }
-            this.moveTurn();
 
+            synchronized (this) {
             try {
                 this.wait(2000);
             } catch (InterruptedException e) {}
+            }
             this.lastCard = null;
             this.gameBoard.hideAll();
         }
 
         if(this.gameBoard.allRevealed()) {
+            sendToAll(MessageFactory.getGameUpdateMessage(this.getGameUpdateData()));
             sendToAll(MessageFactory.getResultMessage(this.getResult()));
+            sendToAll(MessageFactory.getRedirectMessage(Utils.getLocalAddress(), Variables.DEFAULT_PORT));
             this.endTime = LocalDateTime.now();
             this.dc.saveGameResult(this.gameId, this.gameName, this.startTime, this.endTime, this.getPlayersList());
-
+            gsr.getAllGames().remove(this.gameId);
+            this.terminate();
         } else {
             sendToAll(MessageFactory.getGameUpdateMessage(this.getGameUpdateData()));
         }
@@ -335,6 +343,41 @@ public class Game implements Observer {
             players.add(pl.getValue());
         }
         return players;
+    }
+
+    private void giveUp(Connection conn, Message msg) {
+        if(!checkGamePlayer(conn, msg)) {
+            return;
+        }
+
+        sendTo(conn, MessageFactory.getRedirectMessage(Utils.getLocalAddress(), Variables.DEFAULT_PORT));
+        conn.terminate();
+
+        this.players.remove(msg.getPlayerId());
+
+        //if there is only one player left, end the game
+        if (this.players.size() < 2) {
+            sendToAll(MessageFactory.getResultMessage(this.getResult()));
+            sendToAll(MessageFactory.getRedirectMessage(Utils.getLocalAddress(), Variables.DEFAULT_PORT));
+            gsr.getAllGames().remove(this.gameId);
+            this.terminate();
+        } else {
+            //if active
+            if (playersOrder.get(activePlayerIndex) == msg.getPlayerId()) {
+                // if last in order, move back to start
+                if (activePlayerIndex == playersOrder.size()-1) {
+                    moveTurn();
+                }
+                //reset reveal
+                this.lastCard = null;
+                this.gameBoard.hideAll();
+            //if in front of active player, move one back
+            } else if (activePlayerIndex > playersOrder.indexOf(msg.getPlayerId())) {
+                activePlayerIndex--;
+            }
+            playersOrder.remove(msg.getPlayerId());
+            sendToAll(MessageFactory.getGameUpdateMessage(this.getGameUpdateData()));
+        }
     }
 
     /**
@@ -417,6 +460,7 @@ public class Game implements Observer {
             for(var con : this.players.entrySet()) {
                 con.getValue().getConnection().terminate();
             }
+            gsr.getAllGames().remove(this.gameId);
             this.terminate();
             return;
         }
@@ -464,7 +508,6 @@ public class Game implements Observer {
         }
 
         var kickedPlayer = this.players.remove(data.playerId);
-        this.playersOrder.remove(data.playerId);
         sendTo(kickedPlayer.getConnection(), MessageFactory.getRedirectMessage(Utils.getLocalAddress(), Variables.DEFAULT_PORT));
 
         LobbyUpdatePayload ret = this.getLobbyData();
@@ -510,7 +553,7 @@ public class Game implements Observer {
      * @return boolean
      */
     private boolean checkCreator(Connection conn, Message msg) {
-        if(this.creatorId.equals("" + msg.getPlayerId())) {
+        if(!this.creatorId.equals("" + msg.getPlayerId())) {
             sendTo(conn, MessageFactory.getError("You do not have elevated permissions on this session"));
             return false;
         }

@@ -15,7 +15,7 @@ public class Deck {
 
     private List<String> cards;
 
-    private String[] allowedExtensions = new String[] { "jpg", "jpeg", "png", "webp" };
+    private String[] allowedExtensions = new String[] { "jpg", "jpeg", "png" };
 
     public Deck() throws DeckException {
         File folder = new File(System.getProperty("user.dir") + Variables.STATIC_PATH);
@@ -37,7 +37,7 @@ public class Deck {
      * @return String
      */
     public String getImage(int id) {
-        return this.cards.get(id);
+        return "http://" + Variables.SERVER_ADDR + Variables.STATIC_PATH + "/" + this.cards.get(id);
     }
 
     /**
