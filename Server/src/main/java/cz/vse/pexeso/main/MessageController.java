@@ -10,6 +10,7 @@ import cz.vse.pexeso.common.message.payload.RegisterPayload;
 import cz.vse.pexeso.database.DatabaseController;
 import cz.vse.pexeso.database.model.User;
 import cz.vse.pexeso.game.Game;
+import cz.vse.pexeso.game.Player;
 import cz.vse.pexeso.utils.Utils;
 
 import java.sql.PreparedStatement;
@@ -141,6 +142,13 @@ public class MessageController {
         if (game.isStarted()) {
             conn.sendMessage(MessageFactory.getError("Game is in progress").toSendable());
             return;
+        }
+
+        for (Player player: game.getPlayersList()) {
+            if (player.getPlayerId() == msg.getPlayerId()) {
+                conn.sendMessage(MessageFactory.getError("You are already in this game").toSendable());
+                return;
+            }
         }
 
         String host = Utils.getLocalAddress();

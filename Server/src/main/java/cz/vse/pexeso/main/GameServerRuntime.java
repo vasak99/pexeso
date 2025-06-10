@@ -136,6 +136,13 @@ public class GameServerRuntime implements Observer {
             return;
         }
 
+        for (Game game : this.games.values()) {
+            if (inmsg.getPlayerId() == Long.parseLong(game.getCreatorId())) {
+                conn.sendMessage(MessageFactory.getError("You already have game").toSendable());
+                return;
+            }
+        }
+
         int port = 1;
         try {
             CreateGamePayload cgp = new CreateGamePayload(data);
